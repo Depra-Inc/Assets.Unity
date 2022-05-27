@@ -13,7 +13,7 @@ namespace Depra.Assets.Runtime.Factory
         public const string Sprite = ".sprite";
     }
     
-    public static class AssetDatabaseFactory
+    internal static class AssetDatabaseFactory
     {
         public static Object CreateAsset(Object asset, string directory, string assetName,
             string typeExtension = AssetTypes.Base)
@@ -42,13 +42,14 @@ namespace Depra.Assets.Runtime.Factory
 
         private static string MakeAbsolutePath(string directory)
         {
-            var absolutePath = Path.Combine(Application.dataPath, "Resources", directory);
+            var absolutePath = Path.Combine(Application.dataPath, directory);
             return absolutePath;
         }
 
         private static string MakeAssetPath(string directory, string assetName, string type)
         {
-            var assetPath = Path.Combine("Assets", "Resources", directory, assetName, type);
+            var assetPath = Path.Combine("Assets", directory, assetName);
+            assetPath += type;
             return assetPath;
         }
     }
