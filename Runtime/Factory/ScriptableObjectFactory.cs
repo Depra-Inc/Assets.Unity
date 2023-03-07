@@ -1,17 +1,18 @@
 ﻿using System;
+using Depra.Assets.Runtime.Exceptions;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
 namespace Depra.Assets.Runtime.Factory
 {
-    public class ScriptableObjectFactory : AssetFactory
+    public sealed class ScriptableObjectFactory : AssetFactory
     {
         public override Object CreateAsset(Type type, string directory, string assetName,
             string typeExtension = AssetTypes.Base)
         {
             Object asset = ScriptableObject.CreateInstance(type);
 #if UNITY_EDITOR
-            asset = AssetDatabaseFactory.CreateAsset(asset, directory, assetName, typeExtension);
+            asset = AssetDatabaseFactory.Create(asset, directory, assetName, typeExtension);
 #endif
 
             return asset;

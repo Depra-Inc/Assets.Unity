@@ -3,7 +3,7 @@ using Object = UnityEngine.Object;
 
 namespace Depra.Assets.Runtime.Factory
 {
-    public abstract class AssetFactory : IAssetFactory
+    public abstract class AssetFactory
     {
         public abstract Object CreateAsset(Type type, string directory, string assetName,
             string typeExtension = AssetTypes.Base);
@@ -11,19 +11,18 @@ namespace Depra.Assets.Runtime.Factory
         public abstract T CreateAsset<T>(string directory, string assetName, string typeExtension = AssetTypes.Base)
             where T : Object;
 
-        public virtual void DestroyAsset(Object asset)
+        public void DestroyAsset(Object asset)
         {
 #if UNITY_EDITOR
-            AssetDatabaseFactory.DeleteAsset(asset);
+            AssetDatabaseFactory.Delete(asset);
 #endif
         }
 
-        protected class AssetCreationException : Exception
+        public void DestroyAsset(string assetPath)
         {
-            public AssetCreationException(Type assetType, string assetName) : base(
-                $"Asset {assetName} with type {assetType.Name} can not be created!")
-            {
-            }
+#if UNITY_EDITOR
+            AssetDatabaseFactory.Delete(assetPath);
+#endif
         }
     }
 }

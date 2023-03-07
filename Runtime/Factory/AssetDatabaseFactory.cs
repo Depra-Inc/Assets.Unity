@@ -1,24 +1,19 @@
 ﻿#if UNITY_EDITOR
 
 using System.IO;
+using Depra.Assets.Runtime.Common;
 using UnityEditor;
 using UnityEngine;
+using static Depra.Assets.Runtime.Common.Static;
 
 namespace Depra.Assets.Runtime.Factory
 {
-    internal static class AssetTypes
-    {
-        public const string Base = ".asset";
-        public const string Material = ".material";
-        public const string Sprite = ".sprite";
-    }
-    
     internal static class AssetDatabaseFactory
     {
-        public static Object CreateAsset(Object asset, string directory, string assetName,
+        public static Object Create(Object asset, string directory, string assetName,
             string typeExtension = AssetTypes.Base)
         {
-            var absolutePath = MakeAbsolutePath(directory);
+            var absolutePath = CombineIntoPath(Application.dataPath, directory);
             if (Directory.Exists(absolutePath) == false)
             {
                 Directory.CreateDirectory(absolutePath);
@@ -34,21 +29,17 @@ namespace Depra.Assets.Runtime.Factory
             return asset;
         }
 
-        public static void DeleteAsset(Object asset)
+        public static void Delete(Object asset)
         {
             var assetPath = AssetDatabase.GetAssetPath(asset);
-            AssetDatabase.DeleteAsset(assetPath);
+            Delete(assetPath);
         }
 
-        private static string MakeAbsolutePath(string directory)
-        {
-            var absolutePath = Path.Combine(Application.dataPath, directory);
-            return absolutePath;
-        }
-
+        public static void Delete(string path) => AssetDatabase.DeleteAsset(path);
+        
         private static string MakeAssetPath(string directory, string assetName, string type)
         {
-            var assetPath = Path.Combine("Assets", directory, assetName);
+            var assetPath = Path.Combine(AssetsConstants.ASSETS_FOLDER_NAME, directory, assetName);
             assetPath += type;
             return assetPath;
         }

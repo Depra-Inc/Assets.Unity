@@ -2,9 +2,14 @@
     "name": "Depra.Assets.Tests.EditMode",
     "rootNamespace": "",
     "references": [
+        "Depra.Assets.Editor",
         "Depra.Assets",
+        "Depra.Assets.Tests.Common",
         "UnityEngine.TestRunner",
-        "UnityEditor.TestRunner"
+        "UnityEditor.TestRunner",
+        "Unity.EditorCoroutines.Editor",
+        "Depra.Coroutines.Editor",
+        "Depra.Coroutines.Runtime"
     ],
     "includePlatforms": [
         "Editor"

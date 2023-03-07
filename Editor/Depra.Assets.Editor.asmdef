@@ -1,3 +1,19 @@
 {
-	"name": "Depra.Assets.Editor"
+    "name": "Depra.Assets.Editor",
+    "rootNamespace": "",
+    "references": [
+        "GUID:ce2ab5ef472b35f498b9d47a89be9396",
+        "GUID:478a2357cc57436488a56e564b08d223"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
 }
