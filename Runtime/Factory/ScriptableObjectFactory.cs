@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection;
 using Depra.Assets.Runtime.Exceptions;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -18,18 +19,23 @@ namespace Depra.Assets.Runtime.Factory
             return asset;
         }
 
-        public override T CreateAsset<T>(string directory, string assetName, string typeExtension = AssetTypes.Base)
+        public override TAsset CreateAsset<TAsset>(string directory, string assetName,
+            string typeExtension = AssetTypes.Base)
         {
-            var type = typeof(T);
+            var type = typeof(TAsset);
             var asset = CreateAsset(type, directory, assetName);
-            var assetAsT = asset as T;
-
-            if (assetAsT == null)
-            {
-                throw new AssetCreationException(type, type.Name);
-            }
+            var assetAsT = asset as TAsset;
+            EnsureAsset(assetAsT, type);
 
             return assetAsT;
+        }
+
+        private static void EnsureAsset<TAsset>(TAsset asset, MemberInfo assetType)
+        {
+            if (asset == null)
+            {
+                throw new AssetCreationException(assetType, assetType.Name);
+            }
         }
     }
 }

@@ -1,5 +1,7 @@
 ﻿using System.Collections;
-using Depra.Coroutines.Runtime;
+using System.Runtime.CompilerServices;
+using Depra.Coroutines.Domain.Entities;
+using Depra.Coroutines.Unity.Runtime;
 using UnityEngine;
 
 namespace Depra.Assets.Runtime.Utils
@@ -7,35 +9,64 @@ namespace Depra.Assets.Runtime.Utils
     [RequireComponent(typeof(ICoroutineHost))]
     internal sealed class AssetCoroutineHook : MonoBehaviour, ICoroutineHost
     {
-        private ICoroutineHost _coroutineHost;
+        [SerializeField] private RuntimeCoroutineHost _runtimeHost;
 
         private static AssetCoroutineHook _instance;
 
-        public static AssetCoroutineHook Instance => _instance ??= Initialize();
-
-        private static AssetCoroutineHook Initialize()
+        public static AssetCoroutineHook Instance
         {
-            var instance = new GameObject().AddComponent<AssetCoroutineHook>();
-            DontDestroyOnLoad(instance);
+            get => _instance ??= Initialize(Create());
+            private set => Initialize(value);
+        }
 
+        internal static void Destroy()
+        {
+            if (_instance == null)
+            {
+                return;
+            }
+            
+            if (Application.isPlaying)
+            {
+                Object.Destroy(_instance);
+            }
+            else
+            {
+                DestroyImmediate(_instance);
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static AssetCoroutineHook Initialize(AssetCoroutineHook instance)
+        {
+            instance._runtimeHost = instance.GetOrAddComponent<RuntimeCoroutineHost>();
+            instance.name = nameof(AssetCoroutineHook);
+            //DontDestroyOnLoad(instance);
             return instance;
         }
 
-        private void Awake()
-        {
-            _instance = this;
-            _coroutineHost = GetComponent<ICoroutineHost>();
-        }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static AssetCoroutineHook Create() => new GameObject()
+            .AddComponent<AssetCoroutineHook>();
 
-        private void OnDestroy()
-        {
-            _instance = null;
-        }
+        private void Awake() => Instance = this;
+
+        private void OnDestroy() => _instance = null;
 
         ICoroutine ICoroutineHost.StartCoroutine(IEnumerator coroutine) =>
-            _coroutineHost.StartCoroutine(coroutine);
+            _runtimeHost.StartCoroutine(coroutine);
 
         void ICoroutineHost.StopCoroutine(ICoroutine coroutine) =>
-            _coroutineHost.StopCoroutine(coroutine);
+            _runtimeHost.StopCoroutine(coroutine);
+
+        private TComponent GetOrAddComponent<TComponent>() where TComponent : Component
+        {
+            if (gameObject.TryGetComponent<TComponent>(out var component) == false)
+            {
+                component = gameObject.AddComponent<TComponent>();
+            }
+
+            return component;
+        }
     }
 }

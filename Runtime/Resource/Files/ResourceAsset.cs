@@ -1,30 +1,30 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Runtime.CompilerServices;
 using Depra.Assets.Runtime.Abstract.Loading;
+using Depra.Assets.Runtime.Bundle.Files;
 using Depra.Assets.Runtime.Common;
 using Depra.Assets.Runtime.Interfaces.Files;
-using Depra.Assets.Runtime.Interfaces.Requests;
+using Depra.Assets.Runtime.Internal.Patterns;
 using Depra.Assets.Runtime.Resource.Exceptions;
-using Depra.Assets.Runtime.Resource.Loading;
-using Depra.Coroutines.Runtime;
+using Depra.Assets.Runtime.Utils;
+using Depra.Coroutines.Domain.Entities;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace Depra.Assets.Runtime.Resource.Files
 {
-    public sealed class ResourceAsset : ILoadableAsset
+    public sealed class ResourceAsset<TAsset> : ILoadableAsset<TAsset>, IDisposable where TAsset : Object
     {
-        private readonly TypedAssetIdent _ident;
+        private readonly AssetIdent _ident;
         private readonly ICoroutineHost _coroutineHost;
-        private readonly ResourceAssetSyncLoadingStrategy _syncLoading;
 
-        private Object _loadedAsset;
+        private TAsset _loadedAsset;
 
-        public ResourceAsset(TypedAssetIdent ident, ResourceAssetSyncLoadingStrategy loading,
-            ICoroutineHost coroutineHost = null)
+        public ResourceAsset(AssetIdent ident, ICoroutineHost coroutineHost = null)
         {
             _ident = ident;
-            _syncLoading = loading;
-            _coroutineHost = coroutineHost;
+            _coroutineHost = coroutineHost ?? AssetCoroutineHook.Instance;
         }
 
         public string Name => _ident.Name;
@@ -32,18 +32,34 @@ namespace Depra.Assets.Runtime.Resource.Files
 
         public bool IsLoaded => _loadedAsset != null;
 
-        public Object Load()
+        public TAsset Load()
         {
             if (IsLoaded)
             {
                 return _loadedAsset;
             }
 
-            var asset = _syncLoading.Load(_ident.Type);
+            var asset = Resources.Load<TAsset>(Path);
             EnsureAsset(asset);
             _loadedAsset = asset;
 
             return _loadedAsset;
+        }
+
+        public IDisposable LoadAsync(IAssetLoadingCallbacks<TAsset> callbacks)
+        {
+            if (IsLoaded)
+            {
+                callbacks.InvokeProgressEvent(1f);
+                callbacks.InvokeLoadedEvent(_loadedAsset);
+                return new EmptyDisposable();
+            }
+            
+            var loadingCoroutine = new AssetFileLoadingCoroutine(_coroutineHost);
+            var loadingOperation = LoadingProcess(callbacks);
+            loadingCoroutine.Start(loadingOperation);
+
+            return loadingCoroutine;
         }
 
         public void Unload()
@@ -56,92 +72,28 @@ namespace Depra.Assets.Runtime.Resource.Files
             Resources.UnloadAsset(_loadedAsset);
             _loadedAsset = null;
         }
-        
-        public void LoadAsync(IAssetLoadingCallbacks callbacks)
+
+        public void Dispose() => Unload();
+
+        private IEnumerator LoadingProcess(IAssetLoadingCallbacks<TAsset> callbacks)
         {
-            if (IsLoaded)
+            var request = Resources.LoadAsync<TAsset>(Path);
+            while (request.isDone == false)
             {
-                callbacks.InvokeProgressEvent(1f);
-                callbacks.InvokeLoadedEvent(_loadedAsset);
+                callbacks.InvokeProgressEvent(request.progress);
+                yield return null;
             }
 
-            var assetRequest = new Request(_ident, _coroutineHost);
-            assetRequest.Send(new ReturnedAssetLoadingCallbacks(CompleteRequest,
-                new GuardedAssetLoadingCallbacks(callbacks, EnsureAsset)));
-
-            void CompleteRequest(Object loadedAsset)
-            {
-                _loadedAsset = loadedAsset;
-                assetRequest.Destroy();
-            }
+            callbacks.InvokeLoadedEvent((TAsset)request.asset);
+            callbacks.InvokeProgressEvent(1f);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void EnsureAsset(Object asset)
+        private void EnsureAsset(TAsset asset)
         {
             if (asset == null)
             {
-                throw new ResourceLoadingException(_ident.Type, Path);
-            }
-        }
-
-        private sealed class Request : IUntypedAssetRequest
-        {
-            private readonly TypedAssetIdent _asset;
-            private readonly ICoroutineHost _coroutineHost;
-
-            private ICoroutine _coroutine;
-
-            public Request(TypedAssetIdent asset, ICoroutineHost host = null)
-            {
-                _asset = asset;
-                _coroutineHost = host;
-            }
-
-            public bool Done { get; private set; }
-            public bool Running => _coroutine != null;
-
-            public void Send(IAssetLoadingCallbacks callbacks)
-            {
-                Done = false;
-                _coroutine = _coroutineHost.StartCoroutine(RequestCoroutine(callbacks));
-            }
-
-            private IEnumerator RequestCoroutine(IAssetLoadingCallbacks callbacks)
-            {
-                var request = Resources.LoadAsync(_asset.Path, _asset.Type);
-                while (request.isDone == false)
-                {
-                    callbacks.InvokeProgressEvent(request.progress);
-                    yield return null;
-                }
-
-                Done = true;
-                callbacks.InvokeLoadedEvent(request.asset);
-            }
-
-            public void Cancel()
-            {
-                if (Running)
-                {
-                    Clean();
-                }
-            }
-
-            public void Destroy()
-            {
-                if (Done || Running)
-                {
-                    Clean();
-                }
-            }
-
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            private void Clean()
-            {
-                Done = false;
-                _coroutineHost.StopCoroutine(_coroutine);
-                _coroutine = null;
+                throw new ResourceLoadingException(typeof(TAsset), Path);
             }
         }
     }

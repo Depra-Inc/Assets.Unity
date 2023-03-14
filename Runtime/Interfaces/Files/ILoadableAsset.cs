@@ -1,14 +1,15 @@
-﻿using Depra.Assets.Runtime.Abstract.Loading;
-using UnityEngine;
+﻿using System;
+using Depra.Assets.Runtime.Abstract.Loading;
+using Object = UnityEngine.Object;
 
 namespace Depra.Assets.Runtime.Interfaces.Files
 {
-    public interface ILoadableAsset : IAssetFile
+    public interface ILoadableAsset<out TAsset> : IAssetFile where TAsset : Object
     {
-        Object Load();
+        TAsset Load();
 
         void Unload();
 
-        void LoadAsync(IAssetLoadingCallbacks callbacks);
+        IDisposable LoadAsync(IAssetLoadingCallbacks<TAsset> callbacks);
     }
 }

@@ -1,7 +1,7 @@
 {
     "name": "Depra.Assets.Tests.Common",
     "rootNamespace": "",
-    "references": [],
+    "references": ["GUID:ce2ab5ef472b35f498b9d47a89be9396"],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
