@@ -2,9 +2,9 @@
 {
     internal static class Constants
     {
-        public const string MODULE_NAME = "Depra.Assets";
-        public const string ASSETS_FOLDER_NAME = "Assets";
-        
+        public const string MODULE_NAME = "Assets";
+        public const string FRAMEWORK_NAME = "Depra";
+
         public const string RESOURCES_FOLDER_NAME = "Resources";
 
         public const string ASSET_BUNDLES_EXTENSION = ".unity3d";

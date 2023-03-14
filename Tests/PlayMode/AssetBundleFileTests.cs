@@ -1,5 +1,4 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 using System.Diagnostics;
 using Depra.Assets.Runtime.Abstract.Loading;
 using Depra.Assets.Runtime.Bundle.Files;
@@ -16,27 +15,53 @@ namespace Depra.Assets.Tests.PlayMode
     {
         private Stopwatch _stopwatch;
 
+        private static IEnumerator Free(AssetBundle assetBundle)
+        {
+            assetBundle.Unload(true);
+            yield return null;
+        }
+
         [SetUp]
         public void Setup() => _stopwatch = new Stopwatch();
 
-        [Test]
-        public void LoadAssetBundle_WhenFileLoadedSuccessfully_ExpectAssetBundleNotNull(
-            [ValueSource(nameof(AllBundles))] AssetBundleFile assetBundleFile)
+        [UnityTest]
+        public IEnumerator AssetBundleShouldBeLoaded(
+            [ValueSource(typeof(Load), nameof(Load.AllBundles))] AssetBundleFile assetBundleFile)
         {
             // Arrange.
 
             // Act.
-            var loadedAsset = assetBundleFile.Load();
+            var loadedAssetBundle = assetBundleFile.Load();
+            Debug.Log($"Loaded bundle [{assetBundleFile.Name}] by path: [{assetBundleFile.Path}].");
 
             // Assert.
-            Assert.IsNotNull(loadedAsset);
-
-            assetBundleFile.Unload();
+            Assert.IsNotNull(loadedAssetBundle);
+            Assert.IsTrue(assetBundleFile.IsLoaded);
+            
+            yield return Free(loadedAssetBundle);
         }
 
         [UnityTest]
-        public IEnumerator LoadAssetBundleAsync_WhenFileLoadedSuccessfully_ExpectAssetBundleNotNull(
-            [ValueSource(nameof(AllBundles))] AssetBundleFile assetBundleFile)
+        public IEnumerator AssetBundleShouldBeUnloaded(
+            [ValueSource(typeof(Load), nameof(Load.AllBundles))] AssetBundleFile assetBundleFile)
+        {
+            // Arrange.
+            assetBundleFile.Load();
+            yield return null;
+
+            // Act.
+            assetBundleFile.Unload();
+            yield return null;
+            Debug.Log($"Loaded and unloaded bundle [{assetBundleFile.Name}] by path: [{assetBundleFile.Path}].");
+
+            // Assert.
+            Assert.IsFalse(assetBundleFile.IsLoaded);
+        }
+
+        [UnityTest]
+        public IEnumerator AssetBundleShouldBeLoadedAsync(
+            [ValueSource(typeof(Load), nameof(Load.AllBundles))]
+            AssetBundleFile assetBundleFile)
         {
             // Arrange.
             AssetBundle loadedAssetBundle = null;
@@ -53,16 +78,15 @@ namespace Depra.Assets.Tests.PlayMode
             }
 
             _stopwatch.Stop();
-            Debug.Log($"Duration of loading from {assetBundleFile.GetType().Name}" +
-                      $" (in ticks) = {_stopwatch.ElapsedTicks}");
+            Debug.Log($"Loaded bundle [{assetBundleFile.Name}] " +
+                      $"by path: [{assetBundleFile.Path}] " +
+                      $"in {_stopwatch.ElapsedMilliseconds} ms.");
 
             // Assert.
             Assert.NotNull(loadedAssetBundle);
-
-            assetBundleFile.Unload();
+            Assert.IsTrue(assetBundleFile.IsLoaded);
+            
+            yield return Free(loadedAssetBundle);
         }
-
-        private static IEnumerable<AssetBundleFile> AllBundles() =>
-            Load.AllBundles(nameof(AssetBundleFileTests));
     }
 }

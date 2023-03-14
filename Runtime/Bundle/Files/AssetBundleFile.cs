@@ -30,13 +30,12 @@ namespace Depra.Assets.Runtime.Bundle.Files
         public string Name => _ident.Name;
         public string Path => _ident.Path;
         public bool IsLoaded => _loadedAssetBundle != null;
-        public IEnumerable<string> AllAssetNames => Load().GetAllAssetNames();
 
         public TAsset Load<TAsset>(string name) where TAsset : Object
         {
             var assetBundle = Load();
             var loadedAsset = assetBundle.LoadAsset<TAsset>(name);
-            EnsureAsset(loadedAsset, name);
+            EnsureAsset(loadedAsset, name, exception => throw exception);
 
             return loadedAsset;
         }
@@ -44,11 +43,11 @@ namespace Depra.Assets.Runtime.Bundle.Files
         public IDisposable LoadAsync<TAsset>(string name, IAssetLoadingCallbacks<TAsset> callbacks)
             where TAsset : Object
         {
-            var assetPath = System.IO.Path.Combine(Path, name);
             var loadingCoroutine = new AssetFileLoadingCoroutine(_coroutineHost);
             return LoadAsync(new AssetLoadingCallbacks<AssetBundle>(
-                onLoaded: bundle => loadingCoroutine.Start(LoadingProcess(assetPath, bundle, callbacks)),
-                onFailed: exception => throw exception));
+                    onLoaded: bundle => loadingCoroutine.Start(LoadingProcess(name, bundle,
+                        callbacks.AddGuard(asset => EnsureAsset(asset, name, callbacks.InvokeFailedEvent)))),
+                    onFailed: exception => throw exception));
         }
 
         public AssetBundle Load()
@@ -101,15 +100,17 @@ namespace Depra.Assets.Runtime.Bundle.Files
             _loadedAssetBundle.UnloadAsync(true);
             _loadedAssetBundle = null;
         }
-        
+
+        public IEnumerable<string> AllAssetNames() => Load().GetAllAssetNames();
+
         protected abstract AssetBundle LoadOverride();
 
         protected abstract IEnumerator LoadingProcess(IAssetLoadingCallbacks<AssetBundle> callbacks);
 
-        private IEnumerator LoadingProcess<TAsset>(string path, AssetBundle bundle,
+        private IEnumerator LoadingProcess<TAsset>(string name, AssetBundle bundle,
             IAssetLoadingCallbacks<TAsset> callbacks) where TAsset : Object
         {
-            var request = bundle.LoadAssetAsync<TAsset>(path);
+            var request = bundle.LoadAssetAsync<TAsset>(name);
             while (request.isDone == false)
             {
                 callbacks.InvokeProgressEvent(request.progress);
@@ -120,11 +121,11 @@ namespace Depra.Assets.Runtime.Bundle.Files
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void EnsureAsset(Object asset, string assetName)
+        private void EnsureAsset(Object asset, string assetName, Action<Exception> onFailed)
         {
             if (asset == null)
             {
-                throw new AssetBundleFileLoadingException(assetName, Path);
+                onFailed?.Invoke(new AssetBundleFileLoadingException(assetName, Path));
             }
         }
 

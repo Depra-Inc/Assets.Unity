@@ -9,10 +9,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 143fedb6a8ed4af9a90557ef9a1385c3, type: 3}
-  m_Name: AssetBundleAssetFileTests
+  m_Script: {fileID: 11500000, guid: fcfe7b1ca1c547b4a544cfc7837d6b70, type: 3}
+  m_Name: TestAssetBundleRef
   m_EditorClassIdentifier: 
   <Path>k__BackingField: AssetBundle/Windows
   <Assets>k__BackingField:
-  - test
-  <Directories>k__BackingField: []
+  - TestAsset
+  <BundleName>k__BackingField: test

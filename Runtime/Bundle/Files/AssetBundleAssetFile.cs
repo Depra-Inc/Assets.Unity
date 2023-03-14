@@ -13,7 +13,7 @@ namespace Depra.Assets.Runtime.Bundle.Files
     {
         private readonly AssetIdent _ident;
         private readonly AssetBundleFile _assetBundle;
-        
+
         private TAsset _loadedAsset;
 
         public AssetBundleAssetFile(AssetIdent ident, AssetBundleFile assetBundle)
@@ -33,10 +33,11 @@ namespace Depra.Assets.Runtime.Bundle.Files
                 return _loadedAsset;
             }
 
-            var assetAsT = _assetBundle.Load<TAsset>(Name);
-            EnsureAsset(assetAsT);
+            var loadedAsset = _assetBundle.Load<TAsset>(Name);
+            EnsureAsset(loadedAsset, exception => throw exception);
+            _loadedAsset = loadedAsset;
 
-            return assetAsT;
+            return loadedAsset;
         }
 
         public void Unload()
@@ -49,26 +50,26 @@ namespace Depra.Assets.Runtime.Bundle.Files
 
         public IDisposable LoadAsync(IAssetLoadingCallbacks<TAsset> callbacks)
         {
-            if (IsLoaded)
+            if (IsLoaded == false)
             {
-                callbacks.InvokeProgressEvent(1f);
-                callbacks.InvokeLoadedEvent(_loadedAsset);
-                return new EmptyDisposable();
+                return _assetBundle.LoadAsync(Name, callbacks
+                    .AddGuard(asset => EnsureAsset(asset, callbacks.InvokeFailedEvent))
+                    .ReturnTo(asset => _loadedAsset = asset));
             }
 
-            return _assetBundle.LoadAsync(Name, callbacks
-                .AddGuard(EnsureAsset)
-                .ReturnTo(asset => _loadedAsset = asset));
+            callbacks.InvokeProgressEvent(1f);
+            callbacks.InvokeLoadedEvent(_loadedAsset);
+            return new EmptyDisposable();
         }
 
         public void Dispose() => Unload();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void EnsureAsset(TAsset asset)
+        private void EnsureAsset(TAsset asset, Action<Exception> onFailed)
         {
             if (asset == null)
             {
-                throw new AssetLoadingException(typeof(TAsset), Path);
+                onFailed?.Invoke(new AssetLoadingException(typeof(TAsset), Path));
             }
         }
 

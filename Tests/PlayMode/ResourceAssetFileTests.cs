@@ -1,12 +1,11 @@
 ﻿using System.Collections;
 using System.Diagnostics;
-using System.IO;
 using Depra.Assets.Runtime.Abstract.Loading;
 using Depra.Assets.Runtime.Common;
 using Depra.Assets.Runtime.Factory;
 using Depra.Assets.Runtime.Resource.Files;
-using Depra.Assets.Runtime.Utils;
 using Depra.Assets.Tests.Common;
+using Depra.Assets.Tests.PlayMode.Utils;
 using Depra.Coroutines.Domain.Entities;
 using NUnit.Framework;
 using UnityEngine;
@@ -18,75 +17,117 @@ namespace Depra.Assets.Tests.PlayMode
     [TestFixture(TestOf = typeof(ResourceAsset<>))]
     internal sealed class ResourceAssetFileTests
     {
-        private const string ASSET_DIRECTORY = "";
-        private const string ASSET_NAME = "TestAsset";
-        private const string RESOURCES_FOLDER_NAME = "Resources";
-
         private Stopwatch _stopwatch;
         private TestAsset _testAsset;
         private AssetIdent _assetIdent;
         private AssetFactory _assetFactory;
         private ICoroutineHost _coroutineHost;
 
+        private static IEnumerator Free(Object resourceAsset)
+        {
+            Resources.UnloadAsset(resourceAsset);
+            yield return null;
+        }
+
         [SetUp]
         public void SetUp()
         {
             _stopwatch = new Stopwatch();
-            _coroutineHost = AssetCoroutineHook.Instance;
+            _coroutineHost = Create.RuntimeCoroutineHost();
             _assetFactory = new ScriptableObjectFactory();
-            _testAsset = CreateTestAsset(_assetFactory, ASSET_NAME);
-            _assetIdent = new AssetIdent(ASSET_NAME, ASSET_DIRECTORY);
+            _testAsset = Create.ResourceAssetFile(_assetFactory);
+            _assetIdent = _testAsset.Ident;
         }
 
         [TearDown]
         public void TearDown()
         {
-            AssetCoroutineHook.Destroy();
             _assetFactory.DestroyAsset(_testAsset);
         }
-        
-        [Test]
-        public void WhenLoadingAResource_ThenTheFileWasLoadedSuccessfully()
+
+        [UnityTest]
+        public IEnumerator SingleAssetShouldBeLoaded()
         {
             // Arrange.
-            var resourceAssetFile = new ResourceAsset<TestAsset>(_assetIdent, _coroutineHost);
+            var assetIdent = _assetIdent;
+            var resourceAsset = new ResourceAsset<TestAsset>(assetIdent, _coroutineHost);
 
             // Act.
-            var loadedResource = resourceAssetFile.Load();
+            var loadedAsset = resourceAsset.Load();
+            Debug.Log($"Loaded [{assetIdent.Name}] from resources.");
 
             // Assert.
-            Assert.IsNotNull(loadedResource);
+            Assert.IsNotNull(loadedAsset);
+            Assert.IsTrue(resourceAsset.IsLoaded);
+
+            yield return Free(loadedAsset);
         }
-        
+
         [UnityTest]
-        public IEnumerator WhenLoadingAResourceAsync_ThenTheFileWasLoadedSuccessfully()
+        public IEnumerator MultipleAssetsShouldBeLoadedAndEquals()
         {
             // Arrange.
-            Object loadedResource = null;
-            var resourceAssetFile = new ResourceAsset<TestAsset>(_assetIdent, _coroutineHost);
+            var assetIdent = _assetIdent;
+            var resourceAsset = new ResourceAsset<TestAsset>(_assetIdent, _coroutineHost);
+
+            // Act.
+            var firstLoadedAsset = resourceAsset.Load();
+            var secondLoadedAsset = resourceAsset.Load();
+            Debug.Log($"Loaded [{assetIdent.Name}] from resources.");
+
+            // Assert.
+            Assert.IsNotNull(firstLoadedAsset);
+            Assert.IsNotNull(secondLoadedAsset);
+            Assert.AreEqual(firstLoadedAsset, secondLoadedAsset);
+
+            yield return Free(secondLoadedAsset);
+        }
+
+        [UnityTest]
+        public IEnumerator SingleAssetShouldBeLoadedAsync()
+        {
+            // Arrange.
+            var assetIdent = _assetIdent;
+            Object loadedAsset = null;
+            var resourceAsset = new ResourceAsset<TestAsset>(assetIdent, _coroutineHost);
             var assetLoadingCallbacks = new AssetLoadingCallbacks<TestAsset>(
-                onLoaded: asset => loadedResource = asset,
+                onLoaded: asset => loadedAsset = asset,
                 onFailed: exception => throw exception);
 
             // Act.
             _stopwatch.Restart();
-            resourceAssetFile.LoadAsync(assetLoadingCallbacks);
-            while (loadedResource == null)
+            resourceAsset.LoadAsync(assetLoadingCallbacks);
+            while (loadedAsset == null)
             {
                 yield return null;
             }
-            
+
             _stopwatch.Stop();
-            Debug.Log($"Duration = {_stopwatch.ElapsedMilliseconds}");
+            Debug.Log($"Loaded [{assetIdent.Name}] from resources in {_stopwatch.ElapsedMilliseconds} ms.");
 
             // Assert.
-            Assert.NotNull(loadedResource);
+            Assert.NotNull(loadedAsset);
+            Assert.IsTrue(resourceAsset.IsLoaded);
+
+            yield return Free(loadedAsset);
         }
 
-        private static TestAsset CreateTestAsset(AssetFactory assetFactory, string assetName)
+        [UnityTest]
+        public IEnumerator SingleAssetShouldBeUnloaded()
         {
-            var absolutePath = Path.Combine(RESOURCES_FOLDER_NAME, ASSET_DIRECTORY);
-            return assetFactory.CreateAsset<TestAsset>(absolutePath, assetName);
+            // Arrange.
+            var assetIdent = _assetIdent;
+            var resourceAsset = new ResourceAsset<TestAsset>(assetIdent, _coroutineHost);
+            resourceAsset.Load();
+            yield return null;
+
+            // Act.
+            resourceAsset.Unload();
+            yield return null;
+            Debug.Log($"Loaded and unloaded [{assetIdent.Name}] from resources");
+
+            // Assert.
+            Assert.IsFalse(resourceAsset.IsLoaded);
         }
     }
 }

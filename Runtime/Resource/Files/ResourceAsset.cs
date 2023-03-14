@@ -40,7 +40,7 @@ namespace Depra.Assets.Runtime.Resource.Files
             }
 
             var asset = Resources.Load<TAsset>(Path);
-            EnsureAsset(asset);
+            EnsureAsset(asset, exception => throw exception);
             _loadedAsset = asset;
 
             return _loadedAsset;
@@ -54,9 +54,12 @@ namespace Depra.Assets.Runtime.Resource.Files
                 callbacks.InvokeLoadedEvent(_loadedAsset);
                 return new EmptyDisposable();
             }
-            
+
             var loadingCoroutine = new AssetFileLoadingCoroutine(_coroutineHost);
-            var loadingOperation = LoadingProcess(callbacks);
+            var loadingOperation = LoadingProcess(callbacks
+                .AddGuard(asset => EnsureAsset(asset, callbacks.InvokeFailedEvent))
+                .ReturnTo(asset => _loadedAsset = asset));
+
             loadingCoroutine.Start(loadingOperation);
 
             return loadingCoroutine;
@@ -73,8 +76,6 @@ namespace Depra.Assets.Runtime.Resource.Files
             _loadedAsset = null;
         }
 
-        public void Dispose() => Unload();
-
         private IEnumerator LoadingProcess(IAssetLoadingCallbacks<TAsset> callbacks)
         {
             var request = Resources.LoadAsync<TAsset>(Path);
@@ -89,12 +90,14 @@ namespace Depra.Assets.Runtime.Resource.Files
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void EnsureAsset(TAsset asset)
+        private void EnsureAsset(TAsset asset, Action<Exception> onFailed)
         {
             if (asset == null)
             {
-                throw new ResourceLoadingException(typeof(TAsset), Path);
+                onFailed?.Invoke(new ResourceLoadingException(typeof(TAsset), Path));
             }
         }
+
+        void IDisposable.Dispose() => Unload();
     }
 }
