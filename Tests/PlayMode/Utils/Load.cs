@@ -1,33 +1,14 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Depra.Assets.Runtime.Bundle.Files;
-using Depra.Assets.Runtime.Bundle.Files.IO;
-using Depra.Assets.Runtime.Bundle.Files.Memory;
 using Depra.Assets.Runtime.Common;
-using Depra.Assets.Runtime.Factory;
-using Depra.Assets.Tests.Common;
+using Depra.Assets.Runtime.Files.Bundles.Files;
+using Depra.Assets.Runtime.Files.Bundles.IO;
+using Depra.Assets.Runtime.Files.Bundles.Memory;
 using Depra.Assets.Tests.PlayMode.Exceptions;
-using Depra.Coroutines.Domain.Entities;
-using Depra.Coroutines.Unity.Runtime;
-using UnityEngine;
 
 namespace Depra.Assets.Tests.PlayMode.Utils
 {
-    internal static class Create
-    {
-        public static ICoroutineHost RuntimeCoroutineHost() =>
-            new GameObject().AddComponent<RuntimeCoroutineHost>();
-
-        public static TestAsset ResourceAssetFile(AssetFactory assetFactory)
-        {
-            var resources = Load.Resources();
-            var testAsset = assetFactory.CreateAsset<TestAsset>(resources.AbsoluteDirectoryPath, resources.AssetName);
-            testAsset.Initialize(resources.AssetName, resources.DirectoryPath);
-
-            return testAsset;
-        }
-    }
-
     internal static class Load
     {
         public static IEnumerable<AssetIdent> AssetIdents()

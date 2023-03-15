@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using Depra.Assets.Runtime.Factory;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -10,18 +9,18 @@ namespace Depra.Assets.Runtime.Services.Sync
     public class AssetProvisionService : IAssetProvisionService
     {
         //private readonly AssetLoader _loader;
-        private readonly AssetFactory _factory;
+        //private readonly AssetFactory _factory;
 
         private readonly Dictionary<Type, Object> _cache;
         private readonly object _instanceLock = new();
 
-        public AssetProvisionService( AssetFactory factory = null)
-        {
+        //public AssetProvisionService( AssetFactory factory = null)
+        //{
            // _loader = loader;
-            _factory = factory ?? new ScriptableObjectFactory();
+            //_factory = factory ?? new ScriptableObjectFactory();
 
-            _cache = new Dictionary<Type, Object>();
-        }
+            //_cache = new Dictionary<Type, Object>();
+        //}
 
         public T GetAsset<T>(string directory, string assetName) where T : Object
         {
@@ -45,14 +44,14 @@ namespace Depra.Assets.Runtime.Services.Sync
                 return asset;
             }
 
-            if (asset == null && _factory == null)
+            //if (asset == null && _factory == null)
             {
                 throw new NullReferenceException();
             }
 
             Debug.Log($"Asset {assetName} was not found and will be created in {directory}.");
 
-            asset = _factory.CreateAsset(assetType, directory, assetName);
+            //asset = _factory.CreateAsset(assetType, directory, assetName);
             AddToCache(assetType, asset);
 
             return asset;

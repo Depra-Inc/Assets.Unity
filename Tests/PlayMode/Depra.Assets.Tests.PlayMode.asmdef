@@ -6,7 +6,6 @@
         "Depra.Assets.Tests.Common",
         "Depra.Coroutines.Runtime",
         "UnityEngine.TestRunner",
-        "UnityEditor.TestRunner",
         "Unity.EditorCoroutines.Editor"
     ],
     "includePlatforms": [],

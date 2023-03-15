@@ -5,10 +5,8 @@
         "GUID:f0e5b8804a879dd45a68b38165291daf",
         "GUID:ce2ab5ef472b35f498b9d47a89be9396",
         "GUID:b8160ced8f607ad45b2d05a253b28bd6",
-        "GUID:27619889b8ba8c24980f49ee34dbb44a",
         "GUID:0acc523941302664db1f4e527237feb3",
-        "GUID:de274c26ee169994ab6dcfd9c713fc89",
-        "GUID:d9fc9b62b1d439949a885ee8b6ead17a"
+        "GUID:de274c26ee169994ab6dcfd9c713fc89"
     ],
     "includePlatforms": [
         "Editor"
