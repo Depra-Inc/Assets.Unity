@@ -6,30 +6,15 @@ using Depra.Assets.Runtime.Files.Bundles.Files;
 using Depra.Assets.Runtime.Files.Bundles.IO;
 using Depra.Assets.Runtime.Files.Bundles.Memory;
 using Depra.Assets.Tests.PlayMode.Exceptions;
+using Depra.Coroutines.Domain.Entities;
 
 namespace Depra.Assets.Tests.PlayMode.Utils
 {
     internal static class Load
     {
-        public static IEnumerable<AssetIdent> AssetIdents()
+        public static IEnumerable<AssetBundleFile> AllBundles(ICoroutineHost coroutineHost)
         {
             var assetBundle = AssetBundle();
-            var assetNames = assetBundle.Assets;
-            if (assetNames == null || assetNames.Length == 0)
-            {
-                throw new TestAssetsConfigurationException(assetBundle.BundleName);
-            }
-
-            foreach (var assetName in assetNames)
-            {
-                yield return new AssetIdent(assetName, assetBundle.Path);
-            }
-        }
-
-        public static IEnumerable<AssetBundleFile> AllBundles()
-        {
-            var assetBundle = AssetBundle();
-            var coroutineHost = Create.RuntimeCoroutineHost();
             var bundleIdent = new AssetIdent(assetBundle.BundleName, assetBundle.AbsoluteDirectoryPath);
 
             yield return new AssetBundleFromFile(bundleIdent, coroutineHost);
@@ -38,11 +23,7 @@ namespace Depra.Assets.Tests.PlayMode.Utils
             //yield return new AssetBundleFromWeb(bundleIdent, coroutineHost);
         }
 
-        public static TestResourcesRef Resources() =>
-            UnityEngine.Resources.LoadAll<TestResourcesRef>(string.Empty).FirstOrDefault() ??
-            throw new TestReferenceNotFoundException(nameof(TestResourcesRef));
-
-        private static TestAssetBundleRef AssetBundle() =>
+        public static TestAssetBundleRef AssetBundle() =>
             UnityEngine.Resources.LoadAll<TestAssetBundleRef>(string.Empty).FirstOrDefault() ??
             throw new TestReferenceNotFoundException(nameof(TestAssetBundleRef));
     }

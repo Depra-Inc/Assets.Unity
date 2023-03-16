@@ -1,9 +1,11 @@
 ﻿using System.Collections;
 using System.Diagnostics;
+using System.Linq;
 using Depra.Assets.Runtime.Abstract.Loading;
 using Depra.Assets.Runtime.Common;
 using Depra.Assets.Runtime.Files.Resource;
-using Depra.Assets.Tests.Common;
+using Depra.Assets.Tests.Common.Types;
+using Depra.Assets.Tests.PlayMode.Exceptions;
 using Depra.Assets.Tests.PlayMode.Utils;
 using Depra.Coroutines.Unity.Runtime;
 using NUnit.Framework;
@@ -27,12 +29,23 @@ namespace Depra.Assets.Tests.PlayMode
             yield return null;
         }
 
+        private static TestAsset PrepareResourceAssetFile()
+        {
+            var allTestResources = Resources.LoadAll<TestResourcesRef>(string.Empty);
+            var resources = allTestResources.FirstOrDefault() ??
+                            throw new TestReferenceNotFoundException(nameof(TestResourcesRef));
+            var testAsset = ScriptableObject.CreateInstance<TestAsset>();
+            testAsset.Initialize(resources.AssetName, resources.DirectoryPath);
+
+            return testAsset;
+        }
+
         [OneTimeSetUp]
         public void SetUp()
         {
             _stopwatch = new Stopwatch();
             _coroutineHost = new GameObject().AddComponent<RuntimeCoroutineHost>();
-            _testAsset = Create.ResourceAssetFile();
+            _testAsset = PrepareResourceAssetFile();
             _assetIdent = _testAsset.Ident;
         }
 
@@ -51,11 +64,13 @@ namespace Depra.Assets.Tests.PlayMode
 
             // Act.
             var loadedAsset = resourceAsset.Load();
-            Debug.Log($"Loaded [{assetIdent.Name}] from resources.");
 
             // Assert.
             Assert.IsNotNull(loadedAsset);
             Assert.IsTrue(resourceAsset.IsLoaded);
+
+            // Debug.
+            Debug.Log($"Loaded [{loadedAsset.name}] from resources.");
 
             yield return Free(loadedAsset);
         }
@@ -65,17 +80,20 @@ namespace Depra.Assets.Tests.PlayMode
         {
             // Arrange.
             var assetIdent = _assetIdent;
-            var resourceAsset = new ResourceAsset<TestAsset>(_assetIdent, _coroutineHost);
+            var resourceAsset = new ResourceAsset<TestAsset>(assetIdent, _coroutineHost);
 
             // Act.
             var firstLoadedAsset = resourceAsset.Load();
             var secondLoadedAsset = resourceAsset.Load();
-            Debug.Log($"Loaded [{assetIdent.Name}] from resources.");
 
             // Assert.
             Assert.IsNotNull(firstLoadedAsset);
             Assert.IsNotNull(secondLoadedAsset);
             Assert.AreEqual(firstLoadedAsset, secondLoadedAsset);
+
+            // Debug.
+            Debug.Log($"Loaded [{firstLoadedAsset.name}] from resources.");
+            Debug.Log($"Loaded [{secondLoadedAsset.name}] from resources.");
 
             yield return Free(secondLoadedAsset);
         }
@@ -100,11 +118,13 @@ namespace Depra.Assets.Tests.PlayMode
             }
 
             _stopwatch.Stop();
-            Debug.Log($"Loaded [{assetIdent.Name}] from resources in {_stopwatch.ElapsedMilliseconds} ms.");
 
             // Assert.
             Assert.NotNull(loadedAsset);
             Assert.IsTrue(resourceAsset.IsLoaded);
+
+            // Debug.
+            Debug.Log($"Loaded [{loadedAsset.name}] from resources in {_stopwatch.ElapsedMilliseconds} ms.");
 
             yield return Free(loadedAsset);
         }
@@ -121,10 +141,12 @@ namespace Depra.Assets.Tests.PlayMode
             // Act.
             resourceAsset.Unload();
             yield return null;
-            Debug.Log($"Loaded and unloaded [{assetIdent.Name}] from resources");
 
             // Assert.
             Assert.IsFalse(resourceAsset.IsLoaded);
+
+            // Debug.
+            Debug.Log($"Loaded and unloaded [{assetIdent.Name}] from resources");
         }
     }
 }

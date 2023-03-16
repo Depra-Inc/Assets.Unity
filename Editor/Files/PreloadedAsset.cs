@@ -9,7 +9,7 @@ using Object = UnityEngine.Object;
 
 namespace Depra.Assets.Editor.Files
 {
-    public sealed class PreloadedAsset<TAsset> : ILoadableAsset<TAsset> where TAsset : Object
+    public sealed class PreloadedAsset<TAsset> : ILoadableAsset<TAsset>, IDisposable where TAsset : Object
     {
         private readonly Type _assetType;
         private readonly ILoadableAsset<TAsset> _asset;
@@ -33,7 +33,7 @@ namespace Depra.Assets.Editor.Files
                 return _loadedAsset;
             }
 
-            if (TryGetPreloadedAsset(out var loadedAsset) == false && 
+            if (TryGetPreloadedAsset(out var loadedAsset) == false &&
                 TryLoadAssetFromDatabase(out loadedAsset) == false)
             {
                 loadedAsset = _asset.Load();
@@ -59,13 +59,17 @@ namespace Depra.Assets.Editor.Files
             {
                 return OnLoadedInstantly(_loadedAsset);
             }
-            
+
             if (TryGetPreloadedAsset(out var asset) || TryLoadAssetFromDatabase(out asset))
             {
+                _loadedAsset = asset;
                 return OnLoadedInstantly(asset);
             }
 
-            return _asset.LoadAsync(callbacks);
+            var loadingOperation = _asset.LoadAsync(callbacks
+                .ReturnTo(loadedAsset => _loadedAsset = loadedAsset));
+
+            return loadingOperation;
 
             IDisposable OnLoadedInstantly(TAsset readyAsset)
             {
@@ -99,5 +103,7 @@ namespace Depra.Assets.Editor.Files
 
             return asset != null;
         }
+
+        void IDisposable.Dispose() => Unload();
     }
 }

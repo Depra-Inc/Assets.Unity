@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using Depra.Assets.Runtime.Files.Database;
 using Depra.Assets.Tests.Common;
+using Depra.Assets.Tests.Common.Types;
 using NUnit.Framework;
 using UnityEditor;
 using static Depra.Assets.Runtime.Common.Constants;

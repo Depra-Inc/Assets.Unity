@@ -2,7 +2,6 @@
 using System.IO;
 using System.Runtime.CompilerServices;
 using Depra.Assets.Runtime.Abstract.Loading;
-using Depra.Assets.Runtime.Exceptions;
 using UnityEditor;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -13,7 +12,7 @@ namespace Depra.Assets.Runtime.Files.Database
     {
         private readonly Type _assetType;
         private readonly string _absoluteDirectoryPath;
-        
+
         private TAsset _loadedAsset;
 
         public DatabaseAsset(string path, string name, string typeExtension = AssetTypes.BASE)
@@ -64,6 +63,7 @@ namespace Depra.Assets.Runtime.Files.Database
             throw new NotImplementedException();
         }
 
+#if UNITY_EDITOR
         private Object CreateAsset(Object asset)
         {
             if (Directory.Exists(_absoluteDirectoryPath) == false)
@@ -78,6 +78,7 @@ namespace Depra.Assets.Runtime.Files.Database
 
             return asset;
         }
+#endif
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void EnsureAsset(Object asset)

@@ -45,9 +45,9 @@ namespace Depra.Assets.Runtime.Files.Bundles.Files
         {
             var loadingCoroutine = new AssetFileLoadingCoroutine(_coroutineHost);
             return LoadAsync(new AssetLoadingCallbacks<AssetBundle>(
-                    onLoaded: bundle => loadingCoroutine.Start(LoadingProcess(name, bundle,
-                        callbacks.AddGuard(asset => EnsureAsset(asset, name, callbacks.InvokeFailedEvent)))),
-                    onFailed: exception => throw exception));
+                onLoaded: bundle => loadingCoroutine.Start(LoadingProcess(name, bundle,
+                    callbacks.AddGuard(asset => EnsureAsset(asset, name, callbacks.InvokeFailedEvent)))),
+                onFailed: exception => throw exception));
         }
 
         public AssetBundle Load()
@@ -134,7 +134,7 @@ namespace Depra.Assets.Runtime.Files.Bundles.Files
         {
             if (assetBundle == null)
             {
-                throw new AssetBundleLoadingException(Path);
+                throw new AssetBundleLoadingException(Name, Path);
             }
         }
 

@@ -1,10 +1,11 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using Depra.Assets.Runtime.Common;
 using UnityEngine;
+using static Depra.Assets.Runtime.Common.Constants;
 
-namespace Depra.Assets.Tests.Common
+namespace Depra.Assets.Tests.Common.Types
 {
-    [CreateAssetMenu(fileName = nameof(TestAsset), menuName = "Depra/Assets/Tests/Asset", order = 51)]
+    [CreateAssetMenu(menuName = FRAMEWORK_NAME + "/" + MODULE_NAME + "/" + nameof(TestAsset), order = 51)]
     public sealed class TestAsset : ScriptableObject
     {
         public AssetIdent Ident { get; private set; }

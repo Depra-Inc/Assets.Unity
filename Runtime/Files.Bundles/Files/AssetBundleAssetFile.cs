@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
 using Depra.Assets.Runtime.Abstract.Loading;
-using Depra.Assets.Runtime.Bundle.Files;
 using Depra.Assets.Runtime.Common;
-using Depra.Assets.Runtime.Exceptions;
+using Depra.Assets.Runtime.Files.Bundles.Exceptions;
 using Depra.Assets.Runtime.Internal.Patterns;
 using Object = UnityEngine.Object;
 
@@ -69,7 +68,7 @@ namespace Depra.Assets.Runtime.Files.Bundles.Files
         {
             if (asset == null)
             {
-                onFailed?.Invoke(new AssetLoadingException(typeof(TAsset), Path));
+                onFailed?.Invoke(new AssetBundleFileLoadingException(Name, _assetBundle.Name));
             }
         }
 

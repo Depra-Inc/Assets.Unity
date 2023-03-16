@@ -2,9 +2,6 @@
     "name": "Depra.Assets",
     "rootNamespace": "",
     "references": [
-        "GUID:8f34cffeb52fcfd47b234bb2e28eca31",
-        "GUID:b48eaf49627a06d4dab13e91eebef2d7",
-        "GUID:0304ca7474015d547aa34f6b860e67fe",
         "GUID:d9fc9b62b1d439949a885ee8b6ead17a"
     ],
     "includePlatforms": [],

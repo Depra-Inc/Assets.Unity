@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Reflection;
 
-namespace Depra.Assets.Runtime.Exceptions
+namespace Depra.Assets.Runtime.Files.Database
 {
     public class AssetCreationException : Exception
     {

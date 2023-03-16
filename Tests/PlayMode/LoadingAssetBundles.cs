@@ -1,106 +1,111 @@
 ﻿using System.Collections;
+using System.Collections.Generic;
 using System.Diagnostics;
 using Depra.Assets.Runtime.Abstract.Loading;
-using Depra.Assets.Runtime.Bundle.Files;
-using Depra.Assets.Runtime.Common;
 using Depra.Assets.Runtime.Files.Bundles.Files;
-using Depra.Assets.Tests.Common;
 using Depra.Assets.Tests.PlayMode.Utils;
+using Depra.Coroutines.Unity.Runtime;
 using NUnit.Framework;
+using UnityEngine;
 using UnityEngine.TestTools;
 using Debug = UnityEngine.Debug;
 
 namespace Depra.Assets.Tests.PlayMode
 {
-    [TestFixture(TestOf = typeof(AssetBundleAssetFile<>))]
+    [TestFixture(TestOf = typeof(AssetBundleFile))]
     internal sealed class LoadingAssetBundles
     {
+        private static RuntimeCoroutineHost _coroutineHost;
         private Stopwatch _stopwatch;
-        private AssetIdent _assetIdent;
 
-        private static IEnumerator Free(AssetBundleFile assetBundleFile)
+        private static IEnumerable<AssetBundleFile> AllBundles() => 
+            Load.AllBundles(_coroutineHost);
+        
+        private static IEnumerator Free(AssetBundle assetBundle)
         {
-            assetBundleFile.Unload();
+            assetBundle.Unload(true);
             yield return null;
         }
+
+        [OneTimeSetUp]
+        public void OneTimeSetup() => 
+            _coroutineHost = new GameObject().AddComponent<RuntimeCoroutineHost>();
 
         [SetUp]
         public void Setup() => _stopwatch = new Stopwatch();
 
+        [OneTimeTearDown]
+        public void OneTimeTearDown() => 
+            Object.Destroy(_coroutineHost.gameObject);
+
         [UnityTest]
-        public IEnumerator AssetFromBundleShouldBeLoaded(
-            [ValueSource(typeof(Load), nameof(Load.AssetIdents))]
-            AssetIdent assetIdent,
-            [ValueSource(typeof(Load), nameof(Load.AllBundles))]
-            AssetBundleFile assetBundleFile)
+        public IEnumerator AssetBundleShouldBeLoaded(
+            [ValueSource(nameof(AllBundles))] AssetBundleFile assetBundleFile)
         {
             // Arrange.
-            var bundleAsset = new AssetBundleAssetFile<TestAsset>(assetIdent, assetBundleFile);
 
             // Act.
-            var loadedAsset = bundleAsset.Load();
-            Debug.Log($"Loaded [{bundleAsset.Name}] from bundle {assetBundleFile.Name}.");
+            var loadedAssetBundle = assetBundleFile.Load();
 
             // Assert.
-            Assert.IsNotNull(loadedAsset);
-            Assert.IsTrue(bundleAsset.IsLoaded);
-
-            yield return Free(assetBundleFile);
+            Assert.IsNotNull(loadedAssetBundle);
+            Assert.IsTrue(assetBundleFile.IsLoaded);
+            
+            // Debug.
+            Debug.Log($"Loaded bundle [{loadedAssetBundle.name}] by path: [{assetBundleFile.Path}].");
+            
+            yield return Free(loadedAssetBundle);
         }
 
         [UnityTest]
-        public IEnumerator AssetFromBundleShouldBeUnloaded(
-            [ValueSource(typeof(Load), nameof(Load.AssetIdents))]
-            AssetIdent assetIdent,
-            [ValueSource(typeof(Load), nameof(Load.AllBundles))]
-            AssetBundleFile assetBundleFile)
+        public IEnumerator AssetBundleShouldBeUnloaded(
+            [ValueSource(nameof(AllBundles))] AssetBundleFile assetBundleFile)
         {
             // Arrange.
-            var bundleAsset = new AssetBundleAssetFile<TestAsset>(assetIdent, assetBundleFile);
-            bundleAsset.Load();
+            assetBundleFile.Load();
             yield return null;
 
             // Act.
-            bundleAsset.Unload();
+            assetBundleFile.Unload();
             yield return null;
-            Debug.Log($"Loaded and unloaded [{bundleAsset.Name}] from bundle [{assetBundleFile.Name}].");
 
             // Assert.
-            Assert.IsFalse(bundleAsset.IsLoaded);
-
-            yield return Free(assetBundleFile);
+            Assert.IsFalse(assetBundleFile.IsLoaded);
+            
+            // Debug.
+            Debug.Log($"Loaded and unloaded bundle [{assetBundleFile.Name}] by path: [{assetBundleFile.Path}].");
         }
 
         [UnityTest]
-        public IEnumerator AssetFromBundleShouldBeLoadedAsync(
-            [ValueSource(typeof(Load), nameof(Load.AssetIdents))]
-            AssetIdent assetIdent,
-            [ValueSource(typeof(Load), nameof(Load.AllBundles))]
-            AssetBundleFile assetBundleFile)
+        public IEnumerator AssetBundleShouldBeLoadedAsync(
+            [ValueSource(nameof(AllBundles))] AssetBundleFile assetBundleFile)
         {
             // Arrange.
-            TestAsset loadedAsset = null;
-            var assetLoadingCallbacks = new AssetLoadingCallbacks<TestAsset>(
-                onLoaded: asset => loadedAsset = asset,
+            AssetBundle loadedAssetBundle = null;
+            var assetLoadingCallbacks = new AssetLoadingCallbacks<AssetBundle>(
+                onLoaded: asset => loadedAssetBundle = asset,
                 onFailed: exception => throw exception);
 
             // Act.
             _stopwatch.Restart();
-            assetBundleFile.LoadAsync(assetIdent.Name, assetLoadingCallbacks);
-            while (loadedAsset == null)
+            assetBundleFile.LoadAsync(assetLoadingCallbacks);
+            while (loadedAssetBundle == null)
             {
                 yield return null;
             }
 
             _stopwatch.Stop();
-            Debug.Log($"Loaded [{assetIdent.Name}] " +
-                      $"from bundle [{assetBundleFile.Name}] " +
-                      $"in {_stopwatch.ElapsedMilliseconds} ms.");
 
             // Assert.
-            Assert.NotNull(loadedAsset);
-
-            yield return Free(assetBundleFile);
+            Assert.NotNull(loadedAssetBundle);
+            Assert.IsTrue(assetBundleFile.IsLoaded);
+            
+            // Debug.
+            Debug.Log($"Loaded bundle [{loadedAssetBundle.name}] " +
+                      $"by path: [{assetBundleFile.Path}] " +
+                      $"in {_stopwatch.ElapsedMilliseconds} ms.");
+            
+            yield return Free(loadedAssetBundle);
         }
     }
 }

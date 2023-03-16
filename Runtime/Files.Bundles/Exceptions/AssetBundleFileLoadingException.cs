@@ -6,7 +6,7 @@ namespace Depra.Assets.Runtime.Files.Bundles.Exceptions
     {
         private const string MESSAGE_FORMAT = "Failed to load asset {0} from asset bundle {1}!";
 
-        public AssetBundleFileLoadingException(string assetName, string assetBundlePath) :
-            base(string.Format(MESSAGE_FORMAT, assetName, assetBundlePath)) { }
+        public AssetBundleFileLoadingException(string assetName, string bundleName) :
+            base(string.Format(MESSAGE_FORMAT, assetName, bundleName)) { }
     }
 }

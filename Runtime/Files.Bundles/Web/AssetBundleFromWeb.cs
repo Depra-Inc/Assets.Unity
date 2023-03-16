@@ -2,7 +2,6 @@
 using System.Collections;
 using System.Runtime.CompilerServices;
 using Depra.Assets.Runtime.Abstract.Loading;
-using Depra.Assets.Runtime.Bundle.Files;
 using Depra.Assets.Runtime.Common;
 using Depra.Assets.Runtime.Files.Bundles.Exceptions;
 using Depra.Assets.Runtime.Files.Bundles.Files;
@@ -29,7 +28,7 @@ namespace Depra.Assets.Runtime.Files.Bundles.Web
                 // Spinning for Synchronous Behavior (blocking).
             }
 
-            EnsureRequestResult(request, Path, exception => throw exception);
+            EnsureRequestResult(request, exception => throw exception);
             return DownloadHandlerAssetBundle.GetContent(request);
         }
 
@@ -49,17 +48,17 @@ namespace Depra.Assets.Runtime.Files.Bundles.Web
                 yield return null;
             }
 
-            EnsureRequestResult(webRequest, Path, callbacks.InvokeFailedEvent);
+            EnsureRequestResult(webRequest, callbacks.InvokeFailedEvent);
             var downloadedBundle = DownloadHandlerAssetBundle.GetContent(webRequest);
             callbacks.InvokeLoadedEvent(downloadedBundle);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static void EnsureRequestResult(UnityWebRequest request, string uri, Action<Exception> onFailed = null)
+        private void EnsureRequestResult(UnityWebRequest request, Action<Exception> onFailed = null)
         {
             if (request.CanGetResult() == false)
             {
-                onFailed?.Invoke(new AssetBundleLoadingException(uri));
+                onFailed?.Invoke(new AssetBundleLoadingException(Name, Path));
             }
         }
     }
