@@ -3,15 +3,13 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Depra.Assets.Runtime.Bundle;
-using Depra.Assets.Runtime.Bundle.Files;
 using Depra.Assets.Runtime.Files.Bundles.Files;
 using Unity.EditorCoroutines.Editor;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Networking;
 
-namespace Depra.Assets.Editor
+namespace Depra.Assets.Editor.Build
 {
     /// <summary>
     /// Functionality for building and preparing asset bundles.

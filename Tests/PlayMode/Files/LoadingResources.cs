@@ -4,24 +4,22 @@ using System.Linq;
 using Depra.Assets.Runtime.Abstract.Loading;
 using Depra.Assets.Runtime.Common;
 using Depra.Assets.Runtime.Files.Resource;
-using Depra.Assets.Tests.Common.Types;
 using Depra.Assets.Tests.PlayMode.Exceptions;
-using Depra.Assets.Tests.PlayMode.Utils;
-using Depra.Coroutines.Unity.Runtime;
+using Depra.Assets.Tests.PlayMode.Types;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
 using Debug = UnityEngine.Debug;
 
-namespace Depra.Assets.Tests.PlayMode
+namespace Depra.Assets.Tests.PlayMode.Files
 {
     [TestFixture(TestOf = typeof(ResourceAsset<>))]
     internal sealed class LoadingResources
     {
         private Stopwatch _stopwatch;
-        private TestAsset _testAsset;
         private AssetIdent _assetIdent;
-        private RuntimeCoroutineHost _coroutineHost;
+        private TestScriptableAsset _testAsset;
+        private TestCoroutineHost _coroutineHost;
 
         private static IEnumerator Free(Object resourceAsset)
         {
@@ -29,12 +27,12 @@ namespace Depra.Assets.Tests.PlayMode
             yield return null;
         }
 
-        private static TestAsset PrepareResourceAssetFile()
+        private static TestScriptableAsset PrepareResourceAssetFile()
         {
             var allTestResources = Resources.LoadAll<TestResourcesRef>(string.Empty);
             var resources = allTestResources.FirstOrDefault() ??
                             throw new TestReferenceNotFoundException(nameof(TestResourcesRef));
-            var testAsset = ScriptableObject.CreateInstance<TestAsset>();
+            var testAsset = ScriptableObject.CreateInstance<TestScriptableAsset>();
             testAsset.Initialize(resources.AssetName, resources.DirectoryPath);
 
             return testAsset;
@@ -44,9 +42,9 @@ namespace Depra.Assets.Tests.PlayMode
         public void SetUp()
         {
             _stopwatch = new Stopwatch();
-            _coroutineHost = new GameObject().AddComponent<RuntimeCoroutineHost>();
             _testAsset = PrepareResourceAssetFile();
             _assetIdent = _testAsset.Ident;
+            _coroutineHost = TestCoroutineHost.Create();
         }
 
         [OneTimeTearDown]
@@ -60,7 +58,7 @@ namespace Depra.Assets.Tests.PlayMode
         {
             // Arrange.
             var assetIdent = _assetIdent;
-            var resourceAsset = new ResourceAsset<TestAsset>(assetIdent, _coroutineHost);
+            var resourceAsset = new ResourceAsset<TestScriptableAsset>(assetIdent, _coroutineHost);
 
             // Act.
             var loadedAsset = resourceAsset.Load();
@@ -80,7 +78,7 @@ namespace Depra.Assets.Tests.PlayMode
         {
             // Arrange.
             var assetIdent = _assetIdent;
-            var resourceAsset = new ResourceAsset<TestAsset>(assetIdent, _coroutineHost);
+            var resourceAsset = new ResourceAsset<TestScriptableAsset>(assetIdent, _coroutineHost);
 
             // Act.
             var firstLoadedAsset = resourceAsset.Load();
@@ -104,8 +102,8 @@ namespace Depra.Assets.Tests.PlayMode
             // Arrange.
             var assetIdent = _assetIdent;
             Object loadedAsset = null;
-            var resourceAsset = new ResourceAsset<TestAsset>(assetIdent, _coroutineHost);
-            var assetLoadingCallbacks = new AssetLoadingCallbacks<TestAsset>(
+            var resourceAsset = new ResourceAsset<TestScriptableAsset>(assetIdent, _coroutineHost);
+            var assetLoadingCallbacks = new AssetLoadingCallbacks<TestScriptableAsset>(
                 onLoaded: asset => loadedAsset = asset,
                 onFailed: exception => throw exception);
 
@@ -134,7 +132,7 @@ namespace Depra.Assets.Tests.PlayMode
         {
             // Arrange.
             var assetIdent = _assetIdent;
-            var resourceAsset = new ResourceAsset<TestAsset>(assetIdent, _coroutineHost);
+            var resourceAsset = new ResourceAsset<TestScriptableAsset>(assetIdent, _coroutineHost);
             resourceAsset.Load();
             yield return null;
 

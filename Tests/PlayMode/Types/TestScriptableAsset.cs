@@ -3,10 +3,10 @@ using Depra.Assets.Runtime.Common;
 using UnityEngine;
 using static Depra.Assets.Runtime.Common.Constants;
 
-namespace Depra.Assets.Tests.Common.Types
+namespace Depra.Assets.Tests.PlayMode.Types
 {
-    [CreateAssetMenu(menuName = FRAMEWORK_NAME + "/" + MODULE_NAME + "/" + nameof(TestAsset), order = 51)]
-    public sealed class TestAsset : ScriptableObject
+    [CreateAssetMenu(menuName = FRAMEWORK_NAME + "/" + MODULE_NAME + "/" + nameof(TestScriptableAsset), order = 51)]
+    public sealed class TestScriptableAsset : ScriptableObject
     {
         public AssetIdent Ident { get; private set; }
 

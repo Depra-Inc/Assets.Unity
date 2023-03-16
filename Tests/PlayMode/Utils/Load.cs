@@ -1,12 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Depra.Assets.Runtime.Bundle.Files;
 using Depra.Assets.Runtime.Common;
 using Depra.Assets.Runtime.Files.Bundles.Files;
 using Depra.Assets.Runtime.Files.Bundles.IO;
 using Depra.Assets.Runtime.Files.Bundles.Memory;
 using Depra.Assets.Tests.PlayMode.Exceptions;
+using Depra.Assets.Tests.PlayMode.Types;
 using Depra.Coroutines.Domain.Entities;
+using UnityEngine;
 
 namespace Depra.Assets.Tests.PlayMode.Utils
 {
@@ -24,7 +25,7 @@ namespace Depra.Assets.Tests.PlayMode.Utils
         }
 
         public static TestAssetBundleRef AssetBundle() =>
-            UnityEngine.Resources.LoadAll<TestAssetBundleRef>(string.Empty).FirstOrDefault() ??
+            Resources.LoadAll<TestAssetBundleRef>(string.Empty).FirstOrDefault() ??
             throw new TestReferenceNotFoundException(nameof(TestAssetBundleRef));
     }
 }

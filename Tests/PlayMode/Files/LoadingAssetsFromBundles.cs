@@ -4,26 +4,28 @@ using System.Diagnostics;
 using Depra.Assets.Runtime.Abstract.Loading;
 using Depra.Assets.Runtime.Common;
 using Depra.Assets.Runtime.Files.Bundles.Files;
-using Depra.Assets.Tests.Common.Types;
 using Depra.Assets.Tests.PlayMode.Exceptions;
+using Depra.Assets.Tests.PlayMode.Types;
 using Depra.Assets.Tests.PlayMode.Utils;
-using Depra.Coroutines.Unity.Runtime;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
 using Debug = UnityEngine.Debug;
 
-namespace Depra.Assets.Tests.PlayMode
+namespace Depra.Assets.Tests.PlayMode.Files
 {
     [TestFixture(TestOf = typeof(AssetBundleAssetFile<>))]
     internal sealed class LoadingAssetsFromBundles
     {
-        private static RuntimeCoroutineHost _coroutineHost;
+        private static TestCoroutineHost _coroutineHost;
         private Stopwatch _stopwatch;
         private AssetIdent _assetIdent;
 
+        private static TestCoroutineHost CoroutineHost => 
+            _coroutineHost ??= TestCoroutineHost.Create();
+
         private static IEnumerable<AssetBundleFile> AllBundles() =>
-            Load.AllBundles(_coroutineHost);
+            Load.AllBundles(CoroutineHost);
 
         private static IEnumerable<AssetIdent> AssetIdents()
         {
@@ -46,16 +48,17 @@ namespace Depra.Assets.Tests.PlayMode
             yield return null;
         }
 
-        [OneTimeSetUp]
-        public void OneTimeSetup() =>
-            _coroutineHost = new GameObject().AddComponent<RuntimeCoroutineHost>();
-
         [SetUp]
-        public void Setup() => _stopwatch = new Stopwatch();
-
+        public void Setup()
+        {
+            _stopwatch = new Stopwatch();
+        }
+        
         [OneTimeTearDown]
-        public void OneTimeTearDown() =>
-            Object.Destroy(_coroutineHost.gameObject);
+        public void OneTimeTearDown()
+        {
+            Object.DestroyImmediate(_coroutineHost.gameObject);
+        }
 
         [UnityTest]
         public IEnumerator AssetFromBundleShouldBeLoaded(
@@ -63,7 +66,7 @@ namespace Depra.Assets.Tests.PlayMode
             [ValueSource(nameof(AllBundles))] AssetBundleFile assetBundleFile)
         {
             // Arrange.
-            var bundleAsset = new AssetBundleAssetFile<TestAsset>(assetIdent, assetBundleFile);
+            var bundleAsset = new AssetBundleAssetFile<TestScriptableAsset>(assetIdent, assetBundleFile);
 
             // Act.
             var loadedAsset = bundleAsset.Load();
@@ -84,7 +87,7 @@ namespace Depra.Assets.Tests.PlayMode
             [ValueSource(nameof(AllBundles))] AssetBundleFile assetBundleFile)
         {
             // Arrange.
-            var bundleAsset = new AssetBundleAssetFile<TestAsset>(assetIdent, assetBundleFile);
+            var bundleAsset = new AssetBundleAssetFile<TestScriptableAsset>(assetIdent, assetBundleFile);
             bundleAsset.Load();
             yield return null;
 
@@ -107,8 +110,8 @@ namespace Depra.Assets.Tests.PlayMode
             [ValueSource(nameof(AllBundles))] AssetBundleFile assetBundleFile)
         {
             // Arrange.
-            TestAsset loadedAsset = null;
-            var assetLoadingCallbacks = new AssetLoadingCallbacks<TestAsset>(
+            TestScriptableAsset loadedAsset = null;
+            var assetLoadingCallbacks = new AssetLoadingCallbacks<TestScriptableAsset>(
                 onLoaded: asset => loadedAsset = asset,
                 onFailed: exception => throw exception);
 

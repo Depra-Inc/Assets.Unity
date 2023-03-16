@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using static Depra.Assets.Runtime.Common.Constants;
 
-namespace Depra.Assets.Tests.PlayMode.Utils
+namespace Depra.Assets.Tests.PlayMode.Types
 {
     [CreateAssetMenu(menuName = FRAMEWORK_NAME + "/" + MODULE_NAME + "/" + nameof(TestAssetBundleRef), order = 51)]
     internal sealed class TestAssetBundleRef : ScriptableObject

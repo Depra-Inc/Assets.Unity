@@ -2,7 +2,7 @@
 using UnityEditor;
 using UnityEngine;
 
-namespace Depra.Assets.Editor
+namespace Depra.Assets.Editor.Build
 {
     internal static class AssetBundlesMenu
     {

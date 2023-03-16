@@ -3,18 +3,18 @@ using System.Linq;
 using Depra.Assets.Editor.Files;
 using Depra.Assets.Runtime.Abstract.Loading;
 using Depra.Assets.Runtime.Files;
-using Depra.Assets.Tests.Common.Types;
+using Depra.Assets.Tests.PlayMode.Types;
 using NUnit.Framework;
 using UnityEditor;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace Depra.Assets.Tests.EditMode
+namespace Depra.Assets.Tests.EditMode.Files
 {
     [TestFixture(TestOf = typeof(PreloadedAsset<>))]
     internal sealed class LoadingPreloadedAssets
     {
-        private TestAsset _testAsset;
+        private TestScriptableAsset _testAsset;
         private InvalidAsset _invalidAsset;
         private Object[] _initialPreloadedAssets;
 
@@ -22,7 +22,7 @@ namespace Depra.Assets.Tests.EditMode
         public void OneTimeSetup()
         {
             _invalidAsset = new InvalidAsset();
-            _testAsset = Resources.LoadAll<TestAsset>(string.Empty).FirstOrDefault();
+            _testAsset = Resources.LoadAll<TestScriptableAsset>(string.Empty).FirstOrDefault();
             Assert.IsNotNull(_testAsset);
         }
 
@@ -34,14 +34,16 @@ namespace Depra.Assets.Tests.EditMode
         }
 
         [TearDown]
-        public void TearDown() =>
+        public void TearDown()
+        {
             PlayerSettings.SetPreloadedAssets(_initialPreloadedAssets);
-
+        }
+        
         [Test]
         public void SingleAssetShouldBeLoaded()
         {
             // Arrange.
-            var preloadedAsset = new PreloadedAsset<TestAsset>(_invalidAsset);
+            var preloadedAsset = new PreloadedAsset<TestScriptableAsset>(_invalidAsset);
 
             // Act.
             var loadedAsset = preloadedAsset.Load();
@@ -51,14 +53,14 @@ namespace Depra.Assets.Tests.EditMode
             Assert.IsTrue(preloadedAsset.IsLoaded);
 
             // Debug.
-            Debug.Log($"Loaded preloaded [{nameof(TestAsset)}] from {nameof(PlayerSettings)}.");
+            Debug.Log($"Loaded preloaded [{nameof(TestScriptableAsset)}] from {nameof(PlayerSettings)}.");
         }
 
         [Test]
         public void SingleAssetShouldBeUnloaded()
         {
             // Arrange.
-            var preloadedAsset = new PreloadedAsset<TestAsset>(_invalidAsset);
+            var preloadedAsset = new PreloadedAsset<TestScriptableAsset>(_invalidAsset);
             preloadedAsset.Load();
 
             // Act.
@@ -75,7 +77,7 @@ namespace Depra.Assets.Tests.EditMode
         public void MultipleAssetsShouldBeLoadedAndEquals()
         {
             // Arrange.
-            var resourceAsset = new PreloadedAsset<TestAsset>(_invalidAsset);
+            var resourceAsset = new PreloadedAsset<TestScriptableAsset>(_invalidAsset);
 
             // Act.
             var firstLoadedAsset = resourceAsset.Load();
@@ -96,8 +98,8 @@ namespace Depra.Assets.Tests.EditMode
         {
             // Arrange.
             Object loadedAsset = null;
-            var preloadedAsset = new PreloadedAsset<TestAsset>(_invalidAsset);
-            var assetLoadingCallbacks = new AssetLoadingCallbacks<TestAsset>(
+            var preloadedAsset = new PreloadedAsset<TestScriptableAsset>(_invalidAsset);
+            var assetLoadingCallbacks = new AssetLoadingCallbacks<TestScriptableAsset>(
                 onLoaded: asset => loadedAsset = asset,
                 onFailed: exception => throw exception);
 
@@ -112,19 +114,19 @@ namespace Depra.Assets.Tests.EditMode
             Debug.Log($"Loaded preloaded [{loadedAsset.name}] from {nameof(PlayerSettings)}.");
         }
 
-        private sealed class InvalidAsset : ILoadableAsset<TestAsset>
+        private sealed class InvalidAsset : ILoadableAsset<TestScriptableAsset>
         {
-            public string Name => nameof(TestAsset);
+            public string Name => nameof(TestScriptableAsset);
 
             public string Path => throw new NotImplementedException();
 
             public bool IsLoaded => throw new NotImplementedException();
 
-            public TestAsset Load() => throw new NotImplementedException();
+            public TestScriptableAsset Load() => throw new NotImplementedException();
 
             public void Unload() { }
 
-            public IDisposable LoadAsync(IAssetLoadingCallbacks<TestAsset> callbacks) =>
+            public IDisposable LoadAsync(IAssetLoadingCallbacks<TestScriptableAsset> callbacks) =>
                 throw new NotImplementedException();
         }
     }

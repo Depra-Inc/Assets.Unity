@@ -2,8 +2,11 @@
 using System.IO;
 using System.Runtime.CompilerServices;
 using Depra.Assets.Runtime.Abstract.Loading;
+using Depra.Assets.Runtime.Internal.Patterns;
+using Depra.Assets.Runtime.Utils;
 using UnityEditor;
 using UnityEngine;
+using static Depra.Assets.Runtime.Common.Constants;
 using Object = UnityEngine.Object;
 
 namespace Depra.Assets.Runtime.Files.Database
@@ -11,16 +14,18 @@ namespace Depra.Assets.Runtime.Files.Database
     public sealed class DatabaseAsset<TAsset> : ILoadableAsset<TAsset>, IDisposable where TAsset : ScriptableObject
     {
         private readonly Type _assetType;
+        private readonly string _absoluteFilePath;
         private readonly string _absoluteDirectoryPath;
 
         private TAsset _loadedAsset;
 
-        public DatabaseAsset(string path, string name, string typeExtension = AssetTypes.BASE)
+        public DatabaseAsset(string directoryName, string name, string typeExtension = AssetTypes.BASE)
         {
             Name = name;
             _assetType = typeof(TAsset);
-            Path = System.IO.Path.Combine(path, Name + typeExtension);
-            _absoluteDirectoryPath = System.IO.Path.Combine(Application.dataPath, path);
+            _absoluteDirectoryPath = System.IO.Path.Combine(Application.dataPath, directoryName);
+            _absoluteFilePath = System.IO.Path.Combine(_absoluteDirectoryPath, Name);
+            Path = System.IO.Path.Combine(ASSETS_FOLDER_NAME, directoryName, Name + typeExtension);
         }
 
         public string Name { get; }
@@ -34,10 +39,17 @@ namespace Depra.Assets.Runtime.Files.Database
                 return _loadedAsset;
             }
 
-            var asset = ScriptableObject.CreateInstance<TAsset>();
+            TAsset asset = null;
 #if UNITY_EDITOR
-            asset = (TAsset)CreateAsset(asset);
+            if (File.Exists(_absoluteFilePath))
+            {
+                asset = AssetDatabase.LoadAssetAtPath<TAsset>(Path);
+            }
 #endif
+            if (asset == null)
+            {
+               asset = CreateAsset();
+            }
 
             EnsureAsset(asset);
             _loadedAsset = asset;
@@ -60,16 +72,44 @@ namespace Depra.Assets.Runtime.Files.Database
 
         public IDisposable LoadAsync(IAssetLoadingCallbacks<TAsset> callbacks)
         {
-            throw new NotImplementedException();
+            if (IsLoaded)
+            {
+                callbacks.InvokeProgressEvent(1f);
+                callbacks.InvokeLoadedEvent(_loadedAsset);
+                return new EmptyDisposable();
+            }
+
+            var task = UnityMainThreadDispatcher.Instance().EnqueueAsync(() =>
+            {
+                try
+                {
+                    var asset = Load();
+                    callbacks.InvokeProgressEvent(1f);
+                    callbacks.InvokeLoadedEvent(asset);
+                }
+                catch (Exception exception)
+                {
+                    callbacks.InvokeFailedEvent(exception);
+                }
+            });
+            
+            return new EmptyDisposable();
+        }
+
+        private TAsset CreateAsset()
+        {
+            var asset = ScriptableObject.CreateInstance<TAsset>();
+#if UNITY_EDITOR
+            asset = (TAsset)ActivateAsset(asset);
+#endif
+
+            return asset;
         }
 
 #if UNITY_EDITOR
-        private Object CreateAsset(Object asset)
+        private Object ActivateAsset(Object asset)
         {
-            if (Directory.Exists(_absoluteDirectoryPath) == false)
-            {
-                Directory.CreateDirectory(_absoluteDirectoryPath);
-            }
+            CreateFolderIfDoesNotExist();
 
             asset.name = Name;
             AssetDatabase.CreateAsset(asset, Path);
@@ -86,6 +126,15 @@ namespace Depra.Assets.Runtime.Files.Database
             if (asset == null)
             {
                 throw new AssetCreationException(_assetType, _assetType.Name);
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void CreateFolderIfDoesNotExist()
+        {
+            if (Directory.Exists(_absoluteDirectoryPath) == false)
+            {
+                Directory.CreateDirectory(_absoluteDirectoryPath);
             }
         }
 

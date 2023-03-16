@@ -3,23 +3,26 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using Depra.Assets.Runtime.Abstract.Loading;
 using Depra.Assets.Runtime.Files.Bundles.Files;
+using Depra.Assets.Tests.PlayMode.Types;
 using Depra.Assets.Tests.PlayMode.Utils;
-using Depra.Coroutines.Unity.Runtime;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
 using Debug = UnityEngine.Debug;
 
-namespace Depra.Assets.Tests.PlayMode
+namespace Depra.Assets.Tests.PlayMode.Files
 {
     [TestFixture(TestOf = typeof(AssetBundleFile))]
     internal sealed class LoadingAssetBundles
     {
-        private static RuntimeCoroutineHost _coroutineHost;
+        private static TestCoroutineHost _coroutineHost;
         private Stopwatch _stopwatch;
 
+        private static TestCoroutineHost CoroutineHost => 
+            _coroutineHost ??= TestCoroutineHost.Create();
+        
         private static IEnumerable<AssetBundleFile> AllBundles() => 
-            Load.AllBundles(_coroutineHost);
+            Load.AllBundles(CoroutineHost);
         
         private static IEnumerator Free(AssetBundle assetBundle)
         {
@@ -27,16 +30,17 @@ namespace Depra.Assets.Tests.PlayMode
             yield return null;
         }
 
-        [OneTimeSetUp]
-        public void OneTimeSetup() => 
-            _coroutineHost = new GameObject().AddComponent<RuntimeCoroutineHost>();
-
         [SetUp]
-        public void Setup() => _stopwatch = new Stopwatch();
-
+        public void Setup()
+        {
+            _stopwatch = new Stopwatch();
+        }
+        
         [OneTimeTearDown]
-        public void OneTimeTearDown() => 
-            Object.Destroy(_coroutineHost.gameObject);
+        public void OneTimeTearDown()
+        {
+            Object.DestroyImmediate(_coroutineHost.gameObject);
+        }
 
         [UnityTest]
         public IEnumerator AssetBundleShouldBeLoaded(

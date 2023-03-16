@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace Depra.Assets.Runtime.Utils
 {
-    [RequireComponent(typeof(ICoroutineHost))]
+	[RequireComponent(typeof(ICoroutineHost))]
     internal sealed class AssetCoroutineHook : MonoBehaviour, ICoroutineHost
     {
         [SerializeField] private RuntimeCoroutineHost _runtimeHost;
