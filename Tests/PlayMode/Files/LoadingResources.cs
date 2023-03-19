@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Linq;
 using Depra.Assets.Runtime.Abstract.Loading;
 using Depra.Assets.Runtime.Common;
+using Depra.Assets.Runtime.Files;
 using Depra.Assets.Runtime.Files.Resource;
 using Depra.Assets.Tests.PlayMode.Exceptions;
 using Depra.Assets.Tests.PlayMode.Types;
@@ -10,6 +11,7 @@ using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
 using Debug = UnityEngine.Debug;
+using Object = UnityEngine.Object;
 
 namespace Depra.Assets.Tests.PlayMode.Files
 {
@@ -64,11 +66,12 @@ namespace Depra.Assets.Tests.PlayMode.Files
             var loadedAsset = resourceAsset.Load();
 
             // Assert.
-            Assert.IsNotNull(loadedAsset);
-            Assert.IsTrue(resourceAsset.IsLoaded);
+            Assert.That(loadedAsset, Is.Not.Null);
+            Assert.That(resourceAsset.IsLoaded, Is.True);
 
             // Debug.
-            Debug.Log($"Loaded [{loadedAsset.name}] from resources.");
+            var assetSize = resourceAsset.Size.ToHumanReadableString();
+            Debug.Log($"Loaded [{loadedAsset.name} : {assetSize}] from {nameof(Resources)}.");
 
             yield return Free(loadedAsset);
         }
@@ -85,13 +88,14 @@ namespace Depra.Assets.Tests.PlayMode.Files
             var secondLoadedAsset = resourceAsset.Load();
 
             // Assert.
-            Assert.IsNotNull(firstLoadedAsset);
-            Assert.IsNotNull(secondLoadedAsset);
+            Assert.That(firstLoadedAsset, Is.Not.Null);
+            Assert.That(secondLoadedAsset, Is.Not.Null);
             Assert.AreEqual(firstLoadedAsset, secondLoadedAsset);
 
             // Debug.
-            Debug.Log($"Loaded [{firstLoadedAsset.name}] from resources.");
-            Debug.Log($"Loaded [{secondLoadedAsset.name}] from resources.");
+            var assetSize = resourceAsset.Size.ToHumanReadableString();
+            Debug.Log($"Loaded [{firstLoadedAsset.name} : {assetSize}] from {nameof(Resources)}.");
+            Debug.Log($"Loaded [{secondLoadedAsset.name} : {assetSize}] from {nameof(Resources)}.");
 
             yield return Free(secondLoadedAsset);
         }
@@ -118,11 +122,14 @@ namespace Depra.Assets.Tests.PlayMode.Files
             _stopwatch.Stop();
 
             // Assert.
-            Assert.NotNull(loadedAsset);
-            Assert.IsTrue(resourceAsset.IsLoaded);
+            Assert.That(loadedAsset, Is.Not.Null);
+            Assert.That(resourceAsset.IsLoaded, Is.True);
 
             // Debug.
-            Debug.Log($"Loaded [{loadedAsset.name}] from resources in {_stopwatch.ElapsedMilliseconds} ms.");
+            Debug.Log($"Loaded [{loadedAsset.name}] " +
+                      $"from {nameof(Resources)} " +
+                      $"in {_stopwatch.ElapsedMilliseconds} ms.\n" +
+                      $"Size: {resourceAsset.Size.ToHumanReadableString()}");
 
             yield return Free(loadedAsset);
         }
@@ -134,6 +141,7 @@ namespace Depra.Assets.Tests.PlayMode.Files
             var assetIdent = _assetIdent;
             var resourceAsset = new ResourceAsset<TestScriptableAsset>(assetIdent, _coroutineHost);
             resourceAsset.Load();
+            var assetSize = resourceAsset.Size.ToHumanReadableString();
             yield return null;
 
             // Act.
@@ -141,10 +149,10 @@ namespace Depra.Assets.Tests.PlayMode.Files
             yield return null;
 
             // Assert.
-            Assert.IsFalse(resourceAsset.IsLoaded);
+            Assert.That(resourceAsset.IsLoaded, Is.False);
 
             // Debug.
-            Debug.Log($"Loaded and unloaded [{assetIdent.Name}] from resources");
+            Debug.Log($"Loaded and unloaded [{assetIdent.Name} : {assetSize}] from {nameof(Resources)}.");
         }
     }
 }

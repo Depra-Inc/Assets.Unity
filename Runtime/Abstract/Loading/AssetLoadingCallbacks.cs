@@ -4,7 +4,7 @@ using Object = UnityEngine.Object;
 
 namespace Depra.Assets.Runtime.Abstract.Loading
 {
-    public readonly struct AssetLoadingCallbacks<TAsset> : IAssetLoadingCallbacks<TAsset> where TAsset : Object
+    public readonly struct AssetLoadingCallbacks<TAsset> : IAssetLoadingCallbacks<TAsset>
     {
         private readonly Action<TAsset> _onLoaded;
         private readonly Action<float> _onProgress;

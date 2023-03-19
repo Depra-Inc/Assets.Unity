@@ -1,10 +1,9 @@
 ﻿using System;
 using Depra.Assets.Runtime.Abstract.Loading;
-using Object = UnityEngine.Object;
 
 namespace Depra.Assets.Runtime.Files
 {
-    public interface ILoadableAsset<out TAsset> : IAssetFile where TAsset : Object
+    public interface ILoadableAsset<out TAsset> : IAssetFile
     {
         TAsset Load();
 

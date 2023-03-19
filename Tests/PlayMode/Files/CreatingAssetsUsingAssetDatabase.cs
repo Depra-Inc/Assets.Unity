@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.IO;
 using Depra.Assets.Runtime.Abstract.Loading;
+using Depra.Assets.Runtime.Files;
 using Depra.Assets.Runtime.Files.Database;
 using Depra.Assets.Runtime.Utils;
 using NUnit.Framework;
@@ -59,13 +60,14 @@ namespace Depra.Assets.Tests.PlayMode.Files
             _stopwatch.Stop();
 
             // Assert.
-            Assert.IsNotNull(loadedAsset);
-            Assert.IsTrue(databaseAsset.IsLoaded);
+            Assert.That(loadedAsset, Is.Not.Null);
+            Assert.That(databaseAsset.IsLoaded);
 
             // Debug.
             Debug.Log($"Loaded [{loadedAsset.name}] " +
                       $"from {nameof(AssetDatabase)} " +
-                      $"in {_stopwatch.ElapsedMilliseconds} ms.");
+                      $"in {_stopwatch.ElapsedMilliseconds} ms.\n" +
+                      $"Size: {databaseAsset.Size.ToHumanReadableString()}.");
         }
 
         private sealed class ScriptableAsset : ScriptableObject { }

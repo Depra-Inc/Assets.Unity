@@ -41,8 +41,8 @@ namespace Depra.Assets.Tests.EditMode.Files
             var loadedAsset = databaseAsset.Load();
 
             // Assert.
-            Assert.IsNotNull(loadedAsset);
-            Assert.IsTrue(databaseAsset.IsLoaded);
+            Assert.That(loadedAsset, Is.Not.Null);
+            Assert.That(databaseAsset.IsLoaded);
 
             // Debug.
             Debug.Log($"Created [{loadedAsset.name}] with path: {databaseAsset.Path}.");
@@ -59,8 +59,8 @@ namespace Depra.Assets.Tests.EditMode.Files
             databaseAsset.Unload();
 
             // Assert.
-            Assert.IsNotNull(createdAsset);
-            Assert.IsFalse(databaseAsset.IsLoaded);
+            Assert.That(createdAsset, Is.Not.Null);
+            Assert.That(databaseAsset.IsLoaded, Is.False);
 
             // Debug.
             Debug.Log($"Created and deleted [{nameof(ScriptableAsset)}] with path: {databaseAsset.Path}.");

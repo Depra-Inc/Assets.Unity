@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using Depra.Assets.Runtime.Abstract.Loading;
+using Depra.Assets.Runtime.Files;
 using Depra.Assets.Runtime.Files.Bundles.Files;
 using Depra.Assets.Tests.PlayMode.Types;
 using Depra.Assets.Tests.PlayMode.Utils;
@@ -52,11 +53,12 @@ namespace Depra.Assets.Tests.PlayMode.Files
             var loadedAssetBundle = assetBundleFile.Load();
 
             // Assert.
-            Assert.IsNotNull(loadedAssetBundle);
-            Assert.IsTrue(assetBundleFile.IsLoaded);
+            Assert.That(loadedAssetBundle, Is.Not.Null);
+            Assert.That(assetBundleFile.IsLoaded);
             
             // Debug.
-            Debug.Log($"Loaded bundle [{loadedAssetBundle.name}] by path: [{assetBundleFile.Path}].");
+            var assetSize = assetBundleFile.Size.ToHumanReadableString();
+            Debug.Log($"Loaded bundle [{loadedAssetBundle.name} : {assetSize}] by path: [{assetBundleFile.Path}].");
             
             yield return Free(loadedAssetBundle);
         }
@@ -67,6 +69,7 @@ namespace Depra.Assets.Tests.PlayMode.Files
         {
             // Arrange.
             assetBundleFile.Load();
+            var assetSize = assetBundleFile.Size.ToHumanReadableString();
             yield return null;
 
             // Act.
@@ -74,10 +77,11 @@ namespace Depra.Assets.Tests.PlayMode.Files
             yield return null;
 
             // Assert.
-            Assert.IsFalse(assetBundleFile.IsLoaded);
+            Assert.That(assetBundleFile.IsLoaded, Is.False);
             
             // Debug.
-            Debug.Log($"Loaded and unloaded bundle [{assetBundleFile.Name}] by path: [{assetBundleFile.Path}].");
+            Debug.Log($"Loaded and unloaded bundle [{assetBundleFile.Name} : {assetSize}] " +
+                      $"by path: [{assetBundleFile.Path}].");
         }
 
         [UnityTest]
@@ -101,13 +105,14 @@ namespace Depra.Assets.Tests.PlayMode.Files
             _stopwatch.Stop();
 
             // Assert.
-            Assert.NotNull(loadedAssetBundle);
-            Assert.IsTrue(assetBundleFile.IsLoaded);
+            Assert.That(loadedAssetBundle, Is.Not.Null);
+            Assert.That(assetBundleFile.IsLoaded);
             
             // Debug.
             Debug.Log($"Loaded bundle [{loadedAssetBundle.name}] " +
                       $"by path: [{assetBundleFile.Path}] " +
-                      $"in {_stopwatch.ElapsedMilliseconds} ms.");
+                      $"in {_stopwatch.ElapsedMilliseconds} ms.\n" +
+                      $"Size: {assetBundleFile.Size.ToHumanReadableString()}");
             
             yield return Free(loadedAssetBundle);
         }

@@ -24,6 +24,8 @@ namespace Depra.Assets.Editor.Files
 
         public string Name => _asset.Name;
         public string Path => _asset.Path;
+        
+        public FileSize Size => _asset.Size;
         public bool IsLoaded => _loadedAsset != null;
 
         public TAsset Load()

@@ -117,9 +117,9 @@ namespace Depra.Assets.Tests.EditMode.Files
         private sealed class InvalidAsset : ILoadableAsset<TestScriptableAsset>
         {
             public string Name => nameof(TestScriptableAsset);
-
             public string Path => throw new NotImplementedException();
 
+            public FileSize Size => FileSize.Zero;
             public bool IsLoaded => throw new NotImplementedException();
 
             public TestScriptableAsset Load() => throw new NotImplementedException();

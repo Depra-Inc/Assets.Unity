@@ -5,7 +5,7 @@ namespace Depra.Assets.Runtime.Abstract.Loading
 {
     public interface IAssetLoadingCallbacks : IAssetLoadingCallbacks<Object> { }
 
-    public interface IAssetLoadingCallbacks<in TAsset> where TAsset : Object
+    public interface IAssetLoadingCallbacks<in TAsset>
     {
         void InvokeLoadedEvent(TAsset loadedAsset);
 

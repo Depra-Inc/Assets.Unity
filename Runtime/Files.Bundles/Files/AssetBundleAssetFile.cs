@@ -4,6 +4,7 @@ using Depra.Assets.Runtime.Abstract.Loading;
 using Depra.Assets.Runtime.Common;
 using Depra.Assets.Runtime.Files.Bundles.Exceptions;
 using Depra.Assets.Runtime.Internal.Patterns;
+using UnityEngine.Profiling;
 using Object = UnityEngine.Object;
 
 namespace Depra.Assets.Runtime.Files.Bundles.Files
@@ -23,7 +24,12 @@ namespace Depra.Assets.Runtime.Files.Bundles.Files
 
         public string Name => _ident.Name;
         public string Path => _ident.Path;
+
         public bool IsLoaded => _loadedAsset != null;
+
+        public FileSize Size => IsLoaded
+            ? new FileSize(Profiler.GetRuntimeMemorySizeLong(_loadedAsset))
+            : throw new AssetBundleFileNotLoadedException(Name, _assetBundle.Name);
 
         public TAsset Load()
         {

@@ -1,11 +1,13 @@
 ﻿using System;
 using System.IO;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using Depra.Assets.Runtime.Abstract.Loading;
 using Depra.Assets.Runtime.Internal.Patterns;
 using Depra.Assets.Runtime.Utils;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Profiling;
 using static Depra.Assets.Runtime.Common.Constants;
 using Object = UnityEngine.Object;
 
@@ -19,18 +21,22 @@ namespace Depra.Assets.Runtime.Files.Database
 
         private TAsset _loadedAsset;
 
-        public DatabaseAsset(string directoryName, string name, string typeExtension = AssetTypes.BASE)
+        public DatabaseAsset(string directoryPath, string name, string typeExtension = AssetTypes.BASE)
         {
             Name = name;
             _assetType = typeof(TAsset);
-            _absoluteDirectoryPath = System.IO.Path.Combine(Application.dataPath, directoryName);
-            _absoluteFilePath = System.IO.Path.Combine(_absoluteDirectoryPath, Name);
-            Path = System.IO.Path.Combine(ASSETS_FOLDER_NAME, directoryName, Name + typeExtension);
+            _absoluteDirectoryPath = System.IO.Path.Combine(Application.dataPath, directoryPath);
+            var nameWithExtension = Name + typeExtension;
+            _absoluteFilePath = System.IO.Path.Combine(_absoluteDirectoryPath, nameWithExtension);
+            var projectPath = System.IO.Path.Combine(ASSETS_FOLDER_NAME, directoryPath, nameWithExtension);
+            Path = projectPath;
         }
 
         public string Name { get; }
         public string Path { get; }
+        
         public bool IsLoaded => _loadedAsset != null;
+        public FileSize Size => new(Profiler.GetRuntimeMemorySizeLong(_loadedAsset));
 
         public TAsset Load()
         {
@@ -48,7 +54,7 @@ namespace Depra.Assets.Runtime.Files.Database
 #endif
             if (asset == null)
             {
-               asset = CreateAsset();
+                asset = CreateAsset();
             }
 
             EnsureAsset(asset);
@@ -92,7 +98,7 @@ namespace Depra.Assets.Runtime.Files.Database
                     callbacks.InvokeFailedEvent(exception);
                 }
             });
-            
+
             return new EmptyDisposable();
         }
 

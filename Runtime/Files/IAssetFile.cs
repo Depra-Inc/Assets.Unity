@@ -7,5 +7,7 @@
         string Path { get; }
         
         bool IsLoaded { get; }
+        
+        FileSize Size { get; }
     }
 }

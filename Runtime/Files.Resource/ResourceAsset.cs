@@ -9,6 +9,7 @@ using Depra.Assets.Runtime.Internal.Patterns;
 using Depra.Assets.Runtime.Utils;
 using Depra.Coroutines.Domain.Entities;
 using UnityEngine;
+using UnityEngine.Profiling;
 using Object = UnityEngine.Object;
 
 namespace Depra.Assets.Runtime.Files.Resource
@@ -30,6 +31,10 @@ namespace Depra.Assets.Runtime.Files.Resource
         public string Path => _ident.Path;
 
         public bool IsLoaded => _loadedAsset != null;
+
+        public FileSize Size => IsLoaded
+            ? new FileSize(Profiler.GetRuntimeMemorySizeLong(_loadedAsset))
+            : throw new ResourceNotLoadedException(Path);
 
         public TAsset Load()
         {

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using Depra.Assets.Runtime.Abstract.Loading;
 using Depra.Assets.Runtime.Common;
+using Depra.Assets.Runtime.Files;
 using Depra.Assets.Runtime.Files.Bundles.Files;
 using Depra.Assets.Tests.PlayMode.Exceptions;
 using Depra.Assets.Tests.PlayMode.Types;
@@ -72,11 +73,12 @@ namespace Depra.Assets.Tests.PlayMode.Files
             var loadedAsset = bundleAsset.Load();
 
             // Assert.
-            Assert.IsNotNull(loadedAsset);
-            Assert.IsTrue(bundleAsset.IsLoaded);
+            Assert.That(loadedAsset, Is.Not.Null);
+            Assert.That(bundleAsset.IsLoaded);
 
             // Debug.
-            Debug.Log($"Loaded [{loadedAsset.name}] from bundle {assetBundleFile.Name}.");
+            var assetSize = bundleAsset.Size.ToHumanReadableString();
+            Debug.Log($"Loaded [{loadedAsset.name} : {assetSize}] from bundle {assetBundleFile.Name}.");
 
             yield return Free(assetBundleFile);
         }
@@ -89,6 +91,7 @@ namespace Depra.Assets.Tests.PlayMode.Files
             // Arrange.
             var bundleAsset = new AssetBundleAssetFile<TestScriptableAsset>(assetIdent, assetBundleFile);
             bundleAsset.Load();
+            var assetSize = bundleAsset.Size.ToHumanReadableString();
             yield return null;
 
             // Act.
@@ -96,10 +99,10 @@ namespace Depra.Assets.Tests.PlayMode.Files
             yield return null;
 
             // Assert.
-            Assert.IsFalse(bundleAsset.IsLoaded);
+            Assert.That(bundleAsset.IsLoaded, Is.False);
 
             // Debug.
-            Debug.Log($"Loaded and unloaded [{bundleAsset.Name}] from bundle [{assetBundleFile.Name}].");
+            Debug.Log($"Loaded and unloaded [{bundleAsset.Name} : {assetSize}] from bundle [{assetBundleFile.Name}].");
 
             yield return Free(assetBundleFile);
         }
@@ -111,13 +114,14 @@ namespace Depra.Assets.Tests.PlayMode.Files
         {
             // Arrange.
             TestScriptableAsset loadedAsset = null;
+            var assetFromBundle = new AssetBundleAssetFile<TestScriptableAsset>(assetIdent, assetBundleFile);
             var assetLoadingCallbacks = new AssetLoadingCallbacks<TestScriptableAsset>(
                 onLoaded: asset => loadedAsset = asset,
                 onFailed: exception => throw exception);
 
             // Act.
             _stopwatch.Restart();
-            assetBundleFile.LoadAsync(assetIdent.Name, assetLoadingCallbacks);
+            assetFromBundle.LoadAsync(assetLoadingCallbacks);
             while (loadedAsset == null)
             {
                 yield return null;
@@ -126,12 +130,13 @@ namespace Depra.Assets.Tests.PlayMode.Files
             _stopwatch.Stop();
 
             // Assert.
-            Assert.NotNull(loadedAsset);
+            Assert.That(loadedAsset, Is.Not.Null);
 
             // Debug.
             Debug.Log($"Loaded [{loadedAsset.name}] " +
-                      $"from bundle [{assetBundleFile.Name}] " +
-                      $"in {_stopwatch.ElapsedMilliseconds} ms.");
+                      $"from bundle [{assetFromBundle.Name}] " +
+                      $"in {_stopwatch.ElapsedMilliseconds} ms.\n" +
+                      $"Size: {assetFromBundle.Size.ToHumanReadableString()}");
 
             yield return Free(assetBundleFile);
         }

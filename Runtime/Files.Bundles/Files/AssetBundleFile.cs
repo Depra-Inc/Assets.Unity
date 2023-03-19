@@ -6,6 +6,7 @@ using Depra.Assets.Runtime.Abstract.Loading;
 using Depra.Assets.Runtime.Bundle.Files;
 using Depra.Assets.Runtime.Common;
 using Depra.Assets.Runtime.Files.Bundles.Exceptions;
+using Depra.Assets.Runtime.Files.Bundles.Extensions;
 using Depra.Assets.Runtime.Internal.Patterns;
 using Depra.Assets.Runtime.Utils;
 using Depra.Coroutines.Domain.Entities;
@@ -29,7 +30,12 @@ namespace Depra.Assets.Runtime.Files.Bundles.Files
 
         public string Name => _ident.Name;
         public string Path => _ident.Path;
+
         public bool IsLoaded => _loadedAssetBundle != null;
+
+        public FileSize Size => IsLoaded
+            ? _loadedAssetBundle.Size()
+            : throw new AssetBundleNotLoadedException(Path);
 
         public TAsset Load<TAsset>(string name) where TAsset : Object
         {
