@@ -6,7 +6,8 @@ namespace Depra.Assets.Runtime.Files
         public readonly double SizeInKilobytes;
         public readonly double SizeInMegabytes;
 
-        public static FileSize Zero => new FileSize(0);
+        public static FileSize Zero => new(0);
+        public static FileSize Unknown => new(-1);
 
         public FileSize(long sizeInBytes)
         {

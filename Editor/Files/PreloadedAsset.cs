@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Linq;
-using Depra.Assets.Runtime.Abstract.Loading;
+using System.Runtime.CompilerServices;
+using Depra.Assets.Runtime.Common;
 using Depra.Assets.Runtime.Files;
-using Depra.Assets.Runtime.Internal.Patterns;
 using UnityEditor;
-using IDisposable = System.IDisposable;
+using UnityEngine.Profiling;
 using Object = UnityEngine.Object;
 
 namespace Depra.Assets.Editor.Files
@@ -24,9 +24,9 @@ namespace Depra.Assets.Editor.Files
 
         public string Name => _asset.Name;
         public string Path => _asset.Path;
-        
-        public FileSize Size => _asset.Size;
+
         public bool IsLoaded => _loadedAsset != null;
+        public FileSize Size { get; private set; } = FileSize.Unknown;
 
         public TAsset Load()
         {
@@ -40,8 +40,8 @@ namespace Depra.Assets.Editor.Files
             {
                 loadedAsset = _asset.Load();
             }
-
-            return _loadedAsset = loadedAsset;
+            
+            return OnLoaded(loadedAsset);
         }
 
         public void Unload()
@@ -55,7 +55,8 @@ namespace Depra.Assets.Editor.Files
             _loadedAsset = null;
         }
 
-        public IDisposable LoadAsync(IAssetLoadingCallbacks<TAsset> callbacks)
+        public IDisposable LoadAsync(Action<TAsset> onLoaded, Action<float> onProgress = null,
+            Action<Exception> onFailed = null)
         {
             if (IsLoaded)
             {
@@ -68,16 +69,16 @@ namespace Depra.Assets.Editor.Files
                 return OnLoadedInstantly(asset);
             }
 
-            var loadingOperation = _asset.LoadAsync(callbacks
-                .ReturnTo(loadedAsset => _loadedAsset = loadedAsset));
+            var loadingOperation = _asset.LoadAsync(onLoaded: _ => OnLoaded(_), onProgress, onFailed);
 
             return loadingOperation;
 
             IDisposable OnLoadedInstantly(TAsset readyAsset)
             {
-                callbacks.InvokeProgressEvent(1f);
-                callbacks.InvokeLoadedEvent(readyAsset);
-                return new EmptyDisposable();
+                onProgress?.Invoke(1f);
+                onLoaded.Invoke(readyAsset);
+
+                return AsyncActionToken.Empty;
             }
         }
 
@@ -105,6 +106,16 @@ namespace Depra.Assets.Editor.Files
 
             return asset != null;
         }
+
+        private TAsset OnLoaded(TAsset loadedAsset)
+        {
+            RefreshSize(_loadedAsset = loadedAsset);
+            return _loadedAsset;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void RefreshSize(Object asset) =>
+            Size = new FileSize(Profiler.GetRuntimeMemorySizeLong(asset));
 
         void IDisposable.Dispose() => Unload();
     }

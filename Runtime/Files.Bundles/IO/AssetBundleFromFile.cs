@@ -1,6 +1,5 @@
-﻿using System.Collections;
-using Depra.Assets.Runtime.Abstract.Loading;
-using Depra.Assets.Runtime.Bundle.Files;
+﻿using System;
+using System.Collections;
 using Depra.Assets.Runtime.Common;
 using Depra.Assets.Runtime.Files.Bundles.Files;
 using Depra.Coroutines.Domain.Entities;
@@ -18,16 +17,18 @@ namespace Depra.Assets.Runtime.Files.Bundles.IO
         protected override AssetBundle LoadOverride() =>
             AssetBundle.LoadFromFile(Path);
 
-        protected override IEnumerator LoadingProcess(IAssetLoadingCallbacks<AssetBundle> callbacks)
+        protected override IEnumerator LoadingProcess(Action<AssetBundle> onLoaded, Action<float> onProgress = null,
+            Action<Exception> onFailed = null)
         {
             var createRequest = AssetBundle.LoadFromFileAsync(Path);
             while (createRequest.isDone == false)
             {
-                callbacks.InvokeProgressEvent(createRequest.progress);
+                onProgress?.Invoke(createRequest.progress);
                 yield return null;
             }
 
-            callbacks.InvokeLoadedEvent(createRequest.assetBundle);
+            onProgress?.Invoke(1f);
+            onLoaded.Invoke(createRequest.assetBundle);
         }
     }
 }

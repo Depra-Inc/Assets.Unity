@@ -1,13 +1,9 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 using System.Diagnostics;
-using Depra.Assets.Runtime.Abstract.Loading;
 using Depra.Assets.Runtime.Common;
 using Depra.Assets.Runtime.Files;
 using Depra.Assets.Runtime.Files.Bundles.Files;
-using Depra.Assets.Tests.PlayMode.Exceptions;
 using Depra.Assets.Tests.PlayMode.Types;
-using Depra.Assets.Tests.PlayMode.Utils;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
@@ -18,34 +14,14 @@ namespace Depra.Assets.Tests.PlayMode.Files
     [TestFixture(TestOf = typeof(AssetBundleAssetFile<>))]
     internal sealed class LoadingAssetsFromBundles
     {
-        private static TestCoroutineHost _coroutineHost;
         private Stopwatch _stopwatch;
         private AssetIdent _assetIdent;
+        private AssetBundle _testAssetBundle;
+        private TestCoroutineHost _coroutineHost;
 
-        private static TestCoroutineHost CoroutineHost => 
-            _coroutineHost ??= TestCoroutineHost.Create();
-
-        private static IEnumerable<AssetBundleFile> AllBundles() =>
-            Load.AllBundles(CoroutineHost);
-
-        private static IEnumerable<AssetIdent> AssetIdents()
+        private static IEnumerator Free(AssetBundle assetBundle)
         {
-            var assetBundle = Load.AssetBundle();
-            var assetNames = assetBundle.Assets;
-            if (assetNames == null || assetNames.Length == 0)
-            {
-                throw new TestAssetsConfigurationException(assetBundle.BundleName);
-            }
-
-            foreach (var assetName in assetNames)
-            {
-                yield return new AssetIdent(assetName, assetBundle.Path);
-            }
-        }
-
-        private static IEnumerator Free(AssetBundleFile assetBundleFile)
-        {
-            assetBundleFile.Unload();
+            assetBundle.Unload(true);
             yield return null;
         }
 
@@ -53,8 +29,12 @@ namespace Depra.Assets.Tests.PlayMode.Files
         public void Setup()
         {
             _stopwatch = new Stopwatch();
+            _coroutineHost = TestCoroutineHost.Create();
+            var assetBundleReference = TestAssetBundleRef.Load();
+            _testAssetBundle = AssetBundle.LoadFromFile(assetBundleReference.AbsolutePath);
+            _assetIdent = new AssetIdent(assetBundleReference.SingleAssetName, assetBundleReference.Path);
         }
-        
+
         [OneTimeTearDown]
         public void OneTimeTearDown()
         {
@@ -62,12 +42,12 @@ namespace Depra.Assets.Tests.PlayMode.Files
         }
 
         [UnityTest]
-        public IEnumerator AssetFromBundleShouldBeLoaded(
-            [ValueSource(nameof(AssetIdents))] AssetIdent assetIdent,
-            [ValueSource(nameof(AllBundles))] AssetBundleFile assetBundleFile)
+        public IEnumerator AssetFromBundleShouldBeLoaded()
         {
             // Arrange.
-            var bundleAsset = new AssetBundleAssetFile<TestScriptableAsset>(assetIdent, assetBundleFile);
+            var ident = _assetIdent;
+            var bundle = _testAssetBundle;
+            var bundleAsset = new AssetBundleAssetFile<TestScriptableAsset>(ident, bundle, _coroutineHost);
 
             // Act.
             var loadedAsset = bundleAsset.Load();
@@ -77,21 +57,19 @@ namespace Depra.Assets.Tests.PlayMode.Files
             Assert.That(bundleAsset.IsLoaded);
 
             // Debug.
-            var assetSize = bundleAsset.Size.ToHumanReadableString();
-            Debug.Log($"Loaded [{loadedAsset.name} : {assetSize}] from bundle {assetBundleFile.Name}.");
+            Debug.Log($"Loaded [{loadedAsset.name}] from bundle {bundle.name}.");
 
-            yield return Free(assetBundleFile);
+            yield return Free(bundle);
         }
 
         [UnityTest]
-        public IEnumerator AssetFromBundleShouldBeUnloaded(
-            [ValueSource(nameof(AssetIdents))] AssetIdent assetIdent,
-            [ValueSource(nameof(AllBundles))] AssetBundleFile assetBundleFile)
+        public IEnumerator AssetFromBundleShouldBeUnloaded()
         {
             // Arrange.
-            var bundleAsset = new AssetBundleAssetFile<TestScriptableAsset>(assetIdent, assetBundleFile);
+            var ident = _assetIdent;
+            var bundle = _testAssetBundle;
+            var bundleAsset = new AssetBundleAssetFile<TestScriptableAsset>(ident, bundle, _coroutineHost);
             bundleAsset.Load();
-            var assetSize = bundleAsset.Size.ToHumanReadableString();
             yield return null;
 
             // Act.
@@ -102,26 +80,26 @@ namespace Depra.Assets.Tests.PlayMode.Files
             Assert.That(bundleAsset.IsLoaded, Is.False);
 
             // Debug.
-            Debug.Log($"Loaded and unloaded [{bundleAsset.Name} : {assetSize}] from bundle [{assetBundleFile.Name}].");
+            Debug.Log($"Loaded and unloaded [{bundleAsset.Name}] from bundle [{bundle.name}].");
 
-            yield return Free(assetBundleFile);
+            yield return Free(bundle);
         }
 
         [UnityTest]
-        public IEnumerator AssetFromBundleShouldBeLoadedAsync(
-            [ValueSource(nameof(AssetIdents))] AssetIdent assetIdent,
-            [ValueSource(nameof(AllBundles))] AssetBundleFile assetBundleFile)
+        public IEnumerator AssetFromBundleShouldBeLoadedAsync()
         {
             // Arrange.
+            var ident = _assetIdent;
+            var bundle = _testAssetBundle;
             TestScriptableAsset loadedAsset = null;
-            var assetFromBundle = new AssetBundleAssetFile<TestScriptableAsset>(assetIdent, assetBundleFile);
-            var assetLoadingCallbacks = new AssetLoadingCallbacks<TestScriptableAsset>(
-                onLoaded: asset => loadedAsset = asset,
-                onFailed: exception => throw exception);
+            var assetFromBundle = new AssetBundleAssetFile<TestScriptableAsset>(ident, bundle, _coroutineHost);
 
             // Act.
             _stopwatch.Restart();
-            assetFromBundle.LoadAsync(assetLoadingCallbacks);
+            assetFromBundle.LoadAsync(
+                onLoaded: asset => loadedAsset = asset,
+                onFailed: exception => throw exception);
+
             while (loadedAsset == null)
             {
                 yield return null;
@@ -135,10 +113,69 @@ namespace Depra.Assets.Tests.PlayMode.Files
             // Debug.
             Debug.Log($"Loaded [{loadedAsset.name}] " +
                       $"from bundle [{assetFromBundle.Name}] " +
-                      $"in {_stopwatch.ElapsedMilliseconds} ms.\n" +
-                      $"Size: {assetFromBundle.Size.ToHumanReadableString()}");
+                      $"in {_stopwatch.ElapsedMilliseconds} ms.");
 
-            yield return Free(assetBundleFile);
+            yield return Free(bundle);
+        }
+
+        [UnityTest]
+        public IEnumerator AssetFromBundleShouldBeLoadedAsyncWithProgress()
+        {
+            // Arrange.
+            var callbacksCalled = false;
+            var callbackCalls = 0;
+            var ident = _assetIdent;
+            var bundle = _testAssetBundle;
+            var assetFromBundle = new AssetBundleAssetFile<TestScriptableAsset>(ident, bundle, _coroutineHost);
+
+            // Act.
+            _stopwatch.Restart();
+            assetFromBundle.LoadAsync(onLoaded: null,
+                onProgress: _ =>
+                {
+                    callbackCalls++;
+                    callbacksCalled = true;
+                },
+                onFailed: exception => throw exception);
+
+            while (assetFromBundle.IsLoaded == false)
+            {
+                yield return null;
+            }
+
+            _stopwatch.Stop();
+
+            // Assert.
+            Assert.That(callbacksCalled);
+
+            // Debug.
+            Debug.Log("Progress event was called " +
+                      $"{callbackCalls} times " +
+                      $"in {_stopwatch.ElapsedMilliseconds} ms.");
+
+            yield return Free(bundle);
+        }
+
+        [UnityTest]
+        public IEnumerator AssetFromBundleSizeShouldNotBeZeroOrUnknown()
+        {
+            // Arrange.
+            var ident = _assetIdent;
+            var bundle = _testAssetBundle;
+            var bundleAsset = new AssetBundleAssetFile<TestScriptableAsset>(ident, bundle, _coroutineHost);
+            bundleAsset.Load();
+
+            // Act.
+            var assetSize = bundleAsset.Size;
+
+            // Assert.
+            Assert.That(assetSize, Is.Not.EqualTo(FileSize.Zero));
+            Assert.That(assetSize, Is.Not.EqualTo(FileSize.Unknown));
+
+            // Debug.
+            Debug.Log($"Size of [{ident.Name}] is {assetSize.ToHumanReadableString()}.");
+
+            yield return Free(bundle);
         }
     }
 }

@@ -1,11 +1,12 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
-using Depra.Assets.Runtime.Abstract.Loading;
+using Depra.Assets.Runtime.Common;
 using Depra.Assets.Runtime.Files;
 using Depra.Assets.Runtime.Files.Bundles.Files;
+using Depra.Assets.Runtime.Files.Bundles.IO;
+using Depra.Assets.Runtime.Files.Bundles.Memory;
 using Depra.Assets.Tests.PlayMode.Types;
-using Depra.Assets.Tests.PlayMode.Utils;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
@@ -19,12 +20,20 @@ namespace Depra.Assets.Tests.PlayMode.Files
         private static TestCoroutineHost _coroutineHost;
         private Stopwatch _stopwatch;
 
-        private static TestCoroutineHost CoroutineHost => 
+        private static TestCoroutineHost CoroutineHost =>
             _coroutineHost ??= TestCoroutineHost.Create();
-        
-        private static IEnumerable<AssetBundleFile> AllBundles() => 
-            Load.AllBundles(CoroutineHost);
-        
+
+        private static IEnumerable<AssetBundleFile> AllBundles()
+        {
+            var assetBundleRef = TestAssetBundleRef.Load();
+            var bundleIdent = new AssetIdent(assetBundleRef.BundleName, assetBundleRef.AbsoluteDirectoryPath);
+
+            yield return new AssetBundleFromFile(bundleIdent, CoroutineHost);
+            yield return new AssetBundleFromMemory(bundleIdent, CoroutineHost);
+            yield return new AssetBundleFromStream(bundleIdent, CoroutineHost);
+            //yield return new AssetBundleFromWeb(bundleIdent, CoroutineHost);
+        }
+
         private static IEnumerator Free(AssetBundle assetBundle)
         {
             assetBundle.Unload(true);
@@ -36,7 +45,7 @@ namespace Depra.Assets.Tests.PlayMode.Files
         {
             _stopwatch = new Stopwatch();
         }
-        
+
         [OneTimeTearDown]
         public void OneTimeTearDown()
         {
@@ -44,8 +53,7 @@ namespace Depra.Assets.Tests.PlayMode.Files
         }
 
         [UnityTest]
-        public IEnumerator AssetBundleShouldBeLoaded(
-            [ValueSource(nameof(AllBundles))] AssetBundleFile assetBundleFile)
+        public IEnumerator BundleShouldBeLoaded([ValueSource(nameof(AllBundles))] AssetBundleFile assetBundleFile)
         {
             // Arrange.
 
@@ -55,21 +63,18 @@ namespace Depra.Assets.Tests.PlayMode.Files
             // Assert.
             Assert.That(loadedAssetBundle, Is.Not.Null);
             Assert.That(assetBundleFile.IsLoaded);
-            
+
             // Debug.
-            var assetSize = assetBundleFile.Size.ToHumanReadableString();
-            Debug.Log($"Loaded bundle [{loadedAssetBundle.name} : {assetSize}] by path: [{assetBundleFile.Path}].");
-            
+            Debug.Log($"Loaded bundle [{loadedAssetBundle.name}] by path: [{assetBundleFile.Path}].");
+
             yield return Free(loadedAssetBundle);
         }
 
         [UnityTest]
-        public IEnumerator AssetBundleShouldBeUnloaded(
-            [ValueSource(nameof(AllBundles))] AssetBundleFile assetBundleFile)
+        public IEnumerator BundleShouldBeUnloaded([ValueSource(nameof(AllBundles))] AssetBundleFile assetBundleFile)
         {
             // Arrange.
             assetBundleFile.Load();
-            var assetSize = assetBundleFile.Size.ToHumanReadableString();
             yield return null;
 
             // Act.
@@ -78,25 +83,22 @@ namespace Depra.Assets.Tests.PlayMode.Files
 
             // Assert.
             Assert.That(assetBundleFile.IsLoaded, Is.False);
-            
+
             // Debug.
-            Debug.Log($"Loaded and unloaded bundle [{assetBundleFile.Name} : {assetSize}] " +
-                      $"by path: [{assetBundleFile.Path}].");
+            Debug.Log($"Loaded and unloaded bundle [{assetBundleFile.Name}] by path: {assetBundleFile.Path}.");
         }
 
         [UnityTest]
-        public IEnumerator AssetBundleShouldBeLoadedAsync(
-            [ValueSource(nameof(AllBundles))] AssetBundleFile assetBundleFile)
+        public IEnumerator BundleShouldBeLoadedAsync([ValueSource(nameof(AllBundles))] AssetBundleFile assetBundleFile)
         {
             // Arrange.
             AssetBundle loadedAssetBundle = null;
-            var assetLoadingCallbacks = new AssetLoadingCallbacks<AssetBundle>(
-                onLoaded: asset => loadedAssetBundle = asset,
-                onFailed: exception => throw exception);
 
             // Act.
             _stopwatch.Restart();
-            assetBundleFile.LoadAsync(assetLoadingCallbacks);
+            assetBundleFile.LoadAsync(onLoaded: asset => loadedAssetBundle = asset,
+                onFailed: exception => throw exception);
+
             while (loadedAssetBundle == null)
             {
                 yield return null;
@@ -107,13 +109,33 @@ namespace Depra.Assets.Tests.PlayMode.Files
             // Assert.
             Assert.That(loadedAssetBundle, Is.Not.Null);
             Assert.That(assetBundleFile.IsLoaded);
-            
+
             // Debug.
             Debug.Log($"Loaded bundle [{loadedAssetBundle.name}] " +
                       $"by path: [{assetBundleFile.Path}] " +
-                      $"in {_stopwatch.ElapsedMilliseconds} ms.\n" +
-                      $"Size: {assetBundleFile.Size.ToHumanReadableString()}");
-            
+                      $"in {_stopwatch.ElapsedMilliseconds} ms.");
+
+            yield return Free(loadedAssetBundle);
+        }
+
+        [UnityTest]
+        public IEnumerator BundleSizeShouldNotBeZeroOrUnknown(
+            [ValueSource(nameof(AllBundles))] AssetBundleFile assetBundleFile)
+        {
+            // Arrange.
+
+            // Act.
+            var loadedAssetBundle = assetBundleFile.Load();
+            var bundleSize = assetBundleFile.Size;
+            yield return null;
+
+            // Assert.
+            Assert.That(bundleSize, Is.Not.EqualTo(FileSize.Zero));
+            Assert.That(bundleSize, Is.Not.EqualTo(FileSize.Unknown));
+
+            // Debug.
+            Debug.Log($"Size of [{assetBundleFile.Name}] is {bundleSize.ToHumanReadableString()}.");
+
             yield return Free(loadedAssetBundle);
         }
     }

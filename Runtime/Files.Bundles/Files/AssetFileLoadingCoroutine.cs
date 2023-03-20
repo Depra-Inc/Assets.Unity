@@ -3,7 +3,7 @@ using System.Collections;
 using System.Runtime.CompilerServices;
 using Depra.Coroutines.Domain.Entities;
 
-namespace Depra.Assets.Runtime.Bundle.Files
+namespace Depra.Assets.Runtime.Files.Bundles.Files
 {
     public sealed class AssetFileLoadingCoroutine : IDisposable
     {

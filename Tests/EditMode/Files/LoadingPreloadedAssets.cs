@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using Depra.Assets.Editor.Files;
-using Depra.Assets.Runtime.Abstract.Loading;
 using Depra.Assets.Runtime.Files;
 using Depra.Assets.Tests.PlayMode.Types;
 using NUnit.Framework;
@@ -38,7 +37,7 @@ namespace Depra.Assets.Tests.EditMode.Files
         {
             PlayerSettings.SetPreloadedAssets(_initialPreloadedAssets);
         }
-        
+
         [Test]
         public void SingleAssetShouldBeLoaded()
         {
@@ -49,8 +48,8 @@ namespace Depra.Assets.Tests.EditMode.Files
             var loadedAsset = preloadedAsset.Load();
 
             // Assert.
-            Assert.IsNotNull(loadedAsset);
-            Assert.IsTrue(preloadedAsset.IsLoaded);
+            Assert.That(loadedAsset, Is.Not.Null);
+            Assert.That(preloadedAsset.IsLoaded);
 
             // Debug.
             Debug.Log($"Loaded preloaded [{nameof(TestScriptableAsset)}] from {nameof(PlayerSettings)}.");
@@ -67,7 +66,7 @@ namespace Depra.Assets.Tests.EditMode.Files
             preloadedAsset.Unload();
 
             // Assert.
-            Assert.IsFalse(preloadedAsset.IsLoaded);
+            Assert.That(preloadedAsset.IsLoaded, Is.False);
 
             // Debug.
             Debug.Log($"Loaded and unloaded [{preloadedAsset.Name}] from {nameof(PlayerSettings)}.");
@@ -84,9 +83,9 @@ namespace Depra.Assets.Tests.EditMode.Files
             var secondLoadedAsset = resourceAsset.Load();
 
             // Assert.
-            Assert.IsNotNull(firstLoadedAsset);
-            Assert.IsNotNull(secondLoadedAsset);
-            Assert.AreEqual(firstLoadedAsset, secondLoadedAsset);
+            Assert.That(firstLoadedAsset, Is.Not.Null);
+            Assert.That(secondLoadedAsset, Is.Not.Null);
+            Assert.That(firstLoadedAsset, Is.EqualTo(secondLoadedAsset));
 
             // Debug.
             Debug.Log($"Loaded preloaded [{firstLoadedAsset.name}] from {nameof(PlayerSettings)}.");
@@ -99,35 +98,58 @@ namespace Depra.Assets.Tests.EditMode.Files
             // Arrange.
             Object loadedAsset = null;
             var preloadedAsset = new PreloadedAsset<TestScriptableAsset>(_invalidAsset);
-            var assetLoadingCallbacks = new AssetLoadingCallbacks<TestScriptableAsset>(
+
+            // Act.
+            preloadedAsset.LoadAsync(
                 onLoaded: asset => loadedAsset = asset,
                 onFailed: exception => throw exception);
 
-            // Act.
-            preloadedAsset.LoadAsync(assetLoadingCallbacks);
-
             // Assert.
-            Assert.NotNull(loadedAsset);
-            Assert.IsTrue(preloadedAsset.IsLoaded);
+            Assert.That(loadedAsset, Is.Not.Null);
+            Assert.That(preloadedAsset.IsLoaded);
 
             // Debug.
             Debug.Log($"Loaded preloaded [{loadedAsset.name}] from {nameof(PlayerSettings)}.");
         }
 
+        [Test]
+        public void AssetSizeShouldNotBeZeroOrUnknown()
+        {
+            // Arrange.
+            var preloadedAsset = new PreloadedAsset<TestScriptableAsset>(_invalidAsset);
+            preloadedAsset.Load();
+
+            // Act.
+            var assetSize = preloadedAsset.Size;
+
+            // Assert.
+            Assert.That(assetSize, Is.Not.EqualTo(FileSize.Zero));
+            Assert.That(assetSize, Is.Not.EqualTo(FileSize.Unknown));
+
+            // Debug.
+            Debug.Log($"Size of [{preloadedAsset.Name}] is {assetSize.ToHumanReadableString()}.");
+        }
+
         private sealed class InvalidAsset : ILoadableAsset<TestScriptableAsset>
         {
-            public string Name => nameof(TestScriptableAsset);
-            public string Path => throw new NotImplementedException();
+            public string Name =>
+                nameof(TestScriptableAsset);
+
+            public string Path =>
+                throw new NotImplementedException();
+
+            public bool IsLoaded =>
+                throw new NotImplementedException();
 
             public FileSize Size => FileSize.Zero;
-            public bool IsLoaded => throw new NotImplementedException();
 
-            public TestScriptableAsset Load() => throw new NotImplementedException();
+            public TestScriptableAsset Load() =>
+                throw new NotImplementedException();
 
             public void Unload() { }
 
-            public IDisposable LoadAsync(IAssetLoadingCallbacks<TestScriptableAsset> callbacks) =>
-                throw new NotImplementedException();
+            public IDisposable LoadAsync(Action<TestScriptableAsset> onLoaded, Action<float> onProgress = null,
+                Action<Exception> onFailed = null) => throw new NotImplementedException();
         }
     }
 }

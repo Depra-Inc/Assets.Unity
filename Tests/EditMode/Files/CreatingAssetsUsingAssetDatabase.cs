@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using Depra.Assets.Runtime.Files;
 using Depra.Assets.Runtime.Files.Database;
 using NUnit.Framework;
 using UnityEditor;
@@ -32,7 +33,7 @@ namespace Depra.Assets.Tests.EditMode.Files
         }
 
         [Test]
-        public void ScriptableAssetShouldBeCreated()
+        public void AssetShouldBeCreated()
         {
             // Arrange.
             var databaseAsset = new DatabaseAsset<ScriptableAsset>(_directoryName, ASSET_NAME, ASSET_TYPE_EXTENSION);
@@ -45,11 +46,11 @@ namespace Depra.Assets.Tests.EditMode.Files
             Assert.That(databaseAsset.IsLoaded);
 
             // Debug.
-            Debug.Log($"Created [{loadedAsset.name}] with path: {databaseAsset.Path}.");
+            Debug.Log($"Created [{loadedAsset.name}] at path: {databaseAsset.Path}.");
         }
 
         [Test]
-        public void ScriptableAssetShouldBeDeleted()
+        public void LoadedAssetShouldBeDeleted()
         {
             // Arrange.
             var databaseAsset = new DatabaseAsset<ScriptableAsset>(_directoryName, ASSET_NAME, ASSET_TYPE_EXTENSION);
@@ -63,7 +64,26 @@ namespace Depra.Assets.Tests.EditMode.Files
             Assert.That(databaseAsset.IsLoaded, Is.False);
 
             // Debug.
-            Debug.Log($"Created and deleted [{nameof(ScriptableAsset)}] with path: {databaseAsset.Path}.");
+            Debug.Log($"Created and deleted [{nameof(ScriptableAsset)}] " +
+                      $"at path: {databaseAsset.Path}.");
+        }
+        
+        [Test]
+        public void AssetSizeShouldNotBeZeroOrUnknown()
+        {
+            // Arrange.
+            var databaseAsset = new DatabaseAsset<ScriptableAsset>(_directoryName, ASSET_NAME, ASSET_TYPE_EXTENSION);
+            databaseAsset.Load();
+            
+            // Act.
+            var assetSize = databaseAsset.Size;
+
+            // Assert.
+            Assert.That(assetSize, Is.Not.EqualTo(FileSize.Zero));
+            Assert.That(assetSize, Is.Not.EqualTo(FileSize.Unknown));
+
+            // Debug.
+            Debug.Log($"Size of [{databaseAsset.Name}] is {assetSize.ToHumanReadableString()}.");
         }
 
         private sealed class ScriptableAsset : ScriptableObject { }

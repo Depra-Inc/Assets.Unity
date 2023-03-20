@@ -1,9 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
-using Depra.Assets.Runtime.Abstract.Loading;
-using Depra.Assets.Runtime.Internal.Patterns;
+using Depra.Assets.Runtime.Common;
 using Depra.Assets.Runtime.Utils;
 using UnityEditor;
 using UnityEngine;
@@ -34,7 +32,7 @@ namespace Depra.Assets.Runtime.Files.Database
 
         public string Name { get; }
         public string Path { get; }
-        
+
         public bool IsLoaded => _loadedAsset != null;
         public FileSize Size => new(Profiler.GetRuntimeMemorySizeLong(_loadedAsset));
 
@@ -76,13 +74,14 @@ namespace Depra.Assets.Runtime.Files.Database
             _loadedAsset = null;
         }
 
-        public IDisposable LoadAsync(IAssetLoadingCallbacks<TAsset> callbacks)
+        public IDisposable LoadAsync(Action<TAsset> onLoaded, Action<float> onProgress = null,
+            Action<Exception> onFailed = null)
         {
             if (IsLoaded)
             {
-                callbacks.InvokeProgressEvent(1f);
-                callbacks.InvokeLoadedEvent(_loadedAsset);
-                return new EmptyDisposable();
+                onProgress?.Invoke(1f);
+                onLoaded.Invoke(_loadedAsset);
+                return AsyncActionToken.Empty;
             }
 
             var task = UnityMainThreadDispatcher.Instance().EnqueueAsync(() =>
@@ -90,16 +89,16 @@ namespace Depra.Assets.Runtime.Files.Database
                 try
                 {
                     var asset = Load();
-                    callbacks.InvokeProgressEvent(1f);
-                    callbacks.InvokeLoadedEvent(asset);
+                    onProgress?.Invoke(1f);
+                    onLoaded.Invoke(asset);
                 }
                 catch (Exception exception)
                 {
-                    callbacks.InvokeFailedEvent(exception);
+                    onFailed?.Invoke(exception);
                 }
             });
 
-            return new EmptyDisposable();
+            return AsyncActionToken.Empty;
         }
 
         private TAsset CreateAsset()

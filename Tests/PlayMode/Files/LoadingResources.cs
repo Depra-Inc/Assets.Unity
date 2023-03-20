@@ -1,17 +1,16 @@
 ﻿using System.Collections;
 using System.Diagnostics;
 using System.Linq;
-using Depra.Assets.Runtime.Abstract.Loading;
 using Depra.Assets.Runtime.Common;
 using Depra.Assets.Runtime.Files;
 using Depra.Assets.Runtime.Files.Resource;
+using Depra.Assets.Runtime.Files.Resource.Exceptions;
 using Depra.Assets.Tests.PlayMode.Exceptions;
 using Depra.Assets.Tests.PlayMode.Types;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
 using Debug = UnityEngine.Debug;
-using Object = UnityEngine.Object;
 
 namespace Depra.Assets.Tests.PlayMode.Files
 {
@@ -67,11 +66,10 @@ namespace Depra.Assets.Tests.PlayMode.Files
 
             // Assert.
             Assert.That(loadedAsset, Is.Not.Null);
-            Assert.That(resourceAsset.IsLoaded, Is.True);
+            Assert.That(resourceAsset.IsLoaded);
 
             // Debug.
-            var assetSize = resourceAsset.Size.ToHumanReadableString();
-            Debug.Log($"Loaded [{loadedAsset.name} : {assetSize}] from {nameof(Resources)}.");
+            Debug.Log($"Loaded [{loadedAsset.name}] from {nameof(Resources)}.");
 
             yield return Free(loadedAsset);
         }
@@ -90,12 +88,11 @@ namespace Depra.Assets.Tests.PlayMode.Files
             // Assert.
             Assert.That(firstLoadedAsset, Is.Not.Null);
             Assert.That(secondLoadedAsset, Is.Not.Null);
-            Assert.AreEqual(firstLoadedAsset, secondLoadedAsset);
+            Assert.That(firstLoadedAsset, Is.EqualTo(secondLoadedAsset));
 
             // Debug.
-            var assetSize = resourceAsset.Size.ToHumanReadableString();
-            Debug.Log($"Loaded [{firstLoadedAsset.name} : {assetSize}] from {nameof(Resources)}.");
-            Debug.Log($"Loaded [{secondLoadedAsset.name} : {assetSize}] from {nameof(Resources)}.");
+            Debug.Log($"Loaded [{firstLoadedAsset.name}] from {nameof(Resources)}.");
+            Debug.Log($"Loaded [{secondLoadedAsset.name}] from {nameof(Resources)}.");
 
             yield return Free(secondLoadedAsset);
         }
@@ -107,13 +104,13 @@ namespace Depra.Assets.Tests.PlayMode.Files
             var assetIdent = _assetIdent;
             Object loadedAsset = null;
             var resourceAsset = new ResourceAsset<TestScriptableAsset>(assetIdent, _coroutineHost);
-            var assetLoadingCallbacks = new AssetLoadingCallbacks<TestScriptableAsset>(
-                onLoaded: asset => loadedAsset = asset,
-                onFailed: exception => throw exception);
 
             // Act.
             _stopwatch.Restart();
-            resourceAsset.LoadAsync(assetLoadingCallbacks);
+            resourceAsset.LoadAsync(
+                onLoaded: asset => loadedAsset = asset,
+                onFailed: exception => throw exception);
+            
             while (loadedAsset == null)
             {
                 yield return null;
@@ -123,13 +120,12 @@ namespace Depra.Assets.Tests.PlayMode.Files
 
             // Assert.
             Assert.That(loadedAsset, Is.Not.Null);
-            Assert.That(resourceAsset.IsLoaded, Is.True);
+            Assert.That(resourceAsset.IsLoaded);
 
             // Debug.
             Debug.Log($"Loaded [{loadedAsset.name}] " +
                       $"from {nameof(Resources)} " +
-                      $"in {_stopwatch.ElapsedMilliseconds} ms.\n" +
-                      $"Size: {resourceAsset.Size.ToHumanReadableString()}");
+                      $"in {_stopwatch.ElapsedMilliseconds} ms.");
 
             yield return Free(loadedAsset);
         }
@@ -141,7 +137,6 @@ namespace Depra.Assets.Tests.PlayMode.Files
             var assetIdent = _assetIdent;
             var resourceAsset = new ResourceAsset<TestScriptableAsset>(assetIdent, _coroutineHost);
             resourceAsset.Load();
-            var assetSize = resourceAsset.Size.ToHumanReadableString();
             yield return null;
 
             // Act.
@@ -152,7 +147,40 @@ namespace Depra.Assets.Tests.PlayMode.Files
             Assert.That(resourceAsset.IsLoaded, Is.False);
 
             // Debug.
-            Debug.Log($"Loaded and unloaded [{assetIdent.Name} : {assetSize}] from {nameof(Resources)}.");
+            Debug.Log($"Loaded and unloaded [{assetIdent.Name}] from {nameof(Resources)}.");
+        }
+
+        [Test]
+        public void SingleAssetSizeShouldNotBeZeroOrUnknown()
+        {
+            // Arrange.
+            var assetIdent = _assetIdent;
+            var resourceAsset = new ResourceAsset<TestScriptableAsset>(assetIdent, _coroutineHost);
+            resourceAsset.Load();
+
+            // Act.
+            var assetSize = resourceAsset.Size;
+
+            // Assert.
+            Assert.That(assetSize, Is.Not.EqualTo(FileSize.Zero));
+            Assert.That(assetSize, Is.Not.EqualTo(FileSize.Unknown));
+
+            // Debug.
+            Debug.Log($"Size of [{assetIdent.Name}] is {assetSize.ToHumanReadableString()}.");
+        }
+
+        [Test]
+        public void SingleInvalidAssetShouldThrowExceptionOnLoad()
+        {
+            // Arrange.
+            var assetIdent = new AssetIdent(string.Empty, string.Empty);
+            var resourceAsset = new ResourceAsset<InvalidAsset>(assetIdent);
+
+            // Act.
+            void Act() => resourceAsset.Load();
+
+            // Assert.
+            Assert.That(Act, Throws.TypeOf<ResourceNotLoadedException>());
         }
     }
 }

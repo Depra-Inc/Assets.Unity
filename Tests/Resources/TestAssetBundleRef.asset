@@ -13,6 +13,5 @@ MonoBehaviour:
   m_Name: TestAssetBundleRef
   m_EditorClassIdentifier: 
   <Path>k__BackingField: AssetBundle/Windows
-  <Assets>k__BackingField:
-  - TestAsset
   <BundleName>k__BackingField: test
+  <SingleAssetName>k__BackingField: TestAsset

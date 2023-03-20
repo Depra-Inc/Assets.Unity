@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Runtime.CompilerServices;
-using Depra.Assets.Runtime.Abstract.Loading;
 using Depra.Assets.Runtime.Common;
 using Depra.Assets.Runtime.Files.Bundles.Exceptions;
 using Depra.Assets.Runtime.Files.Bundles.Files;
@@ -37,20 +36,21 @@ namespace Depra.Assets.Runtime.Files.Bundles.Web
         /// </summary>
         /// <returns></returns>
         /// <exception cref="AssetBundleLoadingException"></exception>
-        protected override IEnumerator LoadingProcess(IAssetLoadingCallbacks<AssetBundle> callbacks)
+        protected override IEnumerator LoadingProcess(Action<AssetBundle> onLoaded, Action<float> onProgress = null,
+            Action<Exception> onFailed = null)
         {
             using var webRequest = UnityWebRequestAssetBundle.GetAssetBundle(Path);
             webRequest.SendWebRequest();
 
             while (webRequest.isDone == false)
             {
-                callbacks.InvokeProgressEvent(webRequest.downloadProgress);
+                onProgress?.Invoke(webRequest.downloadProgress);
                 yield return null;
             }
 
-            EnsureRequestResult(webRequest, callbacks.InvokeFailedEvent);
+            EnsureRequestResult(webRequest, onFailed);
             var downloadedBundle = DownloadHandlerAssetBundle.GetContent(webRequest);
-            callbacks.InvokeLoadedEvent(downloadedBundle);
+            onLoaded.Invoke(downloadedBundle);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -1,8 +1,6 @@
 ﻿using System.Collections;
 using System.Diagnostics;
 using System.IO;
-using Depra.Assets.Runtime.Abstract.Loading;
-using Depra.Assets.Runtime.Files;
 using Depra.Assets.Runtime.Files.Database;
 using Depra.Assets.Runtime.Utils;
 using NUnit.Framework;
@@ -45,13 +43,13 @@ namespace Depra.Assets.Tests.PlayMode.Files
             // Arrange.
             Object loadedAsset = null;
             var databaseAsset = new DatabaseAsset<ScriptableAsset>(ASSET_DIRECTORY_NAME, ASSET_NAME, ASSET_TYPE_EXTENSION);
-            var loadingCallbacks = new AssetLoadingCallbacks<ScriptableAsset>(
-                onLoaded: asset => loadedAsset = asset,
-                onFailed: exception => throw exception);
 
             // Act.
             _stopwatch.Restart();
-            databaseAsset.LoadAsync(loadingCallbacks);
+            databaseAsset.LoadAsync(
+                onLoaded: asset => loadedAsset = asset,
+                onFailed: exception => throw exception);
+            
             if (loadedAsset == null)
             {
                 yield return null;
@@ -66,8 +64,7 @@ namespace Depra.Assets.Tests.PlayMode.Files
             // Debug.
             Debug.Log($"Loaded [{loadedAsset.name}] " +
                       $"from {nameof(AssetDatabase)} " +
-                      $"in {_stopwatch.ElapsedMilliseconds} ms.\n" +
-                      $"Size: {databaseAsset.Size.ToHumanReadableString()}.");
+                      $"in {_stopwatch.ElapsedMilliseconds} ms.");
         }
 
         private sealed class ScriptableAsset : ScriptableObject { }

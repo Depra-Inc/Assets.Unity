@@ -1,6 +1,10 @@
 ﻿using System.IO;
 using System.Runtime.CompilerServices;
 using UnityEngine;
+#if UNITY_EDITOR
+using UnityEngine.Profiling;
+using UnityEditor;
+#endif
 
 namespace Depra.Assets.Runtime.Files.Bundles.Extensions
 {
@@ -8,6 +12,20 @@ namespace Depra.Assets.Runtime.Files.Bundles.Extensions
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static FileSize Size(this AssetBundle assetBundle)
+        {
+            FileSize fileSize;
+#if UNITY_EDITOR
+            fileSize = SizeInMemory(assetBundle);
+            if (fileSize.SizeInBytes == 0)
+#endif
+            {
+                fileSize = SizeOnDisk(assetBundle);
+            }
+
+            return fileSize;
+        }
+
+        private static FileSize SizeOnDisk(this AssetBundle assetBundle)
         {
             long bytes = 0;
             var allScenePaths = assetBundle.GetAllScenePaths();
@@ -20,5 +38,31 @@ namespace Depra.Assets.Runtime.Files.Bundles.Extensions
 
             return new FileSize(bytes);
         }
+
+#if UNITY_EDITOR
+        private static FileSize SizeInMemory(this Object assetBundle)
+        {
+            long bytes = 0;
+            var assets = AssetDatabase.GetAssetPathsFromAssetBundle(assetBundle.name);
+            foreach (var path in assets)
+            {
+                var fileInfo = new FileInfo(path);
+                if (fileInfo.Exists == false)
+                {
+                    continue;
+                }
+                
+                var mainAsset = AssetDatabase.LoadMainAssetAtPath(path);
+                bytes = Profiler.GetRuntimeMemorySizeLong(mainAsset);
+                // The above isn't supported for all asset types:
+                if (bytes == 0)
+                {
+                    bytes = fileInfo.Length;
+                }
+            }
+
+            return new FileSize(bytes);
+        }
+#endif
     }
 }

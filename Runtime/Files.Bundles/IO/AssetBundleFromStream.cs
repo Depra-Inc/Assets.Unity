@@ -1,8 +1,7 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.IO;
 using System.Runtime.CompilerServices;
-using Depra.Assets.Runtime.Abstract.Loading;
-using Depra.Assets.Runtime.Bundle.Files;
 using Depra.Assets.Runtime.Common;
 using Depra.Assets.Runtime.Files.Bundles.Files;
 using Depra.Coroutines.Domain.Entities;
@@ -25,17 +24,19 @@ namespace Depra.Assets.Runtime.Files.Bundles.IO
             return loadedAssetBundle;
         }
 
-        protected override IEnumerator LoadingProcess(IAssetLoadingCallbacks<AssetBundle> callbacks)
+        protected override IEnumerator LoadingProcess(Action<AssetBundle> onLoaded, Action<float> onProgress = null,
+            Action<Exception> onFailed = null)
         {
             using var stream = OpenStream();
             var createRequest = AssetBundle.LoadFromStreamAsync(stream);
             while (createRequest.isDone == false)
             {
-                callbacks.InvokeProgressEvent(createRequest.progress);
+                onProgress?.Invoke(createRequest.progress);
                 yield return null;
             }
 
-            callbacks.InvokeLoadedEvent(createRequest.assetBundle);
+            onProgress?.Invoke(1f);
+            onLoaded.Invoke(createRequest.assetBundle);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

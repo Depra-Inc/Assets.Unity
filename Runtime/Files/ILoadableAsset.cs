@@ -1,5 +1,4 @@
 ﻿using System;
-using Depra.Assets.Runtime.Abstract.Loading;
 
 namespace Depra.Assets.Runtime.Files
 {
@@ -9,6 +8,9 @@ namespace Depra.Assets.Runtime.Files
 
         void Unload();
 
-        IDisposable LoadAsync(IAssetLoadingCallbacks<TAsset> callbacks);
+        IDisposable LoadAsync(
+            Action<TAsset> onLoaded,
+            Action<float> onProgress = null,
+            Action<Exception> onFailed = null);
     }
 }
