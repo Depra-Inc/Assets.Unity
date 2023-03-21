@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Depra.Assets.Runtime.Async.Tokens;
 using Object = UnityEngine.Object;
 
 namespace Depra.Assets.Runtime.Files
@@ -35,8 +36,10 @@ namespace Depra.Assets.Runtime.Files
             }
         }
 
-        public IDisposable LoadAsync(Action<IEnumerable<Object>> onLoaded, Action<float> onProgress = null, Action<Exception> onFailed = null)
+        public IAsyncToken LoadAsync(Action<IEnumerable<Object>> onLoaded, Action<float> onProgress = null,
+            Action<Exception> onFailed = null)
         {
+            // TODO: Implement queueing of async operations
             throw new NotImplementedException();
         }
 

@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using Depra.Assets.Runtime.Async.Tokens;
 using Depra.Assets.Runtime.Common;
 using Depra.Assets.Runtime.Files.Bundles.Exceptions;
 using Depra.Assets.Runtime.Files.Bundles.Extensions;
@@ -42,7 +43,7 @@ namespace Depra.Assets.Runtime.Files.Bundles.Files
             return OnLoaded(loadedAssetBundle, onFailed: exception => throw exception);
         }
 
-        public IDisposable LoadAsync(Action<AssetBundle> onLoaded, Action<float> onProgress = null,
+        public IAsyncToken LoadAsync(Action<AssetBundle> onLoaded, Action<float> onProgress = null,
             Action<Exception> onFailed = null)
         {
             if (IsLoaded)
@@ -54,13 +55,13 @@ namespace Depra.Assets.Runtime.Files.Bundles.Files
             }
 
             var loadingCoroutine = new AssetFileLoadingCoroutine(_coroutineHost);
-            var loadingOperation = LoadingProcess(
+            var asyncToken = new AsyncActionToken(loadingCoroutine.Cancel);
+            onLoaded += _ => asyncToken.Complete();
+            loadingCoroutine.Start(LoadingProcess(
                 onLoaded: asset => OnLoaded(asset, onFailed, onLoaded),
-                onProgress: onProgress);
+                onProgress: onProgress));
 
-            loadingCoroutine.Start(loadingOperation);
-
-            return loadingCoroutine;
+            return asyncToken;
         }
 
         public void Unload()

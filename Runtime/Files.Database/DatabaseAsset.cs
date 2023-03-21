@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Runtime.CompilerServices;
+using Depra.Assets.Runtime.Async.Tokens;
 using Depra.Assets.Runtime.Common;
 using Depra.Assets.Runtime.Utils;
 using UnityEditor;
@@ -74,7 +75,7 @@ namespace Depra.Assets.Runtime.Files.Database
             _loadedAsset = null;
         }
 
-        public IDisposable LoadAsync(Action<TAsset> onLoaded, Action<float> onProgress = null,
+        public IAsyncToken LoadAsync(Action<TAsset> onLoaded, Action<float> onProgress = null,
             Action<Exception> onFailed = null)
         {
             if (IsLoaded)

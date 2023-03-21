@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using Depra.Assets.Runtime.Common;
+using Depra.Assets.Runtime.Async.Tokens;
 using Depra.Assets.Runtime.Files;
 using UnityEditor;
 using UnityEngine.Profiling;
@@ -55,7 +55,7 @@ namespace Depra.Assets.Editor.Files
             _loadedAsset = null;
         }
 
-        public IDisposable LoadAsync(Action<TAsset> onLoaded, Action<float> onProgress = null,
+        public IAsyncToken LoadAsync(Action<TAsset> onLoaded, Action<float> onProgress = null,
             Action<Exception> onFailed = null)
         {
             if (IsLoaded)
@@ -73,7 +73,7 @@ namespace Depra.Assets.Editor.Files
 
             return loadingOperation;
 
-            IDisposable OnLoadedInstantly(TAsset readyAsset)
+            IAsyncToken OnLoadedInstantly(TAsset readyAsset)
             {
                 onProgress?.Invoke(1f);
                 onLoaded.Invoke(readyAsset);

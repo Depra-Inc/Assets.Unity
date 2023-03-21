@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using UnityEngine;
 
-namespace Depra.Assets.Runtime.Common
+namespace Depra.Assets.Runtime.Async.Tokens
 {
     public interface IAsyncToken
     {
@@ -48,6 +49,7 @@ namespace Depra.Assets.Runtime.Common
             if (IsCompleted == false)
             {
                 _onCancel?.Invoke();
+                Debug.Log("cancel");
             }
         }
 

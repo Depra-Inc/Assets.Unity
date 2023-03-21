@@ -18,34 +18,23 @@ namespace Depra.Assets.Tests.PlayMode.Files
     internal sealed class LoadingResources
     {
         private Stopwatch _stopwatch;
-        private AssetIdent _assetIdent;
-        private TestScriptableAsset _testAsset;
         private TestCoroutineHost _coroutineHost;
-
-        private static IEnumerator Free(Object resourceAsset)
-        {
-            Resources.UnloadAsset(resourceAsset);
-            yield return null;
-        }
-
-        private static TestScriptableAsset PrepareResourceAssetFile()
-        {
-            var allTestResources = Resources.LoadAll<TestResourcesRef>(string.Empty);
-            var resources = allTestResources.FirstOrDefault() ??
-                            throw new TestReferenceNotFoundException(nameof(TestResourcesRef));
-            var testAsset = ScriptableObject.CreateInstance<TestScriptableAsset>();
-            testAsset.Initialize(resources.AssetName, resources.DirectoryPath);
-
-            return testAsset;
-        }
+        private ResourceAsset<TestScriptableAsset> _resourceAsset;
 
         [OneTimeSetUp]
         public void SetUp()
         {
             _stopwatch = new Stopwatch();
-            _testAsset = PrepareResourceAssetFile();
-            _assetIdent = _testAsset.Ident;
             _coroutineHost = TestCoroutineHost.Create();
+            
+            // Load all resources and get the first one.
+            var resources = Resources.LoadAll<TestResourcesRef>(string.Empty)
+                .FirstOrDefault() ?? throw new TestReferenceNotFoundException(nameof(TestResourcesRef));
+            // Create a new asset instance.
+            _ = ScriptableObject.CreateInstance<TestScriptableAsset>();
+            // Create a new resource asset.
+            var assetIdent = new AssetIdent(resources.AssetName, resources.DirectoryPath);
+            _resourceAsset = new ResourceAsset<TestScriptableAsset>(assetIdent, _coroutineHost);
         }
 
         [OneTimeTearDown]
@@ -58,8 +47,7 @@ namespace Depra.Assets.Tests.PlayMode.Files
         public IEnumerator SingleAssetShouldBeLoaded()
         {
             // Arrange.
-            var assetIdent = _assetIdent;
-            var resourceAsset = new ResourceAsset<TestScriptableAsset>(assetIdent, _coroutineHost);
+            var resourceAsset = _resourceAsset;
 
             // Act.
             var loadedAsset = resourceAsset.Load();
@@ -78,8 +66,7 @@ namespace Depra.Assets.Tests.PlayMode.Files
         public IEnumerator MultipleAssetsShouldBeLoadedAndEquals()
         {
             // Arrange.
-            var assetIdent = _assetIdent;
-            var resourceAsset = new ResourceAsset<TestScriptableAsset>(assetIdent, _coroutineHost);
+            var resourceAsset = _resourceAsset;
 
             // Act.
             var firstLoadedAsset = resourceAsset.Load();
@@ -101,16 +88,15 @@ namespace Depra.Assets.Tests.PlayMode.Files
         public IEnumerator SingleAssetShouldBeLoadedAsync()
         {
             // Arrange.
-            var assetIdent = _assetIdent;
             Object loadedAsset = null;
-            var resourceAsset = new ResourceAsset<TestScriptableAsset>(assetIdent, _coroutineHost);
+            var resourceAsset = _resourceAsset;
 
             // Act.
             _stopwatch.Restart();
-            resourceAsset.LoadAsync(
+            var asyncToken = resourceAsset.LoadAsync(
                 onLoaded: asset => loadedAsset = asset,
                 onFailed: exception => throw exception);
-            
+
             while (loadedAsset == null)
             {
                 yield return null;
@@ -121,6 +107,7 @@ namespace Depra.Assets.Tests.PlayMode.Files
             // Assert.
             Assert.That(loadedAsset, Is.Not.Null);
             Assert.That(resourceAsset.IsLoaded);
+            Assert.That(asyncToken.IsCompleted);
 
             // Debug.
             Debug.Log($"Loaded [{loadedAsset.name}] " +
@@ -131,11 +118,33 @@ namespace Depra.Assets.Tests.PlayMode.Files
         }
 
         [UnityTest]
+        public IEnumerator LoadingShouldBeCanceled()
+        {
+            // Arrange.
+            Object loadedAsset = null;
+            var resourceAsset = _resourceAsset;
+
+            // Act.
+            var asyncToken = resourceAsset.LoadAsync(
+                onLoaded: asset => loadedAsset = asset,
+                onFailed: exception => throw exception);
+            asyncToken.Cancel();
+
+            // Assert.
+            Assert.That(loadedAsset, Is.Null);
+            Assert.That(asyncToken.IsCompleted, Is.False);
+
+            // Debug.
+            Debug.Log($"Loading of resource [{resourceAsset.Name}] was canceled.");
+
+            yield return Free(loadedAsset);
+        }
+
+        [UnityTest]
         public IEnumerator SingleAssetShouldBeUnloaded()
         {
             // Arrange.
-            var assetIdent = _assetIdent;
-            var resourceAsset = new ResourceAsset<TestScriptableAsset>(assetIdent, _coroutineHost);
+            var resourceAsset = _resourceAsset;
             resourceAsset.Load();
             yield return null;
 
@@ -147,15 +156,14 @@ namespace Depra.Assets.Tests.PlayMode.Files
             Assert.That(resourceAsset.IsLoaded, Is.False);
 
             // Debug.
-            Debug.Log($"Loaded and unloaded [{assetIdent.Name}] from {nameof(Resources)}.");
+            Debug.Log($"Loaded and unloaded [{resourceAsset.Name}] from {nameof(Resources)}.");
         }
 
         [Test]
         public void SingleAssetSizeShouldNotBeZeroOrUnknown()
         {
             // Arrange.
-            var assetIdent = _assetIdent;
-            var resourceAsset = new ResourceAsset<TestScriptableAsset>(assetIdent, _coroutineHost);
+            var resourceAsset = _resourceAsset;
             resourceAsset.Load();
 
             // Act.
@@ -166,7 +174,7 @@ namespace Depra.Assets.Tests.PlayMode.Files
             Assert.That(assetSize, Is.Not.EqualTo(FileSize.Unknown));
 
             // Debug.
-            Debug.Log($"Size of [{assetIdent.Name}] is {assetSize.ToHumanReadableString()}.");
+            Debug.Log($"Size of [{resourceAsset.Name}] is {assetSize.ToHumanReadableString()}.");
         }
 
         [Test]
@@ -174,13 +182,19 @@ namespace Depra.Assets.Tests.PlayMode.Files
         {
             // Arrange.
             var assetIdent = new AssetIdent(string.Empty, string.Empty);
-            var resourceAsset = new ResourceAsset<InvalidAsset>(assetIdent);
+            var invalidResourceAsset = new ResourceAsset<InvalidAsset>(assetIdent);
 
             // Act.
-            void Act() => resourceAsset.Load();
+            void Act() => invalidResourceAsset.Load();
 
             // Assert.
             Assert.That(Act, Throws.TypeOf<ResourceNotLoadedException>());
+        }
+
+        private IEnumerator Free(Object resourceAsset)
+        {
+            Resources.UnloadAsset(resourceAsset);
+            yield return null;
         }
     }
 }

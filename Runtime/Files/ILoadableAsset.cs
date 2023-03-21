@@ -1,4 +1,5 @@
 ﻿using System;
+using Depra.Assets.Runtime.Async.Tokens;
 
 namespace Depra.Assets.Runtime.Files
 {
@@ -8,7 +9,7 @@ namespace Depra.Assets.Runtime.Files
 
         void Unload();
 
-        IDisposable LoadAsync(
+        IAsyncToken LoadAsync(
             Action<TAsset> onLoaded,
             Action<float> onProgress = null,
             Action<Exception> onFailed = null);

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Runtime.CompilerServices;
+using Depra.Assets.Runtime.Async.Tokens;
 using Depra.Assets.Runtime.Common;
 using Depra.Assets.Runtime.Files.Bundles.Files;
 using Depra.Assets.Runtime.Files.Resource.Exceptions;
@@ -53,7 +54,7 @@ namespace Depra.Assets.Runtime.Files.Resource
             _loadedAsset = null;
         }
 
-        public IDisposable LoadAsync(Action<TAsset> onLoaded, Action<float> onProgress = null,
+        public IAsyncToken LoadAsync(Action<TAsset> onLoaded, Action<float> onProgress = null,
             Action<Exception> onFailed = null)
         {
             if (IsLoaded)
@@ -64,12 +65,13 @@ namespace Depra.Assets.Runtime.Files.Resource
             }
 
             var loadingCoroutine = new AssetFileLoadingCoroutine(_coroutineHost);
-            var loadingOperation = LoadingProcess(
+            var asyncToken = new AsyncActionToken(loadingCoroutine.Cancel);
+            onLoaded += _ => asyncToken.Complete();
+            loadingCoroutine.Start(LoadingProcess(
                 onLoaded: asset => OnLoaded(asset, onFailed, onLoaded),
-                onProgress: onProgress);
-
-            loadingCoroutine.Start(loadingOperation);
-            return loadingCoroutine;
+                onProgress: onProgress));
+            
+            return asyncToken;
         }
 
         private TAsset OnLoaded(TAsset loadedAsset, Action<Exception> onFailed, Action<TAsset> onLoaded = null)

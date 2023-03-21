@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Depra.Assets.Runtime.Common;
+using Depra.Assets.Runtime.Async.Tokens;
 using Depra.Assets.Runtime.Files;
 using Depra.Assets.Tests.PlayMode.Types;
 using NUnit.Framework;
@@ -97,7 +97,7 @@ namespace Depra.Assets.Tests.PlayMode.Files
                 return CreateAsset();
             }
 
-            public IDisposable LoadAsync(Action<TestScriptableAsset> onLoaded, Action<float> onProgress = null,
+            public IAsyncToken LoadAsync(Action<TestScriptableAsset> onLoaded, Action<float> onProgress = null,
                 Action<Exception> onFailed = null)
             {
                 var asset = CreateAsset();

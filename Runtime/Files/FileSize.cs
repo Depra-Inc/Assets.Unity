@@ -22,7 +22,7 @@ namespace Depra.Assets.Runtime.Files
         private const string SIZE_IN_BYTES_FORMAT = "{0} B";
         private const string SIZE_IN_KILOBYTES_FORMAT = "{0} KB";
         private const string SIZE_IN_MEGABYTES_FORMAT = "{0} MB";
-
+        
         public static string ToHumanReadableString(this FileSize fileSize) => fileSize switch
         {
             { SizeInMegabytes: > 1 } => string.Format(SIZE_IN_MEGABYTES_FORMAT, fileSize.SizeInMegabytes),

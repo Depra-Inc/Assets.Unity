@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using Depra.Assets.Editor.Files;
+using Depra.Assets.Runtime.Async.Tokens;
 using Depra.Assets.Runtime.Files;
 using Depra.Assets.Tests.PlayMode.Types;
 using NUnit.Framework;
@@ -148,7 +149,7 @@ namespace Depra.Assets.Tests.EditMode.Files
 
             public void Unload() { }
 
-            public IDisposable LoadAsync(Action<TestScriptableAsset> onLoaded, Action<float> onProgress = null,
+            public IAsyncToken LoadAsync(Action<TestScriptableAsset> onLoaded, Action<float> onProgress = null,
                 Action<Exception> onFailed = null) => throw new NotImplementedException();
         }
     }

@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using System.Runtime.CompilerServices;
 using UnityEngine;
 #if UNITY_EDITOR
@@ -11,6 +12,7 @@ namespace Depra.Assets.Runtime.Files.Bundles.Extensions
     public static class AssetBundleExtensions
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [SuppressMessage("ReSharper", "JoinDeclarationAndInitializer")]
         public static FileSize Size(this AssetBundle assetBundle)
         {
             FileSize fileSize;
@@ -25,6 +27,7 @@ namespace Depra.Assets.Runtime.Files.Bundles.Extensions
             return fileSize;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static FileSize SizeOnDisk(this AssetBundle assetBundle)
         {
             long bytes = 0;
@@ -33,13 +36,17 @@ namespace Depra.Assets.Runtime.Files.Bundles.Extensions
             {
                 var absolutePath = Path.Combine(Application.streamingAssetsPath, scenePath);
                 var fileInfo = new FileInfo(absolutePath);
-                bytes += fileInfo.Length;
+                if (fileInfo.Exists)
+                {
+                    bytes += fileInfo.Length;
+                }
             }
 
             return new FileSize(bytes);
         }
 
 #if UNITY_EDITOR
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static FileSize SizeInMemory(this Object assetBundle)
         {
             long bytes = 0;
@@ -51,7 +58,7 @@ namespace Depra.Assets.Runtime.Files.Bundles.Extensions
                 {
                     continue;
                 }
-                
+
                 var mainAsset = AssetDatabase.LoadMainAssetAtPath(path);
                 bytes = Profiler.GetRuntimeMemorySizeLong(mainAsset);
                 // The above isn't supported for all asset types:

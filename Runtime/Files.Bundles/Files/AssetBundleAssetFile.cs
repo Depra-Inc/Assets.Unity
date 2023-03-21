@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Runtime.CompilerServices;
+using Depra.Assets.Runtime.Async.Tokens;
 using Depra.Assets.Runtime.Common;
 using Depra.Assets.Runtime.Files.Bundles.Exceptions;
 using Depra.Assets.Runtime.Utils;
@@ -51,7 +52,7 @@ namespace Depra.Assets.Runtime.Files.Bundles.Files
             }
         }
 
-        public IDisposable LoadAsync(Action<TAsset> onLoaded, Action<float> onProgress = null,
+        public IAsyncToken LoadAsync(Action<TAsset> onLoaded, Action<float> onProgress = null,
             Action<Exception> onFailed = null)
         {
             if (IsLoaded)
@@ -69,7 +70,7 @@ namespace Depra.Assets.Runtime.Files.Bundles.Files
 
             loadingCoroutine.Start(loadingOperation);
 
-            return loadingCoroutine;
+            return new AsyncActionToken(loadingCoroutine.Cancel);
         }
 
         private TAsset OnLoaded(TAsset asset, Action<Exception> onFailed, Action<TAsset> onLoaded = null)
