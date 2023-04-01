@@ -110,13 +110,53 @@ namespace Depra.Assets.Tests.PlayMode.Files
             // Assert.
             Assert.That(loadedBundle, Is.Not.Null);
             Assert.That(bundleFile.IsLoaded);
-            Assert.That(asyncToken.IsCompleted);
+            Assert.That(asyncToken.IsCanceled, Is.False);
 
             // Debug.
             Debug.Log($"Loaded bundle [{loadedBundle.name}] " +
                       $"by path: [{bundleFile.Path}] " +
                       $"in {_stopwatch.ElapsedMilliseconds} ms.");
 
+            yield return Free(loadedBundle);
+        }
+
+        [UnityTest]
+        public IEnumerator BundleShouldBeLoadedWithProgress(
+            [ValueSource(nameof(AllBundles))] AssetBundleFile bundleFile)
+        {
+            // Arrange.
+            var callbacksCalled = false;
+            var callbackCalls = 0;
+            AssetBundle loadedBundle = null;
+
+            // Act.
+            _stopwatch.Restart();
+            bundleFile.LoadAsync(
+                onLoaded: asset => loadedBundle = asset,
+                onProgress: _ =>
+                {
+                    callbackCalls++;
+                    callbacksCalled = true;
+                },
+                onFailed: exception => throw exception);
+
+            while (bundleFile.IsLoaded == false)
+            {
+                yield return null;
+            }
+
+            _stopwatch.Stop();
+
+            // Assert.
+            Assert.That(callbacksCalled);
+            Assert.That(callbackCalls, Is.GreaterThan(0));
+
+            // Debug.
+            Debug.Log("Progress event was called " +
+                      $"{callbackCalls} times " +
+                      $"in {_stopwatch.ElapsedMilliseconds} ms.");
+
+            // Cleanup.
             yield return Free(loadedBundle);
         }
 
@@ -134,12 +174,12 @@ namespace Depra.Assets.Tests.PlayMode.Files
 
             // Assert.
             Assert.That(loadedBundle, Is.Null);
-            Assert.That(asyncToken.IsCompleted, Is.False);
+            Assert.That(asyncToken.IsCanceled);
 
             // Debug.
             Debug.Log($"Loading of bundle [{bundleFile.Name}] was canceled.");
-            
-            yield return Free(loadedBundle);
+
+            yield return null;
         }
 
         [UnityTest]

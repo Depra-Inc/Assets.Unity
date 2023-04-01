@@ -59,6 +59,7 @@ namespace Depra.Assets.Tests.PlayMode.Files
             // Debug.
             Debug.Log($"Loaded [{loadedAsset.name}] from bundle {bundle.name}.");
 
+            // Cleanup.
             yield return Free(bundle);
         }
 
@@ -81,6 +82,7 @@ namespace Depra.Assets.Tests.PlayMode.Files
             // Debug.
             Debug.Log($"Loaded and unloaded [{bundleAsset.Name}] from bundle [{bundle.name}].");
 
+            // Cleanup.
             yield return Free(bundle);
         }
 
@@ -113,6 +115,7 @@ namespace Depra.Assets.Tests.PlayMode.Files
                       $"from bundle [{assetFromBundle.Name}] " +
                       $"in {_stopwatch.ElapsedMilliseconds} ms.");
 
+            // Cleanup.
             yield return Free(bundle);
         }
 
@@ -144,12 +147,14 @@ namespace Depra.Assets.Tests.PlayMode.Files
 
             // Assert.
             Assert.That(callbacksCalled);
+            Assert.That(callbackCalls, Is.GreaterThan(0));
 
             // Debug.
             Debug.Log("Progress event was called " +
                       $"{callbackCalls} times " +
                       $"in {_stopwatch.ElapsedMilliseconds} ms.");
 
+            // Cleanup.
             yield return Free(bundle);
         }
 
@@ -171,6 +176,7 @@ namespace Depra.Assets.Tests.PlayMode.Files
             // Debug.
             Debug.Log($"Size of [{bundleAsset.Name}] is {assetSize.ToHumanReadableString()}.");
 
+            // Cleanup.
             yield return Free(bundle);
         }
     }

@@ -59,6 +59,7 @@ namespace Depra.Assets.Tests.PlayMode.Files
             // Debug.
             Debug.Log($"Loaded [{loadedAsset.name}] from {nameof(Resources)}.");
 
+            // Cleanup.
             yield return Free(loadedAsset);
         }
 
@@ -81,6 +82,7 @@ namespace Depra.Assets.Tests.PlayMode.Files
             Debug.Log($"Loaded [{firstLoadedAsset.name}] from {nameof(Resources)}.");
             Debug.Log($"Loaded [{secondLoadedAsset.name}] from {nameof(Resources)}.");
 
+            // Cleanup.
             yield return Free(secondLoadedAsset);
         }
 
@@ -107,13 +109,54 @@ namespace Depra.Assets.Tests.PlayMode.Files
             // Assert.
             Assert.That(loadedAsset, Is.Not.Null);
             Assert.That(resourceAsset.IsLoaded);
-            Assert.That(asyncToken.IsCompleted);
+            Assert.That(asyncToken.IsCanceled, Is.False);
 
             // Debug.
             Debug.Log($"Loaded [{loadedAsset.name}] " +
                       $"from {nameof(Resources)} " +
                       $"in {_stopwatch.ElapsedMilliseconds} ms.");
 
+            // Cleanup.
+            yield return Free(loadedAsset);
+        }
+        
+        [UnityTest]
+        public IEnumerator SingleAssetShouldBeLoadedAsyncWithProgress()
+        {
+            // Arrange.
+            var callbacksCalled = false;
+            var callbackCalls = 0;
+            Object loadedAsset = null;
+            var resourceAsset = _resourceAsset;
+
+            // Act.
+            _stopwatch.Restart();
+            resourceAsset.LoadAsync(
+                onLoaded: asset => loadedAsset = asset,
+                onProgress: _ =>
+                {
+                    callbackCalls++;
+                    callbacksCalled = true;
+                },
+                onFailed: exception => throw exception);
+
+            while (resourceAsset.IsLoaded == false)
+            {
+                yield return null;
+            }
+
+            _stopwatch.Stop();
+
+            // Assert.
+            Assert.That(callbacksCalled);
+            Assert.That(callbackCalls, Is.GreaterThan(0));
+
+            // Debug.
+            Debug.Log("Progress event was called " +
+                      $"{callbackCalls} times " +
+                      $"in {_stopwatch.ElapsedMilliseconds} ms.");
+
+            // Cleanup.
             yield return Free(loadedAsset);
         }
 
@@ -132,11 +175,12 @@ namespace Depra.Assets.Tests.PlayMode.Files
 
             // Assert.
             Assert.That(loadedAsset, Is.Null);
-            Assert.That(asyncToken.IsCompleted, Is.False);
+            Assert.That(asyncToken.IsCanceled);
 
             // Debug.
             Debug.Log($"Loading of resource [{resourceAsset.Name}] was canceled.");
 
+            // Cleanup.
             yield return Free(loadedAsset);
         }
 
@@ -155,7 +199,7 @@ namespace Depra.Assets.Tests.PlayMode.Files
             // Assert.
             Assert.That(resourceAsset.IsLoaded, Is.False);
 
-            // Debug.
+            // Cleanup.
             Debug.Log($"Loaded and unloaded [{resourceAsset.Name}] from {nameof(Resources)}.");
         }
 
@@ -173,7 +217,7 @@ namespace Depra.Assets.Tests.PlayMode.Files
             Assert.That(assetSize, Is.Not.EqualTo(FileSize.Zero));
             Assert.That(assetSize, Is.Not.EqualTo(FileSize.Unknown));
 
-            // Debug.
+            // Cleanup.
             Debug.Log($"Size of [{resourceAsset.Name}] is {assetSize.ToHumanReadableString()}.");
         }
 
@@ -187,11 +231,11 @@ namespace Depra.Assets.Tests.PlayMode.Files
             // Act.
             void Act() => invalidResourceAsset.Load();
 
-            // Assert.
+            // Cleanup.
             Assert.That(Act, Throws.TypeOf<ResourceNotLoadedException>());
         }
 
-        private IEnumerator Free(Object resourceAsset)
+        private static IEnumerator Free(Object resourceAsset)
         {
             Resources.UnloadAsset(resourceAsset);
             yield return null;

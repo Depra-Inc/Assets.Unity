@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections;
 using System.Runtime.CompilerServices;
+using Depra.Assets.Runtime.Async.Operations;
 using Depra.Assets.Runtime.Async.Tokens;
 using Depra.Assets.Runtime.Common;
-using Depra.Assets.Runtime.Files.Bundles.Files;
 using Depra.Assets.Runtime.Files.Resource.Exceptions;
 using Depra.Assets.Runtime.Utils;
 using Depra.Coroutines.Domain.Entities;
@@ -59,19 +59,15 @@ namespace Depra.Assets.Runtime.Files.Resource
         {
             if (IsLoaded)
             {
-                onProgress?.Invoke(1f);
-                onLoaded.Invoke(_loadedAsset);
-                return AsyncActionToken.Empty;
+                return AlreadyLoadedAsset<TAsset>.Create(_loadedAsset, onLoaded, onProgress);
             }
 
-            var loadingCoroutine = new AssetFileLoadingCoroutine(_coroutineHost);
-            var asyncToken = new AsyncActionToken(loadingCoroutine.Cancel);
-            onLoaded += _ => asyncToken.Complete();
-            loadingCoroutine.Start(LoadingProcess(
-                onLoaded: asset => OnLoaded(asset, onFailed, onLoaded),
-                onProgress: onProgress));
-            
-            return asyncToken;
+            var loadingRequest = new LoadFromMainThread<TAsset>(_coroutineHost, LoadingProcess);
+            loadingRequest.Start(OnLoadedInternal, onProgress, onFailed);
+
+            return new AsyncActionToken(loadingRequest.Cancel);
+
+            void OnLoadedInternal(TAsset loadedAsset) => OnLoaded(loadedAsset, onFailed, onLoaded);
         }
 
         private TAsset OnLoaded(TAsset loadedAsset, Action<Exception> onFailed, Action<TAsset> onLoaded = null)
@@ -85,7 +81,8 @@ namespace Depra.Assets.Runtime.Files.Resource
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private IEnumerator LoadingProcess(Action<TAsset> onLoaded, Action<float> onProgress = null)
+        private IEnumerator LoadingProcess(Action<TAsset> onLoaded, Action<float> onProgress = null,
+            Action<Exception> onFailed = null)
         {
             var request = Resources.LoadAsync<TAsset>(Path);
             while (request.isDone == false)

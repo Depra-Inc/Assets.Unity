@@ -80,9 +80,7 @@ namespace Depra.Assets.Runtime.Files.Database
         {
             if (IsLoaded)
             {
-                onProgress?.Invoke(1f);
-                onLoaded.Invoke(_loadedAsset);
-                return AsyncActionToken.Empty;
+                return AlreadyLoadedAsset<TAsset>.Create(_loadedAsset, onLoaded, onProgress);
             }
 
             var task = UnityMainThreadDispatcher.Instance().EnqueueAsync(() =>

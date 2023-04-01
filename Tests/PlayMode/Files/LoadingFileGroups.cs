@@ -1,11 +1,15 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using Depra.Assets.Runtime.Async.Tokens;
 using Depra.Assets.Runtime.Files;
 using Depra.Assets.Tests.PlayMode.Types;
 using NUnit.Framework;
 using UnityEngine;
+using UnityEngine.TestTools;
+using Debug = UnityEngine.Debug;
 using Object = UnityEngine.Object;
 
 namespace Depra.Assets.Tests.PlayMode.Files
@@ -15,11 +19,13 @@ namespace Depra.Assets.Tests.PlayMode.Files
     {
         private const int GROUP_SIZE = 3;
 
+        private Stopwatch _stopwatch;
         private List<ILoadableAsset<Object>> _testAssets;
 
         [SetUp]
         public void Setup()
         {
+            _stopwatch = new Stopwatch();
             _testAssets = new List<ILoadableAsset<Object>>(GROUP_SIZE);
             for (var index = 0; index < GROUP_SIZE; index++)
             {
@@ -42,21 +48,34 @@ namespace Depra.Assets.Tests.PlayMode.Files
             Assert.That(loadedAssets, Is.Not.Empty);
         }
 
-        [Test]
-        public void AssetShouldBeLoadedAsync()
+        [UnityTest]
+        public IEnumerator AssetShouldBeLoadedAsync()
         {
             // Arrange.
             Object[] loadedAssets = null;
             var resourceAsset = new AssetGroup(children: _testAssets);
 
             // Act.
-            resourceAsset.LoadAsync(
-                onLoaded: asset => loadedAssets = asset.ToArray(),
+            _stopwatch.Restart();
+            var asyncToken = resourceAsset.LoadAsync(
+                onLoaded: assets => loadedAssets = assets.ToArray(),
                 onFailed: exception => throw exception);
+
+            while (loadedAssets == null)
+            {
+                yield return null;
+            }
+
+            _stopwatch.Stop();
 
             // Assert.
             Assert.That(loadedAssets, Is.Not.Null);
             Assert.That(loadedAssets, Is.Not.Empty);
+            Assert.That(asyncToken.IsCanceled, Is.False);
+
+            // Debug.
+            Debug.Log($"Loaded asset group with {_testAssets.Count} children " +
+                      $"in {_stopwatch.ElapsedMilliseconds} ms.");
         }
 
         [Test]

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Runtime.CompilerServices;
+using Depra.Assets.Runtime.Async.Operations;
 using Depra.Assets.Runtime.Async.Tokens;
 using Depra.Assets.Runtime.Common;
 using Depra.Assets.Runtime.Files.Bundles.Exceptions;
@@ -57,20 +58,14 @@ namespace Depra.Assets.Runtime.Files.Bundles.Files
         {
             if (IsLoaded)
             {
-                onProgress?.Invoke(1f);
-                onLoaded.Invoke(_loadedAsset);
-
-                return AsyncActionToken.Empty;
+                return AlreadyLoadedAsset<TAsset>.Create(_loadedAsset, onLoaded, onProgress);
             }
 
-            var loadingCoroutine = new AssetFileLoadingCoroutine(_coroutineHost);
-            var loadingOperation = LoadingProcess(
-                onLoaded: asset => OnLoaded(asset, onFailed, onLoaded),
-                onProgress: onProgress);
-
-            loadingCoroutine.Start(loadingOperation);
-
-            return new AsyncActionToken(loadingCoroutine.Cancel);
+            var loadingOperation = new LoadFromMainThread<TAsset>(_coroutineHost, LoadingProcess);
+            loadingOperation.Start(OnLoadedInternal, onProgress, onFailed);
+            void OnLoadedInternal(TAsset loadedAsset) => OnLoaded(loadedAsset, onFailed, onLoaded);
+            
+            return new AsyncActionToken(loadingOperation.Cancel);
         }
 
         private TAsset OnLoaded(TAsset asset, Action<Exception> onFailed, Action<TAsset> onLoaded = null)
@@ -84,7 +79,8 @@ namespace Depra.Assets.Runtime.Files.Bundles.Files
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private IEnumerator LoadingProcess(Action<TAsset> onLoaded, Action<float> onProgress = null)
+        private IEnumerator LoadingProcess(Action<TAsset> onLoaded, Action<float> onProgress = null,
+            Action<Exception> onFailed = null)
         {
             var request = _assetBundle.LoadAssetAsync<TAsset>(Name);
             while (request.isDone == false)

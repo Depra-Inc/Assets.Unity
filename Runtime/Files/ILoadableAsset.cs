@@ -9,8 +9,7 @@ namespace Depra.Assets.Runtime.Files
 
         void Unload();
 
-        IAsyncToken LoadAsync(
-            Action<TAsset> onLoaded,
+        IAsyncToken LoadAsync(Action<TAsset> onLoaded,
             Action<float> onProgress = null,
             Action<Exception> onFailed = null);
     }

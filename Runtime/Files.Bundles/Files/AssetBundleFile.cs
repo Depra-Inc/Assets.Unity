@@ -1,13 +1,11 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using Depra.Assets.Runtime.Async.Operations;
 using Depra.Assets.Runtime.Async.Tokens;
 using Depra.Assets.Runtime.Common;
 using Depra.Assets.Runtime.Files.Bundles.Exceptions;
 using Depra.Assets.Runtime.Files.Bundles.Extensions;
-using Depra.Assets.Runtime.Utils;
-using Depra.Coroutines.Domain.Entities;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -16,14 +14,12 @@ namespace Depra.Assets.Runtime.Files.Bundles.Files
     public abstract class AssetBundleFile : ILoadableAsset<AssetBundle>, IDisposable
     {
         private readonly AssetIdent _ident;
-        private readonly ICoroutineHost _coroutineHost;
 
         private AssetBundle _loadedAssetBundle;
 
-        protected AssetBundleFile(AssetIdent ident, ICoroutineHost coroutineHost = null)
+        protected AssetBundleFile(AssetIdent ident)
         {
             _ident = ident;
-            _coroutineHost = coroutineHost ?? AssetCoroutineHook.Instance;
         }
 
         public string Name => _ident.Name;
@@ -48,20 +44,14 @@ namespace Depra.Assets.Runtime.Files.Bundles.Files
         {
             if (IsLoaded)
             {
-                onProgress?.Invoke(1f);
-                onLoaded.Invoke(_loadedAssetBundle);
-                
-                return AsyncActionToken.Empty;
+                return AlreadyLoadedAsset<AssetBundle>.Create(_loadedAssetBundle, onLoaded, onProgress);
             }
 
-            var loadingCoroutine = new AssetFileLoadingCoroutine(_coroutineHost);
-            var asyncToken = new AsyncActionToken(loadingCoroutine.Cancel);
-            onLoaded += _ => asyncToken.Complete();
-            loadingCoroutine.Start(LoadingProcess(
-                onLoaded: asset => OnLoaded(asset, onFailed, onLoaded),
-                onProgress: onProgress));
+            var request = RequestAsync();
+            request.Start(OnLoadedInternal, onProgress, onFailed);
+            void OnLoadedInternal(AssetBundle loadedBundle) => OnLoaded(loadedBundle, onFailed, onLoaded);
 
-            return asyncToken;
+            return new AsyncActionToken(request.Cancel);
         }
 
         public void Unload()
@@ -90,9 +80,8 @@ namespace Depra.Assets.Runtime.Files.Bundles.Files
 
         protected abstract AssetBundle LoadOverride();
 
-        protected abstract IEnumerator LoadingProcess(Action<AssetBundle> onLoaded, Action<float> onProgress = null,
-            Action<Exception> onFailed = null);
-
+        protected abstract IAsyncLoad<AssetBundle> RequestAsync();
+        
         private AssetBundle OnLoaded(AssetBundle loadedBundle, Action<Exception> onFailed,
             Action<AssetBundle> onLoaded = null)
         {

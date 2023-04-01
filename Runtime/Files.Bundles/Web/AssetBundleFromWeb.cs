@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Runtime.CompilerServices;
+using Depra.Assets.Runtime.Async.Operations;
 using Depra.Assets.Runtime.Common;
 using Depra.Assets.Runtime.Files.Bundles.Exceptions;
 using Depra.Assets.Runtime.Files.Bundles.Files;
@@ -13,9 +14,10 @@ namespace Depra.Assets.Runtime.Files.Bundles.Web
     public sealed class AssetBundleFromWeb : AssetBundleFile
     {
         private readonly ICoroutineHost _coroutineHost;
+        private UnityWebRequest _webRequest;
 
-        public AssetBundleFromWeb(AssetIdent ident, ICoroutineHost coroutineHost = null) :
-            base(ident, coroutineHost) { }
+        public AssetBundleFromWeb(AssetIdent ident, ICoroutineHost coroutineHost = null) : base(ident) =>
+            _coroutineHost = coroutineHost;
 
         protected override AssetBundle LoadOverride()
         {
@@ -31,27 +33,31 @@ namespace Depra.Assets.Runtime.Files.Bundles.Web
             return DownloadHandlerAssetBundle.GetContent(request);
         }
 
-        /// <summary>
-        /// Loads asset bundle form server.
-        /// </summary>
-        /// <returns></returns>
-        /// <exception cref="AssetBundleLoadingException"></exception>
-        protected override IEnumerator LoadingProcess(Action<AssetBundle> onLoaded, Action<float> onProgress = null,
+        protected override IAsyncLoad<AssetBundle> RequestAsync() =>
+            new LoadFromMainThread<AssetBundle>(_coroutineHost, LoadingProcess, CancelRequest);
+
+        private IEnumerator LoadingProcess(Action<AssetBundle> onLoaded, Action<float> onProgress = null,
             Action<Exception> onFailed = null)
         {
-            using var webRequest = UnityWebRequestAssetBundle.GetAssetBundle(Path);
-            webRequest.SendWebRequest();
+            _webRequest = UnityWebRequestAssetBundle.GetAssetBundle(Path);
+            _webRequest.SendWebRequest();
 
-            while (webRequest.isDone == false)
+            while (_webRequest.isDone == false)
             {
-                onProgress?.Invoke(webRequest.downloadProgress);
+                onProgress?.Invoke(_webRequest.downloadProgress);
                 yield return null;
             }
 
-            EnsureRequestResult(webRequest, onFailed);
-            var downloadedBundle = DownloadHandlerAssetBundle.GetContent(webRequest);
+            onProgress?.Invoke(1f);
+
+            EnsureRequestResult(_webRequest, onFailed);
+            var downloadedBundle = DownloadHandlerAssetBundle.GetContent(_webRequest);
             onLoaded.Invoke(downloadedBundle);
+
+            _webRequest.Dispose();
         }
+
+        private void CancelRequest() => _webRequest?.Abort();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void EnsureRequestResult(UnityWebRequest request, Action<Exception> onFailed = null)
