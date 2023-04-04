@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections;
-using Depra.Assets.Runtime.Async.Operations;
-using Depra.Assets.Runtime.Common;
+using Depra.Assets.Runtime.Async.Threads;
 using Depra.Assets.Runtime.Files.Bundles.Files;
+using Depra.Assets.Runtime.Files.Structs;
 using Depra.Assets.Runtime.Utils;
 using Depra.Coroutines.Domain.Entities;
 using UnityEngine;
@@ -20,8 +20,8 @@ namespace Depra.Assets.Runtime.Files.Bundles.IO
         protected override AssetBundle LoadOverride() =>
             AssetBundle.LoadFromFile(Path);
 
-        protected override IAsyncLoad<AssetBundle> RequestAsync() =>
-            new LoadFromMainThread<AssetBundle>(_coroutineHost, LoadingProcess, CancelRequest);
+        protected override IAssetThread<AssetBundle> RequestAsync() =>
+            new MainAssetThread<AssetBundle>(_coroutineHost, LoadingProcess, CancelRequest);
 
         private IEnumerator LoadingProcess(
             Action<AssetBundle> onLoaded,

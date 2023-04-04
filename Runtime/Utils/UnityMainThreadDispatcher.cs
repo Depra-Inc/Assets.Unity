@@ -12,7 +12,7 @@ namespace Depra.Assets.Runtime.Utils
     public sealed class UnityMainThreadDispatcher : MonoBehaviour
     {
         private static UnityMainThreadDispatcher _instance;
-        private static readonly Queue<Action> _executionQueue = new();
+        private static readonly Queue<Action> EXECUTION_QUEUE = new();
 
         private void Awake()
         {
@@ -27,11 +27,11 @@ namespace Depra.Assets.Runtime.Utils
 
         public void Update()
         {
-            lock (_executionQueue)
+            lock (EXECUTION_QUEUE)
             {
-                while (_executionQueue.Count > 0)
+                while (EXECUTION_QUEUE.Count > 0)
                 {
-                    _executionQueue.Dequeue().Invoke();
+                    EXECUTION_QUEUE.Dequeue().Invoke();
                 }
             }
         }
@@ -48,7 +48,8 @@ namespace Depra.Assets.Runtime.Utils
             if (Exists() == false)
             {
                 throw new Exception(
-                    "UnityMainThreadDispatcher could not find the UnityMainThreadDispatcher object. Please ensure you have added the MainThreadExecutor Prefab to your scene.");
+                    $"{nameof(UnityMainThreadDispatcher)} could not find the {nameof(UnityMainThreadDispatcher)} object. " +
+                    $"Please ensure you have added the MainThreadExecutor Prefab to your scene.");
             }
 
             return _instance;
@@ -66,9 +67,9 @@ namespace Depra.Assets.Runtime.Utils
         /// <param name="action"><see cref="IEnumerator"/> function that will be executed from the main thread.</param>
         public void Enqueue(IEnumerator action)
         {
-            lock (_executionQueue)
+            lock (EXECUTION_QUEUE)
             {
-                _executionQueue.Enqueue(() => StartCoroutine(action));
+                EXECUTION_QUEUE.Enqueue(() => StartCoroutine(action));
             }
         }
 

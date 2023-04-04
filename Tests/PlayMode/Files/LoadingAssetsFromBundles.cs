@@ -1,8 +1,8 @@
 ﻿using System.Collections;
 using System.Diagnostics;
-using Depra.Assets.Runtime.Common;
-using Depra.Assets.Runtime.Files;
 using Depra.Assets.Runtime.Files.Bundles.Files;
+using Depra.Assets.Runtime.Files.Interfaces;
+using Depra.Assets.Runtime.Files.Structs;
 using Depra.Assets.Tests.PlayMode.Types;
 using NUnit.Framework;
 using UnityEngine;

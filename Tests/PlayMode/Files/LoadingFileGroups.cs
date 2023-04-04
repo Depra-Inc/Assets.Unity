@@ -2,9 +2,12 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Depra.Assets.Runtime.Async.Tokens;
-using Depra.Assets.Runtime.Files;
+using Depra.Assets.Runtime.Files.Group;
+using Depra.Assets.Runtime.Files.Interfaces;
+using Depra.Assets.Runtime.Files.Structs;
 using Depra.Assets.Tests.PlayMode.Types;
 using NUnit.Framework;
 using UnityEngine;
@@ -34,7 +37,7 @@ namespace Depra.Assets.Tests.PlayMode.Files
         }
 
         [Test]
-        public void AssetGroupShouldBeLoaded()
+        public void GroupShouldBeLoaded()
         {
             // Arrange.
             var allAssets = _testAssets;
@@ -49,7 +52,7 @@ namespace Depra.Assets.Tests.PlayMode.Files
         }
 
         [UnityTest]
-        public IEnumerator AssetShouldBeLoadedAsync()
+        public IEnumerator GroupShouldBeLoadedAsync()
         {
             // Arrange.
             Object[] loadedAssets = null;
@@ -78,8 +81,45 @@ namespace Depra.Assets.Tests.PlayMode.Files
                       $"in {_stopwatch.ElapsedMilliseconds} ms.");
         }
 
+        [UnityTest]
+        public IEnumerator GroupShouldBeLoadedAsyncWithProgress()
+        {
+            // Arrange.
+            var callbacksCalled = false;
+            var callbackCalls = 0;
+            var allAssets = _testAssets;
+            var assetGroup = new AssetGroup(children: allAssets);
+
+            // Act.
+            _stopwatch.Restart();
+            assetGroup.LoadAsync(
+                onLoaded: _ => { },
+                onProgress: _ =>
+                {
+                    callbackCalls++;
+                    callbacksCalled = true;
+                },
+                onFailed: exception => throw exception);
+
+            while (assetGroup.IsLoaded == false)
+            {
+                yield return null;
+            }
+
+            _stopwatch.Stop();
+
+            // Assert.
+            Assert.That(callbacksCalled);
+            Assert.That(callbackCalls, Is.GreaterThan(0));
+
+            // Debug.
+            Debug.Log("Progress event was called " +
+                      $"{callbackCalls} times " +
+                      $"in {_stopwatch.ElapsedMilliseconds} ms.");
+        }
+
         [Test]
-        public void AssetGroupShouldBeUnloaded()
+        public void GroupShouldBeUnloaded()
         {
             // Arrange.
             var resourceAsset = new AssetGroup(children: _testAssets);
@@ -92,11 +132,31 @@ namespace Depra.Assets.Tests.PlayMode.Files
             Assert.That(resourceAsset.IsLoaded, Is.False);
         }
 
+        [Test]
+        [SuppressMessage("ReSharper", "IteratorMethodResultIsIgnored")]
+        public void GroupSizeShouldNotBeZeroOrUnknown()
+        {
+            // Arrange.
+            Assert.That(_testAssets.All(x => !Equals(x.Size, FileSize.Zero)));
+            var assetGroup = new AssetGroup(nameof(AssetGroup), children: _testAssets);
+            assetGroup.Load();
+
+            // Act.
+            var assetSize = assetGroup.Size;
+
+            // Assert.
+            Assert.That(assetSize, Is.Not.EqualTo(FileSize.Zero));
+            Assert.That(assetSize, Is.Not.EqualTo(FileSize.Unknown));
+
+            // Cleanup.
+            Debug.Log($"Size of [{assetGroup.Name}] is {assetSize.ToHumanReadableString()}.");
+        }
+
         private sealed class FakeAsset : ILoadableAsset<TestScriptableAsset>
         {
             public FakeAsset()
             {
-                Size = FileSize.Zero;
+                Size = new FileSize(1);
                 Name = nameof(FakeAsset);
                 Path = Name;
             }
@@ -122,6 +182,7 @@ namespace Depra.Assets.Tests.PlayMode.Files
                 var asset = CreateAsset();
                 onProgress?.Invoke(1f);
                 onLoaded.Invoke(asset);
+                IsLoaded = true;
 
                 return AsyncActionToken.Empty;
             }

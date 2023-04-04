@@ -1,4 +1,4 @@
-﻿namespace Depra.Assets.Runtime.Common
+﻿namespace Depra.Assets.Runtime.Files.Structs
 {
     public readonly struct AssetIdent
     {

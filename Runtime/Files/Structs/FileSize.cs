@@ -1,4 +1,4 @@
-namespace Depra.Assets.Runtime.Files
+namespace Depra.Assets.Runtime.Files.Structs
 {
     public readonly struct FileSize
     {

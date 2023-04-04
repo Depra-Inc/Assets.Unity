@@ -1,10 +1,9 @@
 ﻿using System;
 using Depra.Assets.Runtime.Async.Tokens;
-using Object = UnityEngine.Object;
 
-namespace Depra.Assets.Runtime.Common
+namespace Depra.Assets.Runtime.Files.Structs
 {
-    internal struct AlreadyLoadedAsset<TAsset>
+    public readonly struct AlreadyLoadedAsset<TAsset>
     {
         private const float MAX_PROGRESS = 1f;
 

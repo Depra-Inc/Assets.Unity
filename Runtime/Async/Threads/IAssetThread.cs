@@ -1,9 +1,8 @@
 ﻿using System;
-using Depra.Assets.Runtime.Async.Tokens;
 
-namespace Depra.Assets.Runtime.Async.Operations
+namespace Depra.Assets.Runtime.Async.Threads
 {
-    public interface IAsyncLoad<out TAsset>
+    public interface IAssetThread<out TAsset>
     {
         void Start(Action<TAsset> onLoaded, Action<float> onProgress, Action<Exception> onFailed);
 

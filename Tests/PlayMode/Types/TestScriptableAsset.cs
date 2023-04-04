@@ -1,5 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using Depra.Assets.Runtime.Common;
+using Depra.Assets.Runtime.Files.Structs;
 using UnityEngine;
 using static Depra.Assets.Runtime.Common.Constants;
 

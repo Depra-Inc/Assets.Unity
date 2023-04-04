@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using Depra.Assets.Runtime.Files.Database;
 using Depra.Assets.Runtime.Utils;
@@ -38,6 +39,7 @@ namespace Depra.Assets.Tests.PlayMode.Files
         }
 
         [UnityTest]
+        [SuppressMessage("ReSharper", "RedundantArgumentDefaultValue")]
         public IEnumerator SingleAssetShouldBeLoadedAsync()
         {
             // Arrange.

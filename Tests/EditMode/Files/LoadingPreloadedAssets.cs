@@ -2,7 +2,8 @@
 using System.Linq;
 using Depra.Assets.Editor.Files;
 using Depra.Assets.Runtime.Async.Tokens;
-using Depra.Assets.Runtime.Files;
+using Depra.Assets.Runtime.Files.Interfaces;
+using Depra.Assets.Runtime.Files.Structs;
 using Depra.Assets.Tests.PlayMode.Types;
 using NUnit.Framework;
 using UnityEditor;

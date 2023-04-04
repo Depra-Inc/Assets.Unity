@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections;
 using System.Runtime.CompilerServices;
-using Depra.Assets.Runtime.Async.Operations;
+using Depra.Assets.Runtime.Async.Threads;
 using Depra.Assets.Runtime.Async.Tokens;
-using Depra.Assets.Runtime.Common;
+using Depra.Assets.Runtime.Files.Interfaces;
 using Depra.Assets.Runtime.Files.Resource.Exceptions;
+using Depra.Assets.Runtime.Files.Structs;
 using Depra.Assets.Runtime.Utils;
 using Depra.Coroutines.Domain.Entities;
 using UnityEngine;
@@ -62,7 +63,7 @@ namespace Depra.Assets.Runtime.Files.Resource
                 return AlreadyLoadedAsset<TAsset>.Create(_loadedAsset, onLoaded, onProgress);
             }
 
-            var loadingRequest = new LoadFromMainThread<TAsset>(_coroutineHost, LoadingProcess);
+            var loadingRequest = new MainAssetThread<TAsset>(_coroutineHost, LoadingProcess);
             loadingRequest.Start(OnLoadedInternal, onProgress, onFailed);
 
             return new AsyncActionToken(loadingRequest.Cancel);

@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace Depra.Assets.Runtime.Async.Tokens
 {
-    public sealed class TaskToken : IAsyncToken
+    internal sealed class TaskToken : IAsyncToken
     {
         private readonly CancellationTokenSource _cancellationTokenSource;
 

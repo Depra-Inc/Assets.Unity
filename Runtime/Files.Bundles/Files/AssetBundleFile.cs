@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-using Depra.Assets.Runtime.Async.Operations;
+using Depra.Assets.Runtime.Async.Threads;
 using Depra.Assets.Runtime.Async.Tokens;
-using Depra.Assets.Runtime.Common;
 using Depra.Assets.Runtime.Files.Bundles.Exceptions;
 using Depra.Assets.Runtime.Files.Bundles.Extensions;
+using Depra.Assets.Runtime.Files.Interfaces;
+using Depra.Assets.Runtime.Files.Structs;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -80,7 +81,7 @@ namespace Depra.Assets.Runtime.Files.Bundles.Files
 
         protected abstract AssetBundle LoadOverride();
 
-        protected abstract IAsyncLoad<AssetBundle> RequestAsync();
+        protected abstract IAssetThread<AssetBundle> RequestAsync();
         
         private AssetBundle OnLoaded(AssetBundle loadedBundle, Action<Exception> onFailed,
             Action<AssetBundle> onLoaded = null)

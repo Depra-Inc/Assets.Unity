@@ -1,7 +1,8 @@
 using System.IO;
+using Depra.Assets.Runtime.Files.Interfaces;
 using UnityEngine;
 
-namespace Depra.Assets.Runtime.Files.Resource.Extensions
+namespace Depra.Assets.Runtime.Files.Extensions
 {
     public static class LoadableAssetFileExtensions
     {

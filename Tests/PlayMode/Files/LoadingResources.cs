@@ -1,10 +1,9 @@
 ﻿using System.Collections;
 using System.Diagnostics;
 using System.Linq;
-using Depra.Assets.Runtime.Common;
-using Depra.Assets.Runtime.Files;
 using Depra.Assets.Runtime.Files.Resource;
 using Depra.Assets.Runtime.Files.Resource.Exceptions;
+using Depra.Assets.Runtime.Files.Structs;
 using Depra.Assets.Tests.PlayMode.Exceptions;
 using Depra.Assets.Tests.PlayMode.Types;
 using NUnit.Framework;

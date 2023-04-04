@@ -2,7 +2,8 @@
 using System.IO;
 using System.Runtime.CompilerServices;
 using Depra.Assets.Runtime.Async.Tokens;
-using Depra.Assets.Runtime.Common;
+using Depra.Assets.Runtime.Files.Interfaces;
+using Depra.Assets.Runtime.Files.Structs;
 using Depra.Assets.Runtime.Utils;
 using UnityEditor;
 using UnityEngine;

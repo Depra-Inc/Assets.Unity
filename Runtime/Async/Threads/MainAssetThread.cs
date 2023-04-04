@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections;
-using Depra.Assets.Runtime.Async.Tokens;
 using Depra.Coroutines.Domain.Entities;
 
-namespace Depra.Assets.Runtime.Async.Operations
+namespace Depra.Assets.Runtime.Async.Threads
 {
-    internal sealed class LoadFromMainThread<TAsset> : IAsyncLoad<TAsset>
+    internal sealed class MainAssetThread<TAsset> : IAssetThread<TAsset>
     {
         private readonly Action _onCancel;
         private readonly ICoroutineHost _coroutineHost;
@@ -13,7 +12,7 @@ namespace Depra.Assets.Runtime.Async.Operations
 
         private ICoroutine _coroutine;
 
-        public LoadFromMainThread(ICoroutineHost coroutineHost,
+        public MainAssetThread(ICoroutineHost coroutineHost,
             Func<Action<TAsset>, Action<float>, Action<Exception>, IEnumerator> processFactory,
             Action onCancel = null)
         {
@@ -22,9 +21,8 @@ namespace Depra.Assets.Runtime.Async.Operations
             _processFactory = processFactory ?? throw new ArgumentNullException(nameof(processFactory));
         }
 
-        //public IAsyncToken Token { get; }
         public bool IsCompleted => _coroutine == null || _coroutine.IsDone;
-        
+
         public void Start(
             Action<TAsset> onLoaded,
             Action<float> onProgress = null,
@@ -44,7 +42,7 @@ namespace Depra.Assets.Runtime.Async.Operations
             _coroutineHost.StopCoroutine(_coroutine);
             _onCancel?.Invoke();
         }
-        
+
         private void Complete(TAsset loadedAsset)
         {
             _coroutine = null;

@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections;
 using System.Runtime.CompilerServices;
-using Depra.Assets.Runtime.Async.Operations;
+using Depra.Assets.Runtime.Async.Threads;
 using Depra.Assets.Runtime.Async.Tokens;
-using Depra.Assets.Runtime.Common;
 using Depra.Assets.Runtime.Files.Bundles.Exceptions;
+using Depra.Assets.Runtime.Files.Interfaces;
+using Depra.Assets.Runtime.Files.Structs;
 using Depra.Assets.Runtime.Utils;
 using Depra.Coroutines.Domain.Entities;
 using UnityEngine;
@@ -61,11 +62,11 @@ namespace Depra.Assets.Runtime.Files.Bundles.Files
                 return AlreadyLoadedAsset<TAsset>.Create(_loadedAsset, onLoaded, onProgress);
             }
 
-            var loadingOperation = new LoadFromMainThread<TAsset>(_coroutineHost, LoadingProcess);
-            loadingOperation.Start(OnLoadedInternal, onProgress, onFailed);
+            var loadingThread = new MainAssetThread<TAsset>(_coroutineHost, LoadingProcess);
+            loadingThread.Start(OnLoadedInternal, onProgress, onFailed);
             void OnLoadedInternal(TAsset loadedAsset) => OnLoaded(loadedAsset, onFailed, onLoaded);
             
-            return new AsyncActionToken(loadingOperation.Cancel);
+            return new AsyncActionToken(loadingThread.Cancel);
         }
 
         private TAsset OnLoaded(TAsset asset, Action<Exception> onFailed, Action<TAsset> onLoaded = null)

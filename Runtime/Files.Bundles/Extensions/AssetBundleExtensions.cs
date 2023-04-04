@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Runtime.CompilerServices;
+using Depra.Assets.Runtime.Files.Structs;
 using UnityEngine;
 #if UNITY_EDITOR
 using UnityEngine.Profiling;

@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.IO;
-using Depra.Assets.Runtime.Files;
 using Depra.Assets.Runtime.Files.Database;
+using Depra.Assets.Runtime.Files.Structs;
 using NUnit.Framework;
 using UnityEditor;
 using UnityEngine;
