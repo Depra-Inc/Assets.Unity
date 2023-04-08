@@ -1,4 +1,7 @@
-﻿using UnityEngine.Networking;
+﻿// Copyright © 2022 Nikolay Melnikov. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
+
+using UnityEngine.Networking;
 
 namespace Depra.Assets.Runtime.Files.Bundles.Web
 {

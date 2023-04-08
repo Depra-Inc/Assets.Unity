@@ -1,8 +1,10 @@
-﻿using System.Collections;
+﻿// Copyright © 2022 Nikolay Melnikov. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
+
+using System.Collections;
 using System.Diagnostics;
 using System.Linq;
 using Depra.Assets.Runtime.Files.Resource;
-using Depra.Assets.Runtime.Files.Resource.Exceptions;
 using Depra.Assets.Runtime.Files.Structs;
 using Depra.Assets.Tests.PlayMode.Exceptions;
 using Depra.Assets.Tests.PlayMode.Types;

@@ -1,11 +1,16 @@
-﻿using System;
+﻿// Copyright © 2022 Nikolay Melnikov. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
+
+using System;
 using System.Reflection;
 
 namespace Depra.Assets.Runtime.Files.Database
 {
     public class AssetCreationException : Exception
     {
-        public AssetCreationException(MemberInfo assetType, string assetName) : base(
-            $"Asset {assetName} with type {assetType.Name} can not be created!") { }
+        private const string MESSAGE_FORMAT = "Asset {0} with type {1} can not be created!";
+
+        public AssetCreationException(MemberInfo assetType, string assetName) : 
+            base(string.Format(MESSAGE_FORMAT, assetName, assetType.Name)) { }
     }
 }

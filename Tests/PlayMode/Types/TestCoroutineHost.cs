@@ -1,4 +1,7 @@
-﻿using System.Collections;
+﻿// Copyright © 2022 Nikolay Melnikov. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
+
+using System.Collections;
 using Depra.Coroutines.Domain.Entities;
 using Depra.Coroutines.Unity.Runtime;
 using UnityEngine;

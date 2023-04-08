@@ -1,4 +1,7 @@
-﻿using System.Linq;
+﻿// Copyright © 2022 Nikolay Melnikov. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
+
+using System.Linq;
 using Depra.Assets.Tests.PlayMode.Exceptions;
 using UnityEngine;
 using static Depra.Assets.Runtime.Common.Constants;

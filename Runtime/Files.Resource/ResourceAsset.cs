@@ -4,7 +4,6 @@ using System.Runtime.CompilerServices;
 using Depra.Assets.Runtime.Async.Threads;
 using Depra.Assets.Runtime.Async.Tokens;
 using Depra.Assets.Runtime.Files.Interfaces;
-using Depra.Assets.Runtime.Files.Resource.Exceptions;
 using Depra.Assets.Runtime.Files.Structs;
 using Depra.Assets.Runtime.Utils;
 using Depra.Coroutines.Domain.Entities;

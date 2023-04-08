@@ -1,20 +1,13 @@
-﻿using System;
+﻿// Copyright © 2022 Nikolay Melnikov. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
+
+using System;
 using System.Text.RegularExpressions;
-using UnityEngine;
 
 namespace Depra.Assets.Runtime.Common
 {
     internal static class Static
     {
-        public static string GameExecutePath()
-        {
-#if UNITY_EDITOR
-            return Application.dataPath;
-#else
-            return Application.persistentDataPath;
-#endif
-        }
-        
         public static bool BundlePathIsUrl(string path)
         {
             const string pattern = @"^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:/?#[\]@!\$&'\(\)\*\+,;=.]+$";

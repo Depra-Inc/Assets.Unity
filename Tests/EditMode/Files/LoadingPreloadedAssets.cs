@@ -1,4 +1,7 @@
-﻿using System;
+﻿// Copyright © 2022 Nikolay Melnikov. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
+
+using System;
 using System.Linq;
 using Depra.Assets.Editor.Files;
 using Depra.Assets.Runtime.Async.Tokens;
@@ -15,8 +18,8 @@ namespace Depra.Assets.Tests.EditMode.Files
     [TestFixture(TestOf = typeof(PreloadedAsset<>))]
     internal sealed class LoadingPreloadedAssets
     {
-        private TestScriptableAsset _testAsset;
         private InvalidAsset _invalidAsset;
+        private TestScriptableAsset _testAsset;
         private Object[] _initialPreloadedAssets;
 
         [OneTimeSetUp]
@@ -24,7 +27,7 @@ namespace Depra.Assets.Tests.EditMode.Files
         {
             _invalidAsset = new InvalidAsset();
             _testAsset = Resources.LoadAll<TestScriptableAsset>(string.Empty).FirstOrDefault();
-            Assert.IsNotNull(_testAsset);
+            Assert.That(_testAsset, Is.Not.Null);
         }
 
         [SetUp]
