@@ -76,7 +76,7 @@ namespace Depra.Assets.Runtime.Files.Database
             _loadedAsset = null;
         }
 
-        public IAsyncToken LoadAsync(Action<TAsset> onLoaded, Action<float> onProgress = null,
+        public IAsyncToken LoadAsync(Action<TAsset> onLoaded, Action<DownloadProgress> onProgress = null,
             Action<Exception> onFailed = null)
         {
             if (IsLoaded)
@@ -89,7 +89,7 @@ namespace Depra.Assets.Runtime.Files.Database
                 try
                 {
                     var asset = Load();
-                    onProgress?.Invoke(1f);
+                    onProgress?.Invoke(DownloadProgress.Full);
                     onLoaded.Invoke(asset);
                 }
                 catch (Exception exception)

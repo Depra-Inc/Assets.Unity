@@ -55,7 +55,7 @@ namespace Depra.Assets.Runtime.Files.Resource
             _loadedAsset = null;
         }
 
-        public IAsyncToken LoadAsync(Action<TAsset> onLoaded, Action<float> onProgress = null,
+        public IAsyncToken LoadAsync(Action<TAsset> onLoaded, Action<DownloadProgress> onProgress = null,
             Action<Exception> onFailed = null)
         {
             if (IsLoaded)
@@ -82,17 +82,19 @@ namespace Depra.Assets.Runtime.Files.Resource
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private IEnumerator LoadingProcess(Action<TAsset> onLoaded, Action<float> onProgress = null,
+        private IEnumerator LoadingProcess(Action<TAsset> onLoaded, Action<DownloadProgress> onProgress = null,
             Action<Exception> onFailed = null)
         {
             var request = Resources.LoadAsync<TAsset>(Path);
             while (request.isDone == false)
             {
-                onProgress?.Invoke(request.progress);
+                var progress = new DownloadProgress(request.progress);
+                onProgress?.Invoke(progress);
+                
                 yield return null;
             }
 
-            onProgress?.Invoke(1f);
+            onProgress?.Invoke(DownloadProgress.Full);
             onLoaded.Invoke((TAsset)request.asset);
         }
 

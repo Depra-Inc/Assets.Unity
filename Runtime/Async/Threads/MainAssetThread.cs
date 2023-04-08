@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using Depra.Assets.Runtime.Files.Structs;
 using Depra.Coroutines.Domain.Entities;
 
 namespace Depra.Assets.Runtime.Async.Threads
@@ -8,12 +9,12 @@ namespace Depra.Assets.Runtime.Async.Threads
     {
         private readonly Action _onCancel;
         private readonly ICoroutineHost _coroutineHost;
-        private readonly Func<Action<TAsset>, Action<float>, Action<Exception>, IEnumerator> _processFactory;
+        private readonly Func<Action<TAsset>, Action<DownloadProgress>, Action<Exception>, IEnumerator> _processFactory;
 
         private ICoroutine _coroutine;
 
         public MainAssetThread(ICoroutineHost coroutineHost,
-            Func<Action<TAsset>, Action<float>, Action<Exception>, IEnumerator> processFactory,
+            Func<Action<TAsset>, Action<DownloadProgress>, Action<Exception>, IEnumerator> processFactory,
             Action onCancel = null)
         {
             _onCancel = onCancel;
@@ -25,7 +26,7 @@ namespace Depra.Assets.Runtime.Async.Threads
 
         public void Start(
             Action<TAsset> onLoaded,
-            Action<float> onProgress = null,
+            Action<DownloadProgress> onProgress = null,
             Action<Exception> onFailed = null)
         {
             onLoaded += Complete;

@@ -62,7 +62,7 @@ namespace Depra.Assets.Runtime.Files.Group
             }
         }
 
-        public IAsyncToken LoadAsync(Action<IEnumerable<Object>> onLoaded, Action<float> onProgress = null,
+        public IAsyncToken LoadAsync(Action<IEnumerable<Object>> onLoaded, Action<DownloadProgress> onProgress = null,
             Action<Exception> onFailed = null)
         {
             if (IsLoaded)
@@ -130,7 +130,7 @@ namespace Depra.Assets.Runtime.Files.Group
 
             public void Start(
                 Action<Object> onLoaded,
-                Action<float> onProgress,
+                Action<DownloadProgress> onProgress,
                 Action<Exception> onFailed) =>
                 _coroutine = _coroutineHost.StartCoroutine(LoadingProcess(onLoaded, onProgress, onFailed));
 
@@ -139,7 +139,7 @@ namespace Depra.Assets.Runtime.Files.Group
                 _coroutine?.Stop();
             }
 
-            private IEnumerator LoadingProcess(Action<Object> onLoaded, Action<float> onProgress,
+            private IEnumerator LoadingProcess(Action<Object> onLoaded, Action<DownloadProgress> onProgress,
                 Action<Exception> onFailed)
             {
                 foreach (var childAsset in _childAssets)
@@ -150,8 +150,9 @@ namespace Depra.Assets.Runtime.Files.Group
                         yield return new WaitUntil(() => childAsset.IsLoaded);
                     }
 
-                    var loadingProgress = (float)_loadedAssets.Count / _childAssets.Count;
-                    onProgress?.Invoke(loadingProgress);
+                    var progressValue = (float)_loadedAssets.Count / _childAssets.Count;
+                    var progress = new DownloadProgress(progressValue);
+                    onProgress?.Invoke(progress);
                 }
 
                 _onLoaded.Invoke(_loadedAssets);

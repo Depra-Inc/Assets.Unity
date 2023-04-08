@@ -5,13 +5,12 @@ namespace Depra.Assets.Runtime.Files.Structs
 {
     public readonly struct AlreadyLoadedAsset<TAsset>
     {
-        private const float MAX_PROGRESS = 1f;
-
-        public static IAsyncToken Create(TAsset loadedAsset, Action<TAsset> onLoaded, Action<float> onProgress)
+        public static IAsyncToken Create(TAsset loadedAsset, Action<TAsset> onLoaded,
+            Action<DownloadProgress> onProgress)
         {
-            onProgress?.Invoke(MAX_PROGRESS);
+            onProgress?.Invoke(DownloadProgress.Full);
             onLoaded.Invoke(loadedAsset);
-                
+
             return AsyncActionToken.Empty;
         }
     }

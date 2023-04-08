@@ -150,8 +150,9 @@ namespace Depra.Assets.Tests.EditMode.Files
 
             public void Unload() { }
 
-            public IAsyncToken LoadAsync(Action<TestScriptableAsset> onLoaded, Action<float> onProgress = null,
-                Action<Exception> onFailed = null) => throw new NotImplementedException();
+            public IAsyncToken LoadAsync(Action<TestScriptableAsset> onLoaded,
+                Action<DownloadProgress> onProgress = null, Action<Exception> onFailed = null) =>
+                throw new NotImplementedException();
         }
     }
 }

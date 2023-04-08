@@ -18,10 +18,7 @@ namespace Depra.Assets.Runtime.Files.Bundles.Files
 
         private AssetBundle _loadedAssetBundle;
 
-        protected AssetBundleFile(AssetIdent ident)
-        {
-            _ident = ident;
-        }
+        protected AssetBundleFile(AssetIdent ident) => _ident = ident;
 
         public string Name => _ident.Name;
         public string Path => _ident.Path;
@@ -40,7 +37,7 @@ namespace Depra.Assets.Runtime.Files.Bundles.Files
             return OnLoaded(loadedAssetBundle, onFailed: exception => throw exception);
         }
 
-        public IAsyncToken LoadAsync(Action<AssetBundle> onLoaded, Action<float> onProgress = null,
+        public IAsyncToken LoadAsync(Action<AssetBundle> onLoaded, Action<DownloadProgress> onProgress = null,
             Action<Exception> onFailed = null)
         {
             if (IsLoaded)
@@ -82,7 +79,7 @@ namespace Depra.Assets.Runtime.Files.Bundles.Files
         protected abstract AssetBundle LoadOverride();
 
         protected abstract IAssetThread<AssetBundle> RequestAsync();
-        
+
         private AssetBundle OnLoaded(AssetBundle loadedBundle, Action<Exception> onFailed,
             Action<AssetBundle> onLoaded = null)
         {

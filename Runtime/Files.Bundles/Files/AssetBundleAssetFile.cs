@@ -54,7 +54,7 @@ namespace Depra.Assets.Runtime.Files.Bundles.Files
             }
         }
 
-        public IAsyncToken LoadAsync(Action<TAsset> onLoaded, Action<float> onProgress = null,
+        public IAsyncToken LoadAsync(Action<TAsset> onLoaded, Action<DownloadProgress> onProgress = null,
             Action<Exception> onFailed = null)
         {
             if (IsLoaded)
@@ -65,7 +65,7 @@ namespace Depra.Assets.Runtime.Files.Bundles.Files
             var loadingThread = new MainAssetThread<TAsset>(_coroutineHost, LoadingProcess);
             loadingThread.Start(OnLoadedInternal, onProgress, onFailed);
             void OnLoadedInternal(TAsset loadedAsset) => OnLoaded(loadedAsset, onFailed, onLoaded);
-            
+
             return new AsyncActionToken(loadingThread.Cancel);
         }
 
@@ -80,17 +80,18 @@ namespace Depra.Assets.Runtime.Files.Bundles.Files
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private IEnumerator LoadingProcess(Action<TAsset> onLoaded, Action<float> onProgress = null,
+        private IEnumerator LoadingProcess(Action<TAsset> onLoaded, Action<DownloadProgress> onProgress = null,
             Action<Exception> onFailed = null)
         {
             var request = _assetBundle.LoadAssetAsync<TAsset>(Name);
             while (request.isDone == false)
             {
-                onProgress?.Invoke(request.progress);
+                var progress = new DownloadProgress(request.progress);
+                onProgress?.Invoke(progress);
                 yield return null;
             }
 
-            onProgress?.Invoke(1f);
+            onProgress?.Invoke(DownloadProgress.Full);
             onLoaded.Invoke((TAsset)request.asset);
         }
 
@@ -103,7 +104,7 @@ namespace Depra.Assets.Runtime.Files.Bundles.Files
         {
             if (asset == null)
             {
-                onFailed?.Invoke(new AssetBundleFileLoadingException(Name, _assetBundle.name));
+                onFailed?.Invoke(new AssetBundleFileNotLoadedException(Name, _assetBundle.name));
             }
         }
 

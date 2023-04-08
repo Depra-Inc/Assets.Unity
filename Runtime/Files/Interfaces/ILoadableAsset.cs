@@ -1,5 +1,6 @@
 ﻿using System;
 using Depra.Assets.Runtime.Async.Tokens;
+using Depra.Assets.Runtime.Files.Structs;
 
 namespace Depra.Assets.Runtime.Files.Interfaces
 {
@@ -13,7 +14,7 @@ namespace Depra.Assets.Runtime.Files.Interfaces
 
         IAsyncToken LoadAsync(
             Action<TAsset> onLoaded,
-            Action<float> onProgress = null,
+            Action<DownloadProgress> onProgress = null,
             Action<Exception> onFailed = null);
     }
 }

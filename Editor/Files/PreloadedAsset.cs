@@ -41,7 +41,7 @@ namespace Depra.Assets.Editor.Files
             {
                 loadedAsset = _asset.Load();
             }
-            
+
             return OnLoaded(loadedAsset);
         }
 
@@ -56,7 +56,7 @@ namespace Depra.Assets.Editor.Files
             _loadedAsset = null;
         }
 
-        public IAsyncToken LoadAsync(Action<TAsset> onLoaded, Action<float> onProgress = null,
+        public IAsyncToken LoadAsync(Action<TAsset> onLoaded, Action<DownloadProgress> onProgress = null,
             Action<Exception> onFailed = null)
         {
             if (IsLoaded)
@@ -76,7 +76,7 @@ namespace Depra.Assets.Editor.Files
 
             IAsyncToken OnLoadedInstantly(TAsset readyAsset)
             {
-                onProgress?.Invoke(1f);
+                onProgress?.Invoke(DownloadProgress.Full);
                 onLoaded.Invoke(readyAsset);
 
                 return AsyncActionToken.Empty;

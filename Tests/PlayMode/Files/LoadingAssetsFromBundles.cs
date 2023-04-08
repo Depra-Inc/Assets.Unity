@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Diagnostics;
+using Depra.Assets.Runtime.Files.Bundles.Exceptions;
 using Depra.Assets.Runtime.Files.Bundles.Files;
 using Depra.Assets.Runtime.Files.Interfaces;
 using Depra.Assets.Runtime.Files.Structs;
@@ -68,7 +69,7 @@ namespace Depra.Assets.Tests.PlayMode.Files
         {
             // Arrange.
             var bundle = _assetBundle;
-            var bundleAsset =  _assetFromBundle;
+            var bundleAsset = _assetFromBundle;
             bundleAsset.Load();
             yield return null;
 
@@ -84,6 +85,21 @@ namespace Depra.Assets.Tests.PlayMode.Files
 
             // Cleanup.
             yield return Free(bundle);
+        }
+
+        [Test]
+        public void InvalidAssetFromBundleShouldThrowExceptionOnLoad()
+        {
+            // Arrange.
+            var bundle = _assetBundle;
+            var invalidAssetIdent = new AssetIdent("InvalidAssetName", "InvalidPath");
+            var invalidAssetFromBundle = new AssetBundleAssetFile<InvalidAsset>(invalidAssetIdent, bundle, _coroutineHost);
+
+            // Act.
+            void Act() => invalidAssetFromBundle.Load();
+
+            // Cleanup.
+            Assert.That(Act, Throws.TypeOf<AssetBundleFileNotLoadedException>());
         }
 
         [UnityTest]
@@ -127,14 +143,16 @@ namespace Depra.Assets.Tests.PlayMode.Files
             var callbackCalls = 0;
             var bundle = _assetBundle;
             var assetFromBundle = _assetFromBundle;
+            DownloadProgress lastProgress = default;
 
             // Act.
             _stopwatch.Restart();
             assetFromBundle.LoadAsync(onLoaded: null,
-                onProgress: _ =>
+                onProgress: progress =>
                 {
                     callbackCalls++;
                     callbacksCalled = true;
+                    lastProgress = progress;
                 },
                 onFailed: exception => throw exception);
 
@@ -148,11 +166,13 @@ namespace Depra.Assets.Tests.PlayMode.Files
             // Assert.
             Assert.That(callbacksCalled);
             Assert.That(callbackCalls, Is.GreaterThan(0));
+            Assert.That(lastProgress, Is.EqualTo(DownloadProgress.Full));
 
             // Debug.
             Debug.Log("Progress event was called " +
                       $"{callbackCalls} times " +
-                      $"in {_stopwatch.ElapsedMilliseconds} ms.");
+                      $"in {_stopwatch.ElapsedMilliseconds} ms. " +
+                      $"Last value is {lastProgress.NormalizedValue}.");
 
             // Cleanup.
             yield return Free(bundle);

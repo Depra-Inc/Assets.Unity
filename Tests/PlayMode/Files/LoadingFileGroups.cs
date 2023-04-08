@@ -87,6 +87,7 @@ namespace Depra.Assets.Tests.PlayMode.Files
             // Arrange.
             var callbacksCalled = false;
             var callbackCalls = 0;
+            DownloadProgress lastProgress = default;
             var allAssets = _testAssets;
             var assetGroup = new AssetGroup(children: allAssets);
 
@@ -94,10 +95,11 @@ namespace Depra.Assets.Tests.PlayMode.Files
             _stopwatch.Restart();
             assetGroup.LoadAsync(
                 onLoaded: _ => { },
-                onProgress: _ =>
+                onProgress: progress =>
                 {
                     callbackCalls++;
                     callbacksCalled = true;
+                    lastProgress = progress;
                 },
                 onFailed: exception => throw exception);
 
@@ -111,11 +113,13 @@ namespace Depra.Assets.Tests.PlayMode.Files
             // Assert.
             Assert.That(callbacksCalled);
             Assert.That(callbackCalls, Is.GreaterThan(0));
+            Assert.That(lastProgress, Is.EqualTo(DownloadProgress.Full));
 
             // Debug.
             Debug.Log("Progress event was called " +
                       $"{callbackCalls} times " +
-                      $"in {_stopwatch.ElapsedMilliseconds} ms.");
+                      $"in {_stopwatch.ElapsedMilliseconds} ms. " +
+                      $"Last value is {lastProgress.NormalizedValue}.");
         }
 
         [Test]
@@ -134,10 +138,10 @@ namespace Depra.Assets.Tests.PlayMode.Files
 
         [Test]
         [SuppressMessage("ReSharper", "IteratorMethodResultIsIgnored")]
-        public void GroupSizeShouldNotBeZeroOrUnknown()
+        public void GroupSizeShouldBeThreeBytes()
         {
             // Arrange.
-            Assert.That(_testAssets.All(x => !Equals(x.Size, FileSize.Zero)));
+            Assert.That(_testAssets.Sum(x => x.Size.SizeInBytes), Is.EqualTo(3));
             var assetGroup = new AssetGroup(nameof(AssetGroup), children: _testAssets);
             assetGroup.Load();
 
@@ -176,11 +180,12 @@ namespace Depra.Assets.Tests.PlayMode.Files
                 return CreateAsset();
             }
 
-            public IAsyncToken LoadAsync(Action<TestScriptableAsset> onLoaded, Action<float> onProgress = null,
+            public IAsyncToken LoadAsync(Action<TestScriptableAsset> onLoaded,
+                Action<DownloadProgress> onProgress = null,
                 Action<Exception> onFailed = null)
             {
                 var asset = CreateAsset();
-                onProgress?.Invoke(1f);
+                onProgress?.Invoke(DownloadProgress.Full);
                 onLoaded.Invoke(asset);
                 IsLoaded = true;
 

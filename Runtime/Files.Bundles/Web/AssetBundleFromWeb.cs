@@ -36,7 +36,7 @@ namespace Depra.Assets.Runtime.Files.Bundles.Web
         protected override IAssetThread<AssetBundle> RequestAsync() =>
             new MainAssetThread<AssetBundle>(_coroutineHost, LoadingProcess, CancelRequest);
 
-        private IEnumerator LoadingProcess(Action<AssetBundle> onLoaded, Action<float> onProgress = null,
+        private IEnumerator LoadingProcess(Action<AssetBundle> onLoaded, Action<DownloadProgress> onProgress = null,
             Action<Exception> onFailed = null)
         {
             _webRequest = UnityWebRequestAssetBundle.GetAssetBundle(Path);
@@ -44,11 +44,13 @@ namespace Depra.Assets.Runtime.Files.Bundles.Web
 
             while (_webRequest.isDone == false)
             {
-                onProgress?.Invoke(_webRequest.downloadProgress);
+                var progress = new DownloadProgress(_webRequest.downloadProgress);
+                onProgress?.Invoke(progress);
+                
                 yield return null;
             }
 
-            onProgress?.Invoke(1f);
+            onProgress?.Invoke(DownloadProgress.Full);
 
             EnsureRequestResult(_webRequest, onFailed);
             var downloadedBundle = DownloadHandlerAssetBundle.GetContent(_webRequest);
@@ -64,7 +66,7 @@ namespace Depra.Assets.Runtime.Files.Bundles.Web
         {
             if (request.CanGetResult() == false)
             {
-                onFailed?.Invoke(new AssetBundleLoadingException(Name, Path));
+                onFailed?.Invoke(new AssetBundleNotLoadedException(Path));
             }
         }
     }

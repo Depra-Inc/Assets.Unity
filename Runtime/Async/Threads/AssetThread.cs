@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Depra.Assets.Runtime.Files.Structs;
 
 namespace Depra.Assets.Runtime.Async.Threads
 {
@@ -15,7 +16,7 @@ namespace Depra.Assets.Runtime.Async.Threads
             _cancellationTokenSource = new CancellationTokenSource();
         }
 
-        public void Start(Action<TAsset> onLoaded, Action<float> onProgress, Action<Exception> onFailed)
+        public void Start(Action<TAsset> onLoaded, Action<DownloadProgress> onProgress, Action<Exception> onFailed)
         {
             Task.Run(() => _task);
         }

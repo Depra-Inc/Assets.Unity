@@ -127,15 +127,17 @@ namespace Depra.Assets.Tests.PlayMode.Files
             var callbackCalls = 0;
             Object loadedAsset = null;
             var resourceAsset = _resourceAsset;
+            DownloadProgress lastProgress = default;
 
             // Act.
             _stopwatch.Restart();
             resourceAsset.LoadAsync(
                 onLoaded: asset => loadedAsset = asset,
-                onProgress: _ =>
+                onProgress: progress =>
                 {
                     callbackCalls++;
                     callbacksCalled = true;
+                    lastProgress = progress;
                 },
                 onFailed: exception => throw exception);
 
@@ -149,11 +151,13 @@ namespace Depra.Assets.Tests.PlayMode.Files
             // Assert.
             Assert.That(callbacksCalled);
             Assert.That(callbackCalls, Is.GreaterThan(0));
+            Assert.That(lastProgress, Is.EqualTo(DownloadProgress.Full));
 
             // Debug.
             Debug.Log("Progress event was called " +
                       $"{callbackCalls} times " +
-                      $"in {_stopwatch.ElapsedMilliseconds} ms.");
+                      $"in {_stopwatch.ElapsedMilliseconds} ms. " +
+                      $"Last value is {lastProgress.NormalizedValue}.");
 
             // Cleanup.
             yield return Free(loadedAsset);
@@ -230,7 +234,7 @@ namespace Depra.Assets.Tests.PlayMode.Files
             // Act.
             void Act() => invalidResourceAsset.Load();
 
-            // Cleanup.
+            // Assert.
             Assert.That(Act, Throws.TypeOf<ResourceNotLoadedException>());
         }
 

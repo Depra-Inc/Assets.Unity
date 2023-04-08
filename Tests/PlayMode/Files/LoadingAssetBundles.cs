@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using Depra.Assets.Runtime.Files.Bundles.Files;
@@ -10,6 +11,7 @@ using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
 using Debug = UnityEngine.Debug;
+using Object = UnityEngine.Object;
 
 namespace Depra.Assets.Tests.PlayMode.Files
 {
@@ -30,6 +32,16 @@ namespace Depra.Assets.Tests.PlayMode.Files
             yield return new AssetBundleFromFile(bundleIdent, CoroutineHost);
             yield return new AssetBundleFromMemory(bundleIdent, CoroutineHost);
             yield return new AssetBundleFromStream(bundleIdent, CoroutineHost);
+            //yield return new AssetBundleFromWeb(bundleIdent, CoroutineHost);
+        }
+
+        private static IEnumerable<AssetBundleFile> InvalidBundles()
+        {
+            var invalidBundleIdent = new AssetIdent("InvalidBundle", "InvalidPath");
+            
+            yield return new AssetBundleFromFile(invalidBundleIdent, CoroutineHost);
+            yield return new AssetBundleFromMemory(invalidBundleIdent, CoroutineHost);
+            yield return new AssetBundleFromStream(invalidBundleIdent, CoroutineHost);
             //yield return new AssetBundleFromWeb(bundleIdent, CoroutineHost);
         }
 
@@ -87,6 +99,19 @@ namespace Depra.Assets.Tests.PlayMode.Files
             Debug.Log($"Loaded and unloaded bundle [{bundleFile.Name}] by path: {bundleFile.Path}.");
         }
 
+        [Test]
+        public void InvalidBundleShouldThrowExceptionOnLoad(
+            [ValueSource(nameof(InvalidBundles))] AssetBundleFile invalidBundleFile)
+        {
+            // Arrange.
+
+            // Act.
+            void Act() => invalidBundleFile.Load();
+
+            // Assert.
+            Assert.That(Act, Throws.InstanceOf<Exception>());
+        }
+
         [UnityTest]
         public IEnumerator BundleShouldBeLoadedAsync([ValueSource(nameof(AllBundles))] AssetBundleFile bundleFile)
         {
@@ -127,15 +152,17 @@ namespace Depra.Assets.Tests.PlayMode.Files
             var callbacksCalled = false;
             var callbackCalls = 0;
             AssetBundle loadedBundle = null;
+            DownloadProgress lastProgress = default;
 
             // Act.
             _stopwatch.Restart();
             bundleFile.LoadAsync(
                 onLoaded: asset => loadedBundle = asset,
-                onProgress: _ =>
+                onProgress: progress =>
                 {
                     callbackCalls++;
                     callbacksCalled = true;
+                    lastProgress = progress;
                 },
                 onFailed: exception => throw exception);
 
@@ -149,11 +176,13 @@ namespace Depra.Assets.Tests.PlayMode.Files
             // Assert.
             Assert.That(callbacksCalled);
             Assert.That(callbackCalls, Is.GreaterThan(0));
+            Assert.That(lastProgress, Is.EqualTo(DownloadProgress.Full));
 
             // Debug.
             Debug.Log("Progress event was called " +
                       $"{callbackCalls} times " +
-                      $"in {_stopwatch.ElapsedMilliseconds} ms.");
+                      $"in {_stopwatch.ElapsedMilliseconds} ms. " +
+                      $"Last value is {lastProgress.NormalizedValue}.");
 
             // Cleanup.
             yield return Free(loadedBundle);
