@@ -1,16 +1,18 @@
-﻿// Copyright © 2022 Nikolay Melnikov. All rights reserved.
+﻿// Copyright © 2023 Nikolay Melnikov. All rights reserved.
 // SPDX-License-Identifier: Apache-2.0
 
 using System.Collections;
 using System.Diagnostics;
-using System.Linq;
+using System.IO;
+using Depra.Assets.Runtime.Files.Database;
 using Depra.Assets.Runtime.Files.Resource;
 using Depra.Assets.Runtime.Files.Structs;
-using Depra.Assets.Tests.PlayMode.Exceptions;
 using Depra.Assets.Tests.PlayMode.Types;
+using Depra.Assets.Tests.PlayMode.Utils;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
+using static Depra.Assets.Runtime.Common.Constants;
 using Debug = UnityEngine.Debug;
 
 namespace Depra.Assets.Tests.PlayMode.Files
@@ -19,6 +21,8 @@ namespace Depra.Assets.Tests.PlayMode.Files
     internal sealed class LoadingResources
     {
         private Stopwatch _stopwatch;
+        private TestScriptableAsset _testAsset;
+        private TempDirectory _resourcesFolder;
         private TestCoroutineHost _coroutineHost;
         private ResourceAsset<TestScriptableAsset> _resourceAsset;
 
@@ -27,21 +31,27 @@ namespace Depra.Assets.Tests.PlayMode.Files
         {
             _stopwatch = new Stopwatch();
             _coroutineHost = TestCoroutineHost.Create();
-            
-            // Load all resources and get the first one.
-            var resources = Resources.LoadAll<TestResourcesRef>(string.Empty)
-                .FirstOrDefault() ?? throw new TestReferenceNotFoundException(nameof(TestResourcesRef));
+            var assetIdent = new AssetIdent(nameof(TestScriptableAsset), string.Empty);
+
+            // Create resources folder if does not exist.
+            var absoluteResourcesPath = Path.Combine(Application.dataPath, RESOURCES_FOLDER_NAME);
+            _resourcesFolder = new TempDirectory(absoluteResourcesPath);
+
             // Create a new asset instance.
-            _ = ScriptableObject.CreateInstance<TestScriptableAsset>();
+            var assetNameWithExtension = assetIdent.Name + AssetTypes.BASE;
+            _testAsset = AssetDatabaseHelper.CreateAsset<TestScriptableAsset>(assetNameWithExtension,
+                Path.Combine(ASSETS_FOLDER_NAME, RESOURCES_FOLDER_NAME));
+
             // Create a new resource asset.
-            var assetIdent = new AssetIdent(resources.AssetName, resources.DirectoryPath);
             _resourceAsset = new ResourceAsset<TestScriptableAsset>(assetIdent, _coroutineHost);
         }
 
         [OneTimeTearDown]
         public void TearDown()
         {
+            AssetDatabaseHelper.DeleteAsset(_testAsset);
             Object.DestroyImmediate(_coroutineHost.gameObject);
+            _resourcesFolder.Dispose();
         }
 
         [UnityTest]
@@ -120,7 +130,7 @@ namespace Depra.Assets.Tests.PlayMode.Files
             // Cleanup.
             yield return Free(loadedAsset);
         }
-        
+
         [UnityTest]
         public IEnumerator SingleAssetShouldBeLoadedAsyncWithProgress()
         {
