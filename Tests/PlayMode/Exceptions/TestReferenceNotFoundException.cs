@@ -14,6 +14,6 @@ namespace Depra.Assets.Tests.PlayMode.Exceptions
 
         public TestReferenceNotFoundException(string referenceName) :
             base(string.Format(MESSAGE_FORMAT, referenceName,
-                Path.Combine(Constants.FRAMEWORK_NAME, Constants.MODULE_NAME, referenceName))) { }
+                Path.Combine(Constants.FrameworkName, Constants.ModuleName, referenceName))) { }
     }
 }

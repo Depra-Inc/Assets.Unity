@@ -1,15 +1,14 @@
 ﻿// Copyright © 2023 Nikolay Melnikov. All rights reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-using System;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using Depra.Assets.Runtime.Files.Database;
 
-namespace Depra.Assets.Tests.PlayMode.Utils
+namespace Depra.Assets.Tests.PlayMode.Mocks
 {
-    internal sealed class TempDirectory : IDisposable
+    internal sealed class TempDirectory
     {
         private readonly DirectoryInfo _directoryInfo;
 
@@ -19,7 +18,7 @@ namespace Depra.Assets.Tests.PlayMode.Utils
             CreateIfDoesNotExist();
         }
 
-        public void Dispose()
+        public void DeleteIfEmpty()
         {
             if (_directoryInfo.Exists == false || IsEmpty() == false)
             {

@@ -1,4 +1,4 @@
-﻿// Copyright © 2022 Nikolay Melnikov. All rights reserved.
+﻿// Copyright © 2023 Nikolay Melnikov. All rights reserved.
 // SPDX-License-Identifier: Apache-2.0
 
 using System.Collections;
@@ -6,14 +6,14 @@ using Depra.Coroutines.Domain.Entities;
 using Depra.Coroutines.Unity.Runtime;
 using UnityEngine;
 
-namespace Depra.Assets.Tests.PlayMode.Types
+namespace Depra.Assets.Tests.PlayMode.Mocks
 {
-    internal sealed class TestCoroutineHost : MonoBehaviour, ICoroutineHost
+    internal sealed class CoroutineHostMock : MonoBehaviour, ICoroutineHost
     {
         private RuntimeCoroutineHost _coroutineHost;
 
-        public static TestCoroutineHost Create() =>
-            new GameObject().AddComponent<TestCoroutineHost>();
+        public static CoroutineHostMock Create() =>
+            new GameObject().AddComponent<CoroutineHostMock>();
 
         private void Awake() => 
             _coroutineHost = gameObject.AddComponent<RuntimeCoroutineHost>();

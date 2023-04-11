@@ -1,0 +1,19 @@
+ManifestFileVersion: 0
+CRC: 1288912054
+Hashes:
+  AssetFileHash:
+    serializedVersion: 2
+    Hash: d537313022afd55ac360a13e8787d8bd
+  TypeTreeHash:
+    serializedVersion: 2
+    Hash: 9554f1250f18acafb5bb04df89040b50
+HashAppended: 0
+ClassTypes:
+- Class: 114
+  Script: {fileID: 11500000, guid: 521b755347524f179de9477dad76b33f, type: 3}
+- Class: 115
+  Script: {instanceID: 0}
+SerializeReferenceClassIdentifiers: []
+Assets:
+- Assets/Depra.Assets/Tests/AssetBundles/TestAsset.asset
+Dependencies: []

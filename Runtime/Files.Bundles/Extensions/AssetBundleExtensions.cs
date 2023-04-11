@@ -1,11 +1,15 @@
-﻿// Copyright © 2022 Nikolay Melnikov. All rights reserved.
+﻿// Copyright © 2023 Nikolay Melnikov. All rights reserved.
 // SPDX-License-Identifier: Apache-2.0
 
+using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using Depra.Assets.Runtime.Files.Structs;
 using UnityEngine;
+using Object = UnityEngine.Object;
 #if UNITY_EDITOR
 using UnityEngine.Profiling;
 using UnityEditor;
@@ -21,7 +25,7 @@ namespace Depra.Assets.Runtime.Files.Bundles.Extensions
         {
             FileSize fileSize;
 #if UNITY_EDITOR
-            fileSize = SizeInMemory(assetBundle);
+            fileSize = SizeInRAM(assetBundle);
             if (fileSize.SizeInBytes == 0)
 #endif
             {
@@ -50,29 +54,34 @@ namespace Depra.Assets.Runtime.Files.Bundles.Extensions
         }
 
 #if UNITY_EDITOR
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static FileSize SizeInMemory(this Object assetBundle)
+        /// <summary>
+        /// Returns size of <see cref="AssetBundle"/> in RAM.
+        /// </summary>
+        /// <param name="assetBundle"><see cref="AssetBundle"/> for calculating.</param>
+        /// <returns></returns>
+        /// <remarks>Source - https://stackoverflow.com/questions/56822948/estimate-an-assetbundle-size-in-ram</remarks>
+        [SuppressMessage("ReSharper", "InconsistentNaming")]
+        private static FileSize SizeInRAM(this Object assetBundle)
         {
-            long bytes = 0;
-            var assets = AssetDatabase.GetAssetPathsFromAssetBundle(assetBundle.name);
-            foreach (var path in assets)
+            var serializedObject = new SerializedObject(assetBundle);
+            var serializedProperty = serializedObject.FindProperty("m_PreloadTable");
+            var sizes = new Dictionary<Type, long>();
+            for (var i = 0; i < serializedProperty.arraySize; i++)
             {
-                var fileInfo = new FileInfo(path);
-                if (fileInfo.Exists == false)
+                var objectReference = serializedProperty.GetArrayElementAtIndex(i).objectReferenceValue;
+                var type = objectReference.GetType();
+                var size = Profiler.GetRuntimeMemorySizeLong(objectReference);
+                if (sizes.ContainsKey(type))
                 {
-                    continue;
+                    sizes[type] += size;
                 }
-
-                var mainAsset = AssetDatabase.LoadMainAssetAtPath(path);
-                bytes = Profiler.GetRuntimeMemorySizeLong(mainAsset);
-                // The above isn't supported for all asset types:
-                if (bytes == 0)
+                else
                 {
-                    bytes = fileInfo.Length;
+                    sizes.Add(type, size);
                 }
             }
-
-            return new FileSize(bytes);
+            
+            return new FileSize(sizes.Sum(x => x.Value));
         }
 #endif
     }

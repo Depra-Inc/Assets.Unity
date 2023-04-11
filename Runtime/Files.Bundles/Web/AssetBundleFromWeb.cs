@@ -5,7 +5,6 @@ using System;
 using System.Collections;
 using System.Runtime.CompilerServices;
 using Depra.Assets.Runtime.Async.Threads;
-using Depra.Assets.Runtime.Files.Bundles.Exceptions;
 using Depra.Assets.Runtime.Files.Bundles.Files;
 using Depra.Assets.Runtime.Files.Structs;
 using Depra.Coroutines.Domain.Entities;
@@ -17,6 +16,8 @@ namespace Depra.Assets.Runtime.Files.Bundles.Web
     public sealed class AssetBundleFromWeb : AssetBundleFile
     {
         private readonly ICoroutineHost _coroutineHost;
+
+        private long _contentSize;
         private UnityWebRequest _webRequest;
 
         public AssetBundleFromWeb(AssetIdent ident, ICoroutineHost coroutineHost = null) : base(ident) =>
@@ -39,6 +40,8 @@ namespace Depra.Assets.Runtime.Files.Bundles.Web
         protected override IAssetThread<AssetBundle> RequestAsync() =>
             new MainAssetThread<AssetBundle>(_coroutineHost, LoadingProcess, CancelRequest);
 
+        protected override FileSize RefreshSize(AssetBundle assetBundle) => new(_contentSize);
+
         private IEnumerator LoadingProcess(Action<AssetBundle> onLoaded, Action<DownloadProgress> onProgress = null,
             Action<Exception> onFailed = null)
         {
@@ -49,16 +52,18 @@ namespace Depra.Assets.Runtime.Files.Bundles.Web
             {
                 var progress = new DownloadProgress(_webRequest.downloadProgress);
                 onProgress?.Invoke(progress);
-                
+
                 yield return null;
             }
 
             onProgress?.Invoke(DownloadProgress.Full);
 
             EnsureRequestResult(_webRequest, onFailed);
+            
             var downloadedBundle = DownloadHandlerAssetBundle.GetContent(_webRequest);
             onLoaded.Invoke(downloadedBundle);
 
+            _contentSize = _webRequest.ParseSize();
             _webRequest.Dispose();
         }
 
@@ -69,7 +74,7 @@ namespace Depra.Assets.Runtime.Files.Bundles.Web
         {
             if (request.CanGetResult() == false)
             {
-                onFailed?.Invoke(new AssetBundleNotLoadedException(Path));
+                onFailed?.Invoke(new RemoveAssetBundleNotLoadedException(Path, request.error));
             }
         }
     }

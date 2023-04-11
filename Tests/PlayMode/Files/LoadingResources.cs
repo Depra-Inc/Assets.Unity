@@ -7,9 +7,10 @@ using System.IO;
 using Depra.Assets.Runtime.Files.Database;
 using Depra.Assets.Runtime.Files.Resource;
 using Depra.Assets.Runtime.Files.Structs;
+using Depra.Assets.Tests.PlayMode.Mocks;
 using Depra.Assets.Tests.PlayMode.Types;
-using Depra.Assets.Tests.PlayMode.Utils;
 using NUnit.Framework;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.TestTools;
 using static Depra.Assets.Runtime.Common.Constants;
@@ -23,24 +24,28 @@ namespace Depra.Assets.Tests.PlayMode.Files
         private Stopwatch _stopwatch;
         private TestScriptableAsset _testAsset;
         private TempDirectory _resourcesFolder;
-        private TestCoroutineHost _coroutineHost;
+        private CoroutineHostMock _coroutineHost;
         private ResourceAsset<TestScriptableAsset> _resourceAsset;
 
         [OneTimeSetUp]
         public void SetUp()
         {
             _stopwatch = new Stopwatch();
-            _coroutineHost = TestCoroutineHost.Create();
+            _coroutineHost = CoroutineHostMock.Create();
             var assetIdent = new AssetIdent(nameof(TestScriptableAsset), string.Empty);
 
             // Create resources folder if does not exist.
-            var absoluteResourcesPath = Path.Combine(Application.dataPath, RESOURCES_FOLDER_NAME);
+            var absoluteResourcesPath = Path.Combine(Application.dataPath, ResourcesFolderName);
             _resourcesFolder = new TempDirectory(absoluteResourcesPath);
 
             // Create a new asset instance.
             var assetNameWithExtension = assetIdent.Name + AssetTypes.BASE;
-            _testAsset = AssetDatabaseHelper.CreateAsset<TestScriptableAsset>(assetNameWithExtension,
-                Path.Combine(ASSETS_FOLDER_NAME, RESOURCES_FOLDER_NAME));
+            var asset = ScriptableObject.CreateInstance<TestScriptableAsset>();
+            var fullPath = Path.Combine(AssetsFolderName, ResourcesFolderName, assetNameWithExtension);
+            AssetDatabase.CreateAsset(asset, fullPath);
+            AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
+            _testAsset = asset;
 
             // Create a new resource asset.
             _resourceAsset = new ResourceAsset<TestScriptableAsset>(assetIdent, _coroutineHost);
@@ -49,9 +54,15 @@ namespace Depra.Assets.Tests.PlayMode.Files
         [OneTimeTearDown]
         public void TearDown()
         {
-            AssetDatabaseHelper.DeleteAsset(_testAsset);
             Object.DestroyImmediate(_coroutineHost.gameObject);
-            _resourcesFolder.Dispose();
+            
+            // Delete the asset.
+            var assetPath = AssetDatabase.GetAssetPath(_testAsset);
+            AssetDatabase.DeleteAsset(assetPath);
+            AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
+
+            _resourcesFolder.DeleteIfEmpty();
         }
 
         [UnityTest]

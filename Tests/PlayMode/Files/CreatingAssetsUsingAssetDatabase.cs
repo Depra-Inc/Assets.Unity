@@ -1,4 +1,4 @@
-﻿// Copyright © 2022 Nikolay Melnikov. All rights reserved.
+﻿// Copyright © 2023 Nikolay Melnikov. All rights reserved.
 // SPDX-License-Identifier: Apache-2.0
 
 using System.Collections;
@@ -16,11 +16,12 @@ using Debug = UnityEngine.Debug;
 
 namespace Depra.Assets.Tests.PlayMode.Files
 {
+    [TestFixture(TestOf = typeof(DatabaseAsset<>))]
     internal sealed class CreatingAssetsUsingAssetDatabase
     {
         private const string ASSET_NAME = "TestAsset";
         private const string ASSET_TYPE_EXTENSION = ".asset";
-        private const string ASSET_DIRECTORY_NAME = RESOURCES_FOLDER_NAME;
+        private const string ASSET_DIRECTORY_NAME = ResourcesFolderName;
 
         private Stopwatch _stopwatch;
         private string _absoluteAssetPath;
@@ -31,7 +32,7 @@ namespace Depra.Assets.Tests.PlayMode.Files
         {
             _stopwatch = new Stopwatch();
             _mainThreadDispatcher = new GameObject().AddComponent<UnityMainThreadDispatcher>();
-            _absoluteAssetPath = Path.Combine(ASSETS_FOLDER_NAME, ASSET_DIRECTORY_NAME, ASSET_NAME + ASSET_TYPE_EXTENSION);
+            _absoluteAssetPath = Path.Combine(AssetsFolderName, ASSET_DIRECTORY_NAME, ASSET_NAME + ASSET_TYPE_EXTENSION);
         }
 
         [TearDown]

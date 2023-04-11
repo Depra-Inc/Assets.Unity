@@ -1,12 +1,14 @@
-﻿// Copyright © 2022 Nikolay Melnikov. All rights reserved.
+﻿// Copyright © 2023 Nikolay Melnikov. All rights reserved.
 // SPDX-License-Identifier: Apache-2.0
 
 using System.Collections;
 using System.Diagnostics;
+using System.IO;
 using Depra.Assets.Runtime.Files.Bundles.Exceptions;
 using Depra.Assets.Runtime.Files.Bundles.Files;
 using Depra.Assets.Runtime.Files.Interfaces;
 using Depra.Assets.Runtime.Files.Structs;
+using Depra.Assets.Tests.PlayMode.Mocks;
 using Depra.Assets.Tests.PlayMode.Types;
 using NUnit.Framework;
 using UnityEngine;
@@ -18,26 +20,36 @@ namespace Depra.Assets.Tests.PlayMode.Files
     [TestFixture(TestOf = typeof(AssetBundleAssetFile<>))]
     internal sealed class LoadingAssetsFromBundles
     {
+        private const string TEST_BUNDLE_NAME = "test";
+        private const string TEST_ASSET_NAME = "TestAsset";
+
         private Stopwatch _stopwatch;
         private AssetBundle _assetBundle;
-        private TestCoroutineHost _coroutineHost;
+        private CoroutineHostMock _coroutineHost;
         private ILoadableAsset<TestScriptableAsset> _assetFromBundle;
-
-        private static IEnumerator Free(AssetBundle assetBundle)
-        {
-            assetBundle.Unload(true);
-            yield return null;
-        }
 
         [SetUp]
         public void Setup()
         {
-            _stopwatch = new Stopwatch();
-            _coroutineHost = TestCoroutineHost.Create();
-            var assetBundleReference = TestAssetBundleRef.Load();
-            _assetBundle = AssetBundle.LoadFromFile(assetBundleReference.AbsolutePath);
-            var assetIdent = new AssetIdent(assetBundleReference.SingleAssetName, assetBundleReference.Path);
+            var assetBundlesDirectory = new TestAssetBundlesDirectory(GetType());
+            var assetBundlePath = Path.Combine(assetBundlesDirectory.AbsolutePath, TEST_BUNDLE_NAME);
+            _assetBundle = AssetBundle.LoadFromFile(assetBundlePath);
+            var assetIdent = new AssetIdent(TEST_ASSET_NAME, assetBundlePath);
             _assetFromBundle = new AssetBundleAssetFile<TestScriptableAsset>(assetIdent, _assetBundle, _coroutineHost);
+        }
+
+        [TearDown]
+        public void TearDown()
+        {
+            _assetFromBundle.Unload();
+            _assetBundle.Unload(true);
+        }
+
+        [OneTimeSetUp]
+        public void OneTimeSetup()
+        {
+            _stopwatch = new Stopwatch();
+            _coroutineHost = CoroutineHostMock.Create();
         }
 
         [OneTimeTearDown]
@@ -46,8 +58,8 @@ namespace Depra.Assets.Tests.PlayMode.Files
             Object.DestroyImmediate(_coroutineHost.gameObject);
         }
 
-        [UnityTest]
-        public IEnumerator AssetFromBundleShouldBeLoaded()
+        [Test]
+        public void AssetFromBundleShouldBeLoaded()
         {
             // Arrange.
             var bundle = _assetBundle;
@@ -62,9 +74,6 @@ namespace Depra.Assets.Tests.PlayMode.Files
 
             // Debug.
             Debug.Log($"Loaded [{loadedAsset.name}] from bundle {bundle.name}.");
-
-            // Cleanup.
-            yield return Free(bundle);
         }
 
         [UnityTest]
@@ -85,9 +94,6 @@ namespace Depra.Assets.Tests.PlayMode.Files
 
             // Debug.
             Debug.Log($"Loaded and unloaded [{bundleAsset.Name}] from bundle [{bundle.name}].");
-
-            // Cleanup.
-            yield return Free(bundle);
         }
 
         [Test]
@@ -96,12 +102,13 @@ namespace Depra.Assets.Tests.PlayMode.Files
             // Arrange.
             var bundle = _assetBundle;
             var invalidAssetIdent = new AssetIdent("InvalidAssetName", "InvalidPath");
-            var invalidAssetFromBundle = new AssetBundleAssetFile<InvalidAsset>(invalidAssetIdent, bundle, _coroutineHost);
+            var invalidAssetFromBundle =
+                new AssetBundleAssetFile<InvalidAsset>(invalidAssetIdent, bundle, _coroutineHost);
 
             // Act.
             void Act() => invalidAssetFromBundle.Load();
 
-            // Cleanup.
+            // Assert.
             Assert.That(Act, Throws.TypeOf<AssetBundleFileNotLoadedException>());
         }
 
@@ -109,7 +116,6 @@ namespace Depra.Assets.Tests.PlayMode.Files
         public IEnumerator AssetFromBundleShouldBeLoadedAsync()
         {
             // Arrange.
-            var bundle = _assetBundle;
             TestScriptableAsset loadedAsset = null;
             var assetFromBundle = _assetFromBundle;
 
@@ -133,9 +139,6 @@ namespace Depra.Assets.Tests.PlayMode.Files
             Debug.Log($"Loaded [{loadedAsset.name}] " +
                       $"from bundle [{assetFromBundle.Name}] " +
                       $"in {_stopwatch.ElapsedMilliseconds} ms.");
-
-            // Cleanup.
-            yield return Free(bundle);
         }
 
         [UnityTest]
@@ -144,7 +147,6 @@ namespace Depra.Assets.Tests.PlayMode.Files
             // Arrange.
             var callbacksCalled = false;
             var callbackCalls = 0;
-            var bundle = _assetBundle;
             var assetFromBundle = _assetFromBundle;
             DownloadProgress lastProgress = default;
 
@@ -176,16 +178,12 @@ namespace Depra.Assets.Tests.PlayMode.Files
                       $"{callbackCalls} times " +
                       $"in {_stopwatch.ElapsedMilliseconds} ms. " +
                       $"Last value is {lastProgress.NormalizedValue}.");
-
-            // Cleanup.
-            yield return Free(bundle);
         }
 
-        [UnityTest]
-        public IEnumerator AssetFromBundleSizeShouldNotBeZeroOrUnknown()
+        [Test]
+        public void AssetFromBundleSizeShouldNotBeZeroOrUnknown()
         {
             // Arrange.
-            var bundle = _assetBundle;
             var bundleAsset = _assetFromBundle;
             bundleAsset.Load();
 
@@ -198,9 +196,6 @@ namespace Depra.Assets.Tests.PlayMode.Files
 
             // Debug.
             Debug.Log($"Size of [{bundleAsset.Name}] is {assetSize.ToHumanReadableString()}.");
-
-            // Cleanup.
-            yield return Free(bundle);
         }
     }
 }

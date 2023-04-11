@@ -1,4 +1,4 @@
-﻿// Copyright © 2022 Nikolay Melnikov. All rights reserved.
+﻿// Copyright © 2023 Nikolay Melnikov. All rights reserved.
 // SPDX-License-Identifier: Apache-2.0
 
 using System;
@@ -9,7 +9,7 @@ using Depra.Assets.Runtime.Files.Bundles.Files;
 using Depra.Assets.Runtime.Files.Bundles.IO;
 using Depra.Assets.Runtime.Files.Bundles.Memory;
 using Depra.Assets.Runtime.Files.Structs;
-using Depra.Assets.Tests.PlayMode.Types;
+using Depra.Assets.Tests.PlayMode.Mocks;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
@@ -21,16 +21,19 @@ namespace Depra.Assets.Tests.PlayMode.Files
     [TestFixture(TestOf = typeof(AssetBundleFile))]
     internal sealed class LoadingAssetBundles
     {
-        private static TestCoroutineHost _coroutineHost;
+        private const string TEST_BUNDLE_NAME = "test";
+
+        private static CoroutineHostMock _coroutineHost;
         private Stopwatch _stopwatch;
 
-        private static TestCoroutineHost CoroutineHost =>
-            _coroutineHost ??= TestCoroutineHost.Create();
+        private static CoroutineHostMock CoroutineHost =>
+            _coroutineHost ??= CoroutineHostMock.Create();
 
         private static IEnumerable<AssetBundleFile> AllBundles()
         {
-            var assetBundleRef = TestAssetBundleRef.Load();
-            var bundleIdent = new AssetIdent(assetBundleRef.BundleName, assetBundleRef.AbsoluteDirectoryPath);
+            var sourceType = typeof(TestAssetBundlesDirectory);
+            var assetBundlesDirectory = new TestAssetBundlesDirectory(sourceType);
+            var bundleIdent = new AssetIdent(TEST_BUNDLE_NAME, assetBundlesDirectory.AbsolutePath);
 
             yield return new AssetBundleFromFile(bundleIdent, CoroutineHost);
             yield return new AssetBundleFromMemory(bundleIdent, CoroutineHost);
@@ -41,7 +44,7 @@ namespace Depra.Assets.Tests.PlayMode.Files
         private static IEnumerable<AssetBundleFile> InvalidBundles()
         {
             var invalidBundleIdent = new AssetIdent("InvalidBundle", "InvalidPath");
-            
+
             yield return new AssetBundleFromFile(invalidBundleIdent, CoroutineHost);
             yield return new AssetBundleFromMemory(invalidBundleIdent, CoroutineHost);
             yield return new AssetBundleFromStream(invalidBundleIdent, CoroutineHost);
@@ -54,8 +57,8 @@ namespace Depra.Assets.Tests.PlayMode.Files
             yield return null;
         }
 
-        [SetUp]
-        public void Setup()
+        [OneTimeSetUp]
+        public void OneTimeSetup()
         {
             _stopwatch = new Stopwatch();
         }
@@ -218,11 +221,11 @@ namespace Depra.Assets.Tests.PlayMode.Files
             [ValueSource(nameof(AllBundles))] AssetBundleFile bundleFile)
         {
             // Arrange.
+            var loadedBundle = bundleFile.Load();
+            yield return null;
 
             // Act.
-            var loadedBundle = bundleFile.Load();
             var bundleSize = bundleFile.Size;
-            yield return null;
 
             // Assert.
             Assert.That(bundleSize, Is.Not.EqualTo(FileSize.Zero));

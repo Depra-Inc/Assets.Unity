@@ -31,7 +31,7 @@ namespace Depra.Assets.Runtime.Files.Database
             _absoluteDirectoryPath = System.IO.Path.Combine(Application.dataPath, directoryPath);
             var nameWithExtension = Name + typeExtension;
             _absoluteFilePath = System.IO.Path.Combine(_absoluteDirectoryPath, nameWithExtension);
-            var projectPath = System.IO.Path.Combine(ASSETS_FOLDER_NAME, directoryPath, nameWithExtension);
+            var projectPath = System.IO.Path.Combine(AssetsFolderName, directoryPath, nameWithExtension);
             Path = projectPath;
         }
 

@@ -25,8 +25,8 @@ namespace Depra.Assets.Tests.EditMode.Files
         [SetUp]
         public void Setup()
         {
-            _directoryName = RESOURCES_FOLDER_NAME;
-            _absoluteAssetPath = Path.Combine(ASSETS_FOLDER_NAME, _directoryName, ASSET_NAME + ASSET_TYPE_EXTENSION);
+            _directoryName = ResourcesFolderName;
+            _absoluteAssetPath = Path.Combine(AssetsFolderName, _directoryName, ASSET_NAME + ASSET_TYPE_EXTENSION);
         }
 
         [TearDown]

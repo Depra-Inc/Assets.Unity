@@ -1,4 +1,4 @@
-﻿// Copyright © 2022 Nikolay Melnikov. All rights reserved.
+﻿// Copyright © 2023 Nikolay Melnikov. All rights reserved.
 // SPDX-License-Identifier: Apache-2.0
 
 using System.Collections;
@@ -9,7 +9,7 @@ using UnityEngine;
 
 namespace Depra.Assets.Runtime.Utils
 {
-	[RequireComponent(typeof(ICoroutineHost))]
+    [RequireComponent(typeof(ICoroutineHost))]
     internal sealed class AssetCoroutineHook : MonoBehaviour, ICoroutineHost
     {
         [SerializeField] private RuntimeCoroutineHost _runtimeHost;

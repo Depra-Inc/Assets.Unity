@@ -89,14 +89,13 @@ namespace Depra.Assets.Runtime.Files.Bundles.Files
             Ensure(loadedBundle, onFailed);
             _loadedAssetBundle = loadedBundle;
             onLoaded?.Invoke(loadedBundle);
-            RefreshSize(_loadedAssetBundle);
+            Size = RefreshSize(_loadedAssetBundle);
 
             return _loadedAssetBundle;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void RefreshSize(AssetBundle assetBundle) =>
-            Size = assetBundle.Size();
+        protected virtual FileSize RefreshSize(AssetBundle assetBundle) => assetBundle.Size();
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void Ensure(Object assetBundle, Action<Exception> onFailed = null)

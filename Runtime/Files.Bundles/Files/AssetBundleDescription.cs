@@ -59,10 +59,8 @@ namespace Depra.Assets.Runtime.Files.Bundles.Files
         /// that the bundle is actually embedded in the player, it only provides the
         /// path where the file would be stored if it were embedded.
         /// </remarks>
-        public string EmbeddedPath => Path.Combine(
-            Application.streamingAssetsPath,
-            "EmbeddedAssetBundles",
-            Name);
+        public string EmbeddedPath => 
+            Path.Combine(Application.streamingAssetsPath, "EmbeddedAssetBundles", Name);
 
         /// <summary>
         /// Initializes a new <see cref="AssetBundleDescription"/>.
@@ -92,9 +90,7 @@ namespace Depra.Assets.Runtime.Files.Bundles.Files
         /// and hashes from <paramref name="other"/>.
         /// </summary>
         public AssetBundleDescription(AssetBundleDescription other)
-            : this(other.Name, other._hashes, other._dependencies)
-        {
-        }
+            : this(other.Name, other._hashes, other._dependencies) { }
 
         /// <summary>
         /// Gets the filename for the bundle on the specified target platform, if supported.
@@ -111,12 +107,7 @@ namespace Depra.Assets.Runtime.Files.Bundles.Files
         public string GetFileNameForPlatform(RuntimePlatform platform)
         {
             platform = NormalizePlatform(platform);
-            if (Hashes.TryGetValue(platform, out var hash))
-            {
-                return BuildFileName(Name, platform, hash);
-            }
-
-            return null;
+            return Hashes.TryGetValue(platform, out var hash) ? BuildFileName(Name, platform, hash) : null;
         }
 
         /// <summary>
@@ -160,7 +151,7 @@ namespace Depra.Assets.Runtime.Files.Bundles.Files
 
         public override int GetHashCode()
         {
-            int hash = Name.GetHashCode();
+            var hash = Name.GetHashCode();
 
             // NOTE: We iterate over the variants of RuntimePlatform, rather than
             // directly iterating over the contents of Hashes, in order to hash the
@@ -168,8 +159,7 @@ namespace Depra.Assets.Runtime.Files.Bundles.Files
             var variants = System.Enum.GetValues(typeof(RuntimePlatform)).Cast<RuntimePlatform>();
             foreach (var variant in variants)
             {
-                Hash128 platformHash;
-                if (Hashes.TryGetValue(variant, out platformHash))
+                if (Hashes.TryGetValue(variant, out var platformHash))
                 {
                     hash = (hash, variant, platformHash).GetHashCode();
                 }
@@ -197,7 +187,7 @@ namespace Depra.Assets.Runtime.Files.Bundles.Files
 
             foreach (var pair in Hashes)
             {
-                if (!other.Hashes.TryGetValue(pair.Key, out var otherHash)
+                if (other.Hashes.TryGetValue(pair.Key, out var otherHash) == false
                     || otherHash != pair.Value)
                 {
                     return false;
@@ -258,22 +248,13 @@ namespace Depra.Assets.Runtime.Files.Bundles.Files
         /// <returns>
         /// The full file name for the asset bundle, including file extension.
         /// </returns>
-        public static string BuildFileName(
-            string bundleName,
-            RuntimePlatform platform,
-            Hash128 hash)
-        {
-            return $"{bundleName}_{platform}_{hash}.unity3d";
-        }
+        public static string BuildFileName(string bundleName, RuntimePlatform platform, Hash128 hash) =>
+            $"{bundleName}_{platform}_{hash}.unity3d";
 
-        public static bool operator ==(AssetBundleDescription left, AssetBundleDescription right)
-        {
-            return left.Equals(right);
-        }
+        public static bool operator ==(AssetBundleDescription left, AssetBundleDescription right) =>
+            left.Equals(right);
 
-        public static bool operator !=(AssetBundleDescription left, AssetBundleDescription right)
-        {
-            return !left.Equals(right);
-        }
+        public static bool operator !=(AssetBundleDescription left, AssetBundleDescription right) =>
+            left.Equals(right) == false;
     }
 }
