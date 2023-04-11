@@ -17,7 +17,10 @@ using Object = UnityEngine.Object;
 
 namespace Depra.Assets.Runtime.Files.Group
 {
-    public sealed class AssetGroup : ILoadableAsset<IEnumerable<Object>>, IDisposable
+    public sealed class AssetGroup :
+        ILoadableAsset<IEnumerable<Object>>,
+        IEnumerable<ILoadableAsset<Object>>,
+        IDisposable
     {
         private readonly List<Object> _loadedAssets;
         private readonly ICoroutineHost _coroutineHost;
@@ -57,7 +60,7 @@ namespace Depra.Assets.Runtime.Files.Group
                 {
                     yield return asset.Load();
                 }
-                
+
                 var loadedAsset = asset.Load();
                 OnLoaded(loadedAsset, onFailed: exception => throw exception);
 
@@ -111,6 +114,10 @@ namespace Depra.Assets.Runtime.Files.Group
             }
         }
 
+        public IEnumerator<ILoadableAsset<Object>> GetEnumerator() => _childAssets.GetEnumerator();
+
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
         void IDisposable.Dispose() => Unload();
 
         private sealed class Thread : IAssetThread<Object>
@@ -159,7 +166,7 @@ namespace Depra.Assets.Runtime.Files.Group
                 }
 
                 _onLoaded.Invoke(_loadedAssets);
-                
+
                 void OnFailed(Exception exception)
                 {
                     onFailed?.Invoke(exception);
