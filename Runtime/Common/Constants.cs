@@ -1,4 +1,4 @@
-﻿// Copyright © 2022 Nikolay Melnikov. All rights reserved.
+﻿// Copyright © 2023 Nikolay Melnikov. All rights reserved.
 // SPDX-License-Identifier: Apache-2.0
 
 namespace Depra.Assets.Runtime.Common
@@ -7,6 +7,7 @@ namespace Depra.Assets.Runtime.Common
     {
         public const string ModuleName = "Assets";
         public const string FrameworkName = "Depra";
+        public static readonly string FullModuleName = string.Join('.', FrameworkName, ModuleName);
 
         public const string AssetsFolderName = "Assets";
         public const string ResourcesFolderName = "Resources";

@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 using System;
+using System.Globalization;
 
 namespace Depra.Assets.Runtime.Files.Structs
 {
@@ -27,5 +28,7 @@ namespace Depra.Assets.Runtime.Files.Structs
             obj is DownloadProgress other && Equals(other);
 
         public override int GetHashCode() => NormalizedValue.GetHashCode();
+
+        public override string ToString() => NormalizedValue.ToString(CultureInfo.InvariantCulture);
     }
 }

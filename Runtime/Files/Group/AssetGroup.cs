@@ -76,11 +76,24 @@ namespace Depra.Assets.Runtime.Files.Group
                 return AlreadyLoadedAsset<IEnumerable<Object>>.Create(_loadedAssets, onLoaded, onProgress);
             }
 
-            var loadingThread = new Thread(_coroutineHost, _childAssets, _loadedAssets, onLoaded);
-            loadingThread.Start(OnLoadedInternal, onProgress, onFailed);
-            void OnLoadedInternal(Object loadedAsset) => OnLoaded(loadedAsset, onFailed);
-
+            var loadingThread = new Thread(_coroutineHost, _childAssets, OnLoadedInternal);
+            loadingThread.Start(OnChildLoaded, onProgress, onFailed);
             return new AsyncActionToken(loadingThread.Cancel);
+
+            void OnLoadedInternal() => onLoaded?.Invoke(_loadedAssets);
+
+            void OnChildLoaded(Object loadedAsset)
+            {
+                OnLoaded(loadedAsset, onFailed);
+                OnProgressChanged();
+            }
+
+            void OnProgressChanged()
+            {
+                var progressValue = (float)_loadedAssets.Count / _childAssets.Count;
+                var progress = new DownloadProgress(progressValue);
+                onProgress?.Invoke(progress);
+            }
         }
 
         public void Unload()
@@ -122,52 +135,43 @@ namespace Depra.Assets.Runtime.Files.Group
 
         private sealed class Thread : IAssetThread<Object>
         {
-            private readonly List<Object> _loadedAssets;
+            private readonly Action _onLoaded;
             private readonly ICoroutineHost _coroutineHost;
-            private readonly Action<IEnumerable<Object>> _onLoaded;
-            private readonly List<ILoadableAsset<Object>> _childAssets;
+            private readonly IEnumerable<ILoadableAsset<Object>> _childAssets;
 
             private ICoroutine _coroutine;
 
-            public Thread(ICoroutineHost coroutineHost, List<ILoadableAsset<Object>> assets,
-                List<Object> loadedAssets, Action<IEnumerable<Object>> onLoaded)
+            public Thread(ICoroutineHost coroutineHost, IEnumerable<ILoadableAsset<Object>> assets, Action onLoaded)
             {
                 _childAssets = assets ?? throw new ArgumentNullException(nameof(assets));
                 _onLoaded = onLoaded ?? throw new ArgumentNullException(nameof(onLoaded));
-                _loadedAssets = loadedAssets ?? throw new ArgumentNullException(nameof(loadedAssets));
                 _coroutineHost = coroutineHost ?? throw new ArgumentNullException(nameof(coroutineHost));
             }
 
             public void Start(
-                Action<Object> onLoaded,
+                Action<Object> onChildLoaded,
                 Action<DownloadProgress> onProgress,
                 Action<Exception> onFailed) =>
-                _coroutine = _coroutineHost.StartCoroutine(LoadingProcess(onLoaded, onProgress, onFailed));
+                _coroutine = _coroutineHost.StartCoroutine(LoadingProcess(onChildLoaded, onFailed));
 
-            public void Cancel()
-            {
-                _coroutine?.Stop();
-            }
+            public void Cancel() => _coroutine?.Stop();
 
-            private IEnumerator LoadingProcess(Action<Object> onLoaded, Action<DownloadProgress> onProgress,
-                Action<Exception> onFailed)
+            private IEnumerator LoadingProcess(Action<Object> onChildLoaded, Action<Exception> onFailed)
             {
                 foreach (var childAsset in _childAssets)
                 {
-                    if (childAsset.IsLoaded == false)
+                    if (childAsset.IsLoaded)
                     {
-                        childAsset.LoadAsync(onLoaded, onFailed: OnFailed);
-                        yield return new WaitUntil(() => childAsset.IsLoaded);
+                        continue;
                     }
 
-                    var progressValue = (float)_loadedAssets.Count / _childAssets.Count;
-                    var progress = new DownloadProgress(progressValue);
-                    onProgress?.Invoke(progress);
+                    childAsset.LoadAsync(onChildLoaded, onFailed: InvokeCancel);
+                    yield return new WaitUntil(() => childAsset.IsLoaded);
                 }
 
-                _onLoaded.Invoke(_loadedAssets);
+                _onLoaded.Invoke();
 
-                void OnFailed(Exception exception)
+                void InvokeCancel(Exception exception)
                 {
                     onFailed?.Invoke(exception);
                     Cancel();

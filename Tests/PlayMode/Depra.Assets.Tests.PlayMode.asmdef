@@ -3,7 +3,6 @@
     "rootNamespace": "",
     "references": [
         "Depra.Assets",
-        "Depra.Assets.Tests.Common",
         "Depra.Coroutines.Runtime",
         "UnityEngine.TestRunner",
         "Unity.EditorCoroutines.Editor"

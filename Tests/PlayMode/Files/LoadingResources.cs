@@ -225,7 +225,7 @@ namespace Depra.Assets.Tests.PlayMode.Files
             // Assert.
             Assert.That(resourceAsset.IsLoaded, Is.False);
 
-            // Cleanup.
+            // Debug.
             Debug.Log($"Loaded and unloaded [{resourceAsset.Name}] from {nameof(Resources)}.");
         }
 
@@ -243,7 +243,7 @@ namespace Depra.Assets.Tests.PlayMode.Files
             Assert.That(assetSize, Is.Not.EqualTo(FileSize.Zero));
             Assert.That(assetSize, Is.Not.EqualTo(FileSize.Unknown));
 
-            // Cleanup.
+            // Debug.
             Debug.Log($"Size of [{resourceAsset.Name}] is {assetSize.ToHumanReadableString()}.");
         }
 

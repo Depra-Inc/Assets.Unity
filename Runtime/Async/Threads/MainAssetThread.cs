@@ -8,7 +8,7 @@ using Depra.Coroutines.Domain.Entities;
 
 namespace Depra.Assets.Runtime.Async.Threads
 {
-    internal sealed class MainAssetThread<TAsset> : IAssetThread<TAsset>
+    public sealed class MainAssetThread<TAsset> : IAssetThread<TAsset>
     {
         private readonly Action _onCancel;
         private readonly ICoroutineHost _coroutineHost;

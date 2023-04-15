@@ -62,10 +62,10 @@ namespace Depra.Assets.Runtime.Files.Resource
                 return AlreadyLoadedAsset<TAsset>.Create(_loadedAsset, onLoaded, onProgress);
             }
 
-            var loadingRequest = new MainAssetThread<TAsset>(_coroutineHost, LoadingProcess);
-            loadingRequest.Start(OnLoadedInternal, onProgress, onFailed);
+            var loadingThread = new MainAssetThread<TAsset>(_coroutineHost, LoadingProcess);
+            loadingThread.Start(OnLoadedInternal, onProgress, onFailed);
 
-            return new AsyncActionToken(loadingRequest.Cancel);
+            return new AsyncActionToken(loadingThread.Cancel);
 
             void OnLoadedInternal(TAsset loadedAsset) => OnLoaded(loadedAsset, onFailed, onLoaded);
         }
