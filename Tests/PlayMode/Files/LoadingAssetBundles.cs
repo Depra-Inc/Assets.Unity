@@ -13,7 +13,8 @@ using Depra.Assets.Tests.PlayMode.Mocks;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
-using Debug = UnityEngine.Debug;
+using static UnityEngine.Debug;
+using Assert = NUnit.Framework.Assert;
 using Object = UnityEngine.Object;
 
 namespace Depra.Assets.Tests.PlayMode.Files
@@ -51,12 +52,6 @@ namespace Depra.Assets.Tests.PlayMode.Files
             //yield return new AssetBundleFromWeb(bundleIdent, CoroutineHost);
         }
 
-        private static IEnumerator Free(AssetBundle assetBundle)
-        {
-            assetBundle.Unload(true);
-            yield return null;
-        }
-
         [OneTimeSetUp]
         public void OneTimeSetup()
         {
@@ -82,9 +77,11 @@ namespace Depra.Assets.Tests.PlayMode.Files
             Assert.That(bundleFile.IsLoaded);
 
             // Debug.
-            Debug.Log($"Loaded bundle [{loadedAssetBundle.name}] by path: [{bundleFile.Path}].");
+            Log($"The bundle was loaded by path: {bundleFile.Path}.");
 
-            yield return Free(loadedAssetBundle);
+            // Cleanup.
+            loadedAssetBundle.Unload(true);
+            yield return null;
         }
 
         [UnityTest]
@@ -102,7 +99,7 @@ namespace Depra.Assets.Tests.PlayMode.Files
             Assert.That(bundleFile.IsLoaded, Is.False);
 
             // Debug.
-            Debug.Log($"Loaded and unloaded bundle [{bundleFile.Name}] by path: {bundleFile.Path}.");
+            Log($"The bundle with name {bundleFile.Name} was unloaded.");
         }
 
         [Test]
@@ -143,11 +140,13 @@ namespace Depra.Assets.Tests.PlayMode.Files
             Assert.That(asyncToken.IsCanceled, Is.False);
 
             // Debug.
-            Debug.Log($"Loaded bundle [{loadedBundle.name}] " +
-                      $"by path: [{bundleFile.Path}] " +
+            Log($"Loaded bundle {loadedBundle.name} " +
+                      $"by path: {bundleFile.Path} " +
                       $"in {_stopwatch.ElapsedMilliseconds} ms.");
 
-            yield return Free(loadedBundle);
+            // Cleanup.
+            loadedBundle.Unload(true);
+            yield return null;
         }
 
         [UnityTest]
@@ -185,13 +184,14 @@ namespace Depra.Assets.Tests.PlayMode.Files
             Assert.That(lastProgress, Is.EqualTo(DownloadProgress.Full));
 
             // Debug.
-            Debug.Log("Progress event was called " +
+            Log("Progress event was called " +
                       $"{callbackCalls} times " +
                       $"in {_stopwatch.ElapsedMilliseconds} ms. " +
                       $"Last value is {lastProgress.NormalizedValue}.");
 
             // Cleanup.
-            yield return Free(loadedBundle);
+            loadedBundle.Unload(true);
+            yield return null;
         }
 
         [UnityTest]
@@ -211,7 +211,7 @@ namespace Depra.Assets.Tests.PlayMode.Files
             Assert.That(asyncToken.IsCanceled);
 
             // Debug.
-            Debug.Log($"Loading of bundle [{bundleFile.Name}] was canceled.");
+            Log($"Loading of bundle {bundleFile.Name} was canceled.");
 
             yield return null;
         }
@@ -232,9 +232,11 @@ namespace Depra.Assets.Tests.PlayMode.Files
             Assert.That(bundleSize, Is.Not.EqualTo(FileSize.Unknown));
 
             // Debug.
-            Debug.Log($"Size of [{bundleFile.Name}] is {bundleSize.ToHumanReadableString()}.");
+            Log($"Size of {bundleFile.Name} is {bundleSize.ToHumanReadableString()}.");
 
-            yield return Free(loadedBundle);
+            // Cleanup.
+            loadedBundle.Unload(true);
+            yield return null;
         }
     }
 }

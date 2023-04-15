@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 using System;
-using System.Linq;
 using Depra.Assets.Editor.Files;
 using Depra.Assets.Runtime.Async.Tokens;
 using Depra.Assets.Runtime.Files.Interfaces;
@@ -11,6 +10,8 @@ using Depra.Assets.Tests.PlayMode.Types;
 using NUnit.Framework;
 using UnityEditor;
 using UnityEngine;
+using static UnityEngine.Debug;
+using Assert = NUnit.Framework.Assert;
 using Object = UnityEngine.Object;
 
 namespace Depra.Assets.Tests.EditMode.Files
@@ -18,28 +19,28 @@ namespace Depra.Assets.Tests.EditMode.Files
     [TestFixture(TestOf = typeof(PreloadedAsset<>))]
     internal sealed class LoadingPreloadedAssets
     {
+        private Object _testInstance;
         private InvalidAsset _invalidAsset;
-        private TestScriptableAsset _testAsset;
         private Object[] _initialPreloadedAssets;
 
         [OneTimeSetUp]
         public void OneTimeSetup()
         {
             _invalidAsset = new InvalidAsset();
-            _testAsset = Resources.LoadAll<TestScriptableAsset>(string.Empty).FirstOrDefault();
-            Assert.That(_testAsset, Is.Not.Null);
         }
 
         [SetUp]
         public void Setup()
         {
             _initialPreloadedAssets = PlayerSettings.GetPreloadedAssets();
-            PlayerSettings.SetPreloadedAssets(new Object[] { _testAsset });
+            _testInstance = ScriptableObject.CreateInstance<TestScriptableAsset>();
+            PlayerSettings.SetPreloadedAssets(new[] { _testInstance });
         }
 
         [TearDown]
         public void TearDown()
         {
+            Object.DestroyImmediate(_testInstance);
             PlayerSettings.SetPreloadedAssets(_initialPreloadedAssets);
         }
 
@@ -57,7 +58,7 @@ namespace Depra.Assets.Tests.EditMode.Files
             Assert.That(preloadedAsset.IsLoaded);
 
             // Debug.
-            Debug.Log($"Loaded preloaded [{nameof(TestScriptableAsset)}] from {nameof(PlayerSettings)}.");
+            Log($"{nameof(TestScriptableAsset)} loaded from {nameof(PlayerSettings)}.");
         }
 
         [Test]
@@ -74,7 +75,7 @@ namespace Depra.Assets.Tests.EditMode.Files
             Assert.That(preloadedAsset.IsLoaded, Is.False);
 
             // Debug.
-            Debug.Log($"Loaded and unloaded [{preloadedAsset.Name}] from {nameof(PlayerSettings)}.");
+            Log($"{preloadedAsset.Name} unloaded from {nameof(PlayerSettings)}.");
         }
 
         [Test]
@@ -93,8 +94,7 @@ namespace Depra.Assets.Tests.EditMode.Files
             Assert.That(firstLoadedAsset, Is.EqualTo(secondLoadedAsset));
 
             // Debug.
-            Debug.Log($"Loaded preloaded [{firstLoadedAsset.name}] from {nameof(PlayerSettings)}.");
-            Debug.Log($"Loaded preloaded [{secondLoadedAsset.name}] from {nameof(PlayerSettings)}.");
+            Log($"{firstLoadedAsset.name} loaded from {nameof(PlayerSettings)}.");
         }
 
         [Test]
@@ -114,7 +114,7 @@ namespace Depra.Assets.Tests.EditMode.Files
             Assert.That(preloadedAsset.IsLoaded);
 
             // Debug.
-            Debug.Log($"Loaded preloaded [{loadedAsset.name}] from {nameof(PlayerSettings)}.");
+            Log($"{loadedAsset.name} loaded from {nameof(PlayerSettings)}.");
         }
 
         [Test]
@@ -132,7 +132,7 @@ namespace Depra.Assets.Tests.EditMode.Files
             Assert.That(assetSize, Is.Not.EqualTo(FileSize.Unknown));
 
             // Debug.
-            Debug.Log($"Size of [{preloadedAsset.Name}] is {assetSize.ToHumanReadableString()}.");
+            Log($"Size of {preloadedAsset.Name} is {assetSize.ToHumanReadableString()}.");
         }
 
         private sealed class InvalidAsset : ILoadableAsset<TestScriptableAsset>

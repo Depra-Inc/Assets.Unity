@@ -12,7 +12,8 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.TestTools;
 using static Depra.Assets.Runtime.Common.Constants;
-using Debug = UnityEngine.Debug;
+using static UnityEngine.Debug;
+using Assert = NUnit.Framework.Assert;
 
 namespace Depra.Assets.Tests.PlayMode.Files
 {
@@ -68,7 +69,7 @@ namespace Depra.Assets.Tests.PlayMode.Files
             Assert.That(databaseAsset.IsLoaded);
 
             // Debug.
-            Debug.Log($"Loaded [{loadedAsset.name}] " +
+            Log($"{loadedAsset.name} loaded " +
                       $"from {nameof(AssetDatabase)} " +
                       $"in {_stopwatch.ElapsedMilliseconds} ms.");
         }

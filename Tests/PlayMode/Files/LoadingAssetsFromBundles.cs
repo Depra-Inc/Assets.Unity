@@ -6,14 +6,14 @@ using System.Diagnostics;
 using System.IO;
 using Depra.Assets.Runtime.Files.Bundles.Exceptions;
 using Depra.Assets.Runtime.Files.Bundles.Files;
-using Depra.Assets.Runtime.Files.Interfaces;
 using Depra.Assets.Runtime.Files.Structs;
 using Depra.Assets.Tests.PlayMode.Mocks;
 using Depra.Assets.Tests.PlayMode.Types;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
-using Debug = UnityEngine.Debug;
+using static UnityEngine.Debug;
+using Assert = NUnit.Framework.Assert;
 
 namespace Depra.Assets.Tests.PlayMode.Files
 {
@@ -26,7 +26,7 @@ namespace Depra.Assets.Tests.PlayMode.Files
         private Stopwatch _stopwatch;
         private AssetBundle _assetBundle;
         private CoroutineHostMock _coroutineHost;
-        private ILoadableAsset<TestScriptableAsset> _assetFromBundle;
+        private AssetBundleAssetFile<TestScriptableAsset> _assetFromBundle;
 
         [SetUp]
         public void Setup()
@@ -73,7 +73,7 @@ namespace Depra.Assets.Tests.PlayMode.Files
             Assert.That(bundleAsset.IsLoaded);
 
             // Debug.
-            Debug.Log($"Loaded [{loadedAsset.name}] from bundle {bundle.name}.");
+            Log($"{loadedAsset.name} loaded from bundle with name: {bundle.name}.");
         }
 
         [UnityTest]
@@ -93,7 +93,7 @@ namespace Depra.Assets.Tests.PlayMode.Files
             Assert.That(bundleAsset.IsLoaded, Is.False);
 
             // Debug.
-            Debug.Log($"Loaded and unloaded [{bundleAsset.Name}] from bundle [{bundle.name}].");
+            Log($"{bundleAsset.Name} unloaded from bundle with name: {bundle.name}.");
         }
 
         [Test]
@@ -136,8 +136,8 @@ namespace Depra.Assets.Tests.PlayMode.Files
             Assert.That(loadedAsset, Is.Not.Null);
 
             // Debug.
-            Debug.Log($"Loaded [{loadedAsset.name}] " +
-                      $"from bundle [{assetFromBundle.Name}] " +
+            Log($"{loadedAsset.name} loaded " +
+                      $"from bundle {_assetBundle.name} " +
                       $"in {_stopwatch.ElapsedMilliseconds} ms.");
         }
 
@@ -174,7 +174,7 @@ namespace Depra.Assets.Tests.PlayMode.Files
             Assert.That(lastProgress, Is.EqualTo(DownloadProgress.Full));
 
             // Debug.
-            Debug.Log("Progress event was called " +
+            Log("Progress event was called " +
                       $"{callbackCalls} times " +
                       $"in {_stopwatch.ElapsedMilliseconds} ms. " +
                       $"Last value is {lastProgress.NormalizedValue}.");
@@ -195,7 +195,7 @@ namespace Depra.Assets.Tests.PlayMode.Files
             Assert.That(assetSize, Is.Not.EqualTo(FileSize.Unknown));
 
             // Debug.
-            Debug.Log($"Size of [{bundleAsset.Name}] is {assetSize.ToHumanReadableString()}.");
+            Log($"Size of {bundleAsset.Name} is {assetSize.ToHumanReadableString()}.");
         }
     }
 }

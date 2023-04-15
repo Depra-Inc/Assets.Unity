@@ -15,7 +15,8 @@ using Depra.Assets.Tests.PlayMode.Types;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
-using Debug = UnityEngine.Debug;
+using static UnityEngine.Debug;
+using Assert = NUnit.Framework.Assert;
 using Object = UnityEngine.Object;
 
 namespace Depra.Assets.Tests.PlayMode.Files
@@ -43,8 +44,7 @@ namespace Depra.Assets.Tests.PlayMode.Files
         public void GroupShouldBeLoaded()
         {
             // Arrange.
-            var allAssets = _testAssets;
-            var assetGroup = new AssetGroup(children: allAssets);
+            var assetGroup = new AssetGroup(children: _testAssets);
 
             // Act.
             var loadedAssets = assetGroup.Load().ToArray();
@@ -52,6 +52,9 @@ namespace Depra.Assets.Tests.PlayMode.Files
             // Assert.
             Assert.That(loadedAssets, Is.Not.Null);
             Assert.That(loadedAssets, Is.Not.Empty);
+            
+            // Debug.
+            Log($"Loaded asset group with {_testAssets.Count} children.");
         }
 
         [UnityTest]
@@ -80,19 +83,18 @@ namespace Depra.Assets.Tests.PlayMode.Files
             Assert.That(asyncToken.IsCanceled, Is.False);
 
             // Debug.
-            Debug.Log($"Loaded asset group with {_testAssets.Count} children " +
-                      $"in {_stopwatch.ElapsedMilliseconds} ms.");
+            Log($"Loaded asset group with {_testAssets.Count} children " +
+                $"in {_stopwatch.ElapsedMilliseconds} ms.");
         }
 
         [UnityTest]
         public IEnumerator GroupShouldBeLoadedAsyncWithProgress()
         {
             // Arrange.
-            var callbacksCalled = false;
             var callbackCalls = 0;
+            var callbacksCalled = false;
             DownloadProgress lastProgress = default;
-            var allAssets = _testAssets;
-            var assetGroup = new AssetGroup(children: allAssets);
+            var assetGroup = new AssetGroup(children: _testAssets);
 
             // Act.
             _stopwatch.Restart();
@@ -119,10 +121,10 @@ namespace Depra.Assets.Tests.PlayMode.Files
             Assert.That(lastProgress, Is.EqualTo(DownloadProgress.Full));
 
             // Debug.
-            Debug.Log("Progress event was called " +
-                      $"{callbackCalls} times " +
-                      $"in {_stopwatch.ElapsedMilliseconds} ms. " +
-                      $"Last value is {lastProgress.NormalizedValue}.");
+            Log("Progress event was called " +
+                $"{callbackCalls} times " +
+                $"in {_stopwatch.ElapsedMilliseconds} ms. " +
+                $"Last value is {lastProgress.NormalizedValue}.");
         }
 
         [Test]
@@ -137,6 +139,9 @@ namespace Depra.Assets.Tests.PlayMode.Files
 
             // Assert.
             Assert.That(resourceAsset.IsLoaded, Is.False);
+            
+            // Debug.
+            Log("Asset group unloaded.");
         }
 
         [Test]
@@ -156,7 +161,7 @@ namespace Depra.Assets.Tests.PlayMode.Files
             Assert.That(assetSize, Is.Not.EqualTo(FileSize.Unknown));
 
             // Cleanup.
-            Debug.Log($"Size of [{assetGroup.Name}] is {assetSize.ToHumanReadableString()}.");
+            Log($"Size of {assetGroup.Name} is {assetSize.ToHumanReadableString()}.");
         }
 
         private sealed class FakeAsset : ILoadableAsset<TestScriptableAsset>

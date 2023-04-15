@@ -9,6 +9,8 @@ using NUnit.Framework;
 using UnityEditor;
 using UnityEngine;
 using static Depra.Assets.Runtime.Common.Constants;
+using static UnityEngine.Debug;
+using Assert = NUnit.Framework.Assert;
 
 namespace Depra.Assets.Tests.EditMode.Files
 {
@@ -49,7 +51,7 @@ namespace Depra.Assets.Tests.EditMode.Files
             Assert.That(databaseAsset.IsLoaded);
 
             // Debug.
-            Debug.Log($"Created [{loadedAsset.name}] at path: {databaseAsset.Path}.");
+            Log($"Created {loadedAsset.name} at path: {databaseAsset.Path}.");
         }
 
         [Test]
@@ -67,17 +69,16 @@ namespace Depra.Assets.Tests.EditMode.Files
             Assert.That(databaseAsset.IsLoaded, Is.False);
 
             // Debug.
-            Debug.Log($"Created and deleted [{nameof(ScriptableAsset)}] " +
-                      $"at path: {databaseAsset.Path}.");
+            Log($"Deleted {nameof(ScriptableAsset)} at path: {databaseAsset.Path}.");
         }
-        
+
         [Test]
         public void AssetSizeShouldNotBeZeroOrUnknown()
         {
             // Arrange.
             var databaseAsset = new DatabaseAsset<ScriptableAsset>(_directoryName, ASSET_NAME, ASSET_TYPE_EXTENSION);
             databaseAsset.Load();
-            
+
             // Act.
             var assetSize = databaseAsset.Size;
 
@@ -86,7 +87,7 @@ namespace Depra.Assets.Tests.EditMode.Files
             Assert.That(assetSize, Is.Not.EqualTo(FileSize.Unknown));
 
             // Debug.
-            Debug.Log($"Size of [{databaseAsset.Name}] is {assetSize.ToHumanReadableString()}.");
+            Log($"Size of {databaseAsset.Name} is {assetSize.ToHumanReadableString()}.");
         }
 
         private sealed class ScriptableAsset : ScriptableObject { }
