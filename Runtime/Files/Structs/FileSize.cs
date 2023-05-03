@@ -1,4 +1,4 @@
-// Copyright © 2022 Nikolay Melnikov. All rights reserved.
+// Copyright © 2023 Nikolay Melnikov. All rights reserved.
 // SPDX-License-Identifier: Apache-2.0
 
 using System;
@@ -32,6 +32,8 @@ namespace Depra.Assets.Runtime.Files.Structs
 
         public override int GetHashCode() => 
             HashCode.Combine(SizeInBytes, SizeInKilobytes, SizeInMegabytes);
+
+        public override string ToString() => this.ToHumanReadableString();
     }
 
     public static class FileSizeExtensions
