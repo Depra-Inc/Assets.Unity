@@ -3,7 +3,6 @@
 
 using System.IO;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using Depra.Assets.Runtime.Files.Database;
 
 namespace Depra.Assets.Tests.PlayMode.Mocks
@@ -29,7 +28,6 @@ namespace Depra.Assets.Tests.PlayMode.Mocks
             _directoryInfo.Delete(true);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void CreateIfDoesNotExist()
         {
             if (_directoryInfo.Exists == false)
@@ -38,7 +36,6 @@ namespace Depra.Assets.Tests.PlayMode.Mocks
             }
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private bool IsEmpty() => 
             _directoryInfo.EnumerateFileSystemInfos().Any() == false;
     }

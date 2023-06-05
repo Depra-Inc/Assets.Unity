@@ -33,7 +33,8 @@ namespace Depra.Assets.Runtime.Async.Threads
             Action<Exception> onFailed = null)
         {
             onLoaded += Complete;
-            _coroutine = _coroutineHost.StartCoroutine(_processFactory(onLoaded, onProgress, onFailed));
+            var process = _processFactory(onLoaded, onProgress, onFailed);
+            _coroutine = _coroutineHost.StartCoroutine(process);
         }
 
         public void Cancel()

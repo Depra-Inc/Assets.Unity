@@ -8,6 +8,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using Depra.Assets.Runtime.Async.Threads;
 using Depra.Assets.Runtime.Async.Tokens;
+using Depra.Assets.Runtime.Files.Exceptions;
 using Depra.Assets.Runtime.Files.Interfaces;
 using Depra.Assets.Runtime.Files.Structs;
 using Depra.Assets.Runtime.Utils;
@@ -46,7 +47,7 @@ namespace Depra.Assets.Runtime.Files.Group
         {
             if (_childAssets.Contains(asset))
             {
-                throw new InvalidOperationException($"Asset {asset.Name} already added to group!");
+                throw new AssetAlreadyAddedToGroup(asset.Name);
             }
 
             _childAssets.Add(asset);
@@ -110,7 +111,7 @@ namespace Depra.Assets.Runtime.Files.Group
             EnsureAsset(loadedAsset, onFailed);
             if (_loadedAssets.Contains(loadedAsset))
             {
-                onFailed?.Invoke(new InvalidOperationException("Asset already loaded!"));
+                onFailed?.Invoke(new AssetAlreadyLoadedException(loadedAsset.name));
             }
             else
             {
