@@ -48,7 +48,7 @@ namespace Depra.Assets.Tests.PlayMode.Mocks
             }
 
             var parentFolderName = sourcePath[..(index + TESTS_FOLDER.Length)];
-            parentFolderName = Path.Combine(parentFolderName, ASSETS_FOLDER, AssetBundlesFolderName);
+            parentFolderName = Path.Combine(parentFolderName, ASSETS_FOLDER, ASSET_BUNDLES_FOLDER_NAME);
 
             return parentFolderName;
         }

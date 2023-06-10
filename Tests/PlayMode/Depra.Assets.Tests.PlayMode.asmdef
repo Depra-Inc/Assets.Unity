@@ -3,9 +3,9 @@
     "rootNamespace": "",
     "references": [
         "Depra.Assets",
-        "Depra.Coroutines.Runtime",
         "UnityEngine.TestRunner",
-        "Unity.EditorCoroutines.Editor"
+        "Unity.EditorCoroutines.Editor",
+        "UniTask"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
@@ -15,7 +15,7 @@
         "nunit.framework.dll",
         "Depra.Coroutines.dll"
     ],
-    "autoReferenced": true,
+    "autoReferenced": false,
     "defineConstraints": [
         "UNITY_INCLUDE_TESTS"
     ],

@@ -19,7 +19,6 @@ namespace Depra.Assets.Runtime.Files.Bundles.Extensions
 {
     public static class AssetBundleExtensions
     {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         [SuppressMessage("ReSharper", "JoinDeclarationAndInitializer")]
         public static FileSize Size(this AssetBundle assetBundle)
         {
@@ -35,20 +34,16 @@ namespace Depra.Assets.Runtime.Files.Bundles.Extensions
             return fileSize;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static FileSize SizeOnDisk(this AssetBundle assetBundle)
         {
-            long bytes = 0;
             var allScenePaths = assetBundle.GetAllScenePaths();
-            foreach (var scenePath in allScenePaths)
-            {
-                var absolutePath = Path.Combine(Application.streamingAssetsPath, scenePath);
-                var fileInfo = new FileInfo(absolutePath);
-                if (fileInfo.Exists)
-                {
-                    bytes += fileInfo.Length;
-                }
-            }
+            var bytes = (from scenePath in allScenePaths
+                select Path.Combine(Application.streamingAssetsPath, scenePath)
+                into absolutePath
+                select new FileInfo(absolutePath)
+                into fileInfo
+                where fileInfo.Exists
+                select fileInfo.Length).Sum();
 
             return new FileSize(bytes);
         }
@@ -80,8 +75,10 @@ namespace Depra.Assets.Runtime.Files.Bundles.Extensions
                     sizes.Add(type, size);
                 }
             }
-            
-            return new FileSize(sizes.Sum(x => x.Value));
+
+            var sizeInBytes = sizes.Sum(x => x.Value);
+
+            return new FileSize(sizeInBytes);
         }
 #endif
     }

@@ -1,23 +1,22 @@
 ﻿// Copyright © 2022 Nikolay Melnikov. All rights reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using Depra.Assets.Runtime.Async.Tokens;
+using System.Threading;
+using Cysharp.Threading.Tasks;
 using Depra.Assets.Runtime.Files.Group;
+using Depra.Assets.Runtime.Files.Idents;
 using Depra.Assets.Runtime.Files.Interfaces;
 using Depra.Assets.Runtime.Files.Structs;
-using Depra.Assets.Tests.PlayMode.Types;
+using Depra.Assets.Tests.PlayMode.Mocks;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
 using static UnityEngine.Debug;
 using Assert = NUnit.Framework.Assert;
-using Object = UnityEngine.Object;
 
 namespace Depra.Assets.Tests.PlayMode.Files
 {
@@ -27,12 +26,14 @@ namespace Depra.Assets.Tests.PlayMode.Files
         private const int GROUP_SIZE = 3;
 
         private Stopwatch _stopwatch;
+        private AssetIdent _testAssetIdent;
         private List<ILoadableAsset<Object>> _testAssets;
 
         [SetUp]
         public void Setup()
         {
             _stopwatch = new Stopwatch();
+            _testAssetIdent = AssetIdent.Empty;
             _testAssets = new List<ILoadableAsset<Object>>(GROUP_SIZE);
             for (var index = 0; index < GROUP_SIZE; index++)
             {
@@ -44,7 +45,7 @@ namespace Depra.Assets.Tests.PlayMode.Files
         public void GroupShouldBeLoaded()
         {
             // Arrange.
-            var assetGroup = new AssetGroup(children: _testAssets);
+            var assetGroup = new AssetGroup(_testAssetIdent, children: _testAssets);
 
             // Act.
             var loadedAssets = assetGroup.Load().ToArray();
@@ -52,67 +53,51 @@ namespace Depra.Assets.Tests.PlayMode.Files
             // Assert.
             Assert.That(loadedAssets, Is.Not.Null);
             Assert.That(loadedAssets, Is.Not.Empty);
-            
+
             // Debug.
             Log($"Loaded asset group with {_testAssets.Count} children.");
         }
 
         [UnityTest]
-        public IEnumerator GroupShouldBeLoadedAsync()
+        public IEnumerator GroupShouldBeLoadedAsync() => UniTask.ToCoroutine(async () =>
         {
             // Arrange.
-            Object[] loadedAssets = null;
-            var resourceAsset = new AssetGroup(children: _testAssets);
+            var resourceAsset = new AssetGroup(_testAssetIdent, children: _testAssets);
 
             // Act.
             _stopwatch.Restart();
-            var asyncToken = resourceAsset.LoadAsync(
-                onLoaded: assets => loadedAssets = assets.ToArray(),
-                onFailed: exception => throw exception);
-
-            while (loadedAssets == null)
-            {
-                yield return null;
-            }
-
+            var loadedAssets = await resourceAsset.LoadAsync(CancellationToken.None);
+            loadedAssets = loadedAssets.ToArray();
             _stopwatch.Stop();
 
             // Assert.
             Assert.That(loadedAssets, Is.Not.Null);
             Assert.That(loadedAssets, Is.Not.Empty);
-            Assert.That(asyncToken.IsCanceled, Is.False);
 
             // Debug.
             Log($"Loaded asset group with {_testAssets.Count} children " +
                 $"in {_stopwatch.ElapsedMilliseconds} ms.");
-        }
+        });
 
         [UnityTest]
-        public IEnumerator GroupShouldBeLoadedAsyncWithProgress()
+        public IEnumerator GroupShouldBeLoadedAsyncWithProgress() => UniTask.ToCoroutine(async () =>
         {
             // Arrange.
             var callbackCalls = 0;
             var callbacksCalled = false;
             DownloadProgress lastProgress = default;
-            var assetGroup = new AssetGroup(children: _testAssets);
+            var assetGroup = new AssetGroup(_testAssetIdent, children: _testAssets);
 
             // Act.
             _stopwatch.Restart();
-            assetGroup.LoadAsync(
-                onLoaded: _ => { },
+            await assetGroup.LoadAsync(
+                CancellationToken.None,
                 onProgress: progress =>
                 {
                     callbackCalls++;
                     callbacksCalled = true;
                     lastProgress = progress;
-                },
-                onFailed: exception => throw exception);
-
-            while (assetGroup.IsLoaded == false)
-            {
-                yield return null;
-            }
-
+                });
             _stopwatch.Stop();
 
             // Assert.
@@ -125,13 +110,13 @@ namespace Depra.Assets.Tests.PlayMode.Files
                 $"{callbackCalls} times " +
                 $"in {_stopwatch.ElapsedMilliseconds} ms. " +
                 $"Last value is {lastProgress.NormalizedValue}.");
-        }
+        });
 
         [Test]
         public void GroupShouldBeUnloaded()
         {
             // Arrange.
-            var resourceAsset = new AssetGroup(children: _testAssets);
+            var resourceAsset = new AssetGroup(_testAssetIdent, children: _testAssets);
             var unused = resourceAsset.Load();
 
             // Act.
@@ -139,19 +124,18 @@ namespace Depra.Assets.Tests.PlayMode.Files
 
             // Assert.
             Assert.That(resourceAsset.IsLoaded, Is.False);
-            
+
             // Debug.
             Log("Asset group unloaded.");
         }
 
         [Test]
-        [SuppressMessage("ReSharper", "IteratorMethodResultIsIgnored")]
         public void GroupSizeShouldBeThreeBytes()
         {
             // Arrange.
             Assert.That(_testAssets.Sum(x => x.Size.SizeInBytes), Is.EqualTo(3));
-            var assetGroup = new AssetGroup(nameof(AssetGroup), children: _testAssets);
-            assetGroup.Load();
+            var assetGroup = new AssetGroup(_testAssetIdent, children: _testAssets);
+            var unused = assetGroup.Load();
 
             // Act.
             var assetSize = assetGroup.Size;
@@ -162,45 +146,6 @@ namespace Depra.Assets.Tests.PlayMode.Files
 
             // Cleanup.
             Log($"Size of {assetGroup.Name} is {assetSize.ToHumanReadableString()}.");
-        }
-
-        private sealed class FakeAsset : ILoadableAsset<TestScriptableAsset>
-        {
-            public FakeAsset()
-            {
-                Size = new FileSize(1);
-                Name = nameof(FakeAsset);
-                Path = Name;
-            }
-
-            public string Name { get; }
-            public string Path { get; }
-
-            public FileSize Size { get; }
-            public bool IsLoaded { get; private set; }
-
-            private static TestScriptableAsset CreateAsset() =>
-                ScriptableObject.CreateInstance<TestScriptableAsset>();
-
-            public TestScriptableAsset Load()
-            {
-                IsLoaded = true;
-                return CreateAsset();
-            }
-
-            public IAsyncToken LoadAsync(Action<TestScriptableAsset> onLoaded,
-                Action<DownloadProgress> onProgress = null,
-                Action<Exception> onFailed = null)
-            {
-                var asset = CreateAsset();
-                onProgress?.Invoke(DownloadProgress.Full);
-                onLoaded.Invoke(asset);
-                IsLoaded = true;
-
-                return AsyncActionToken.Empty;
-            }
-
-            public void Unload() => IsLoaded = false;
         }
     }
 }

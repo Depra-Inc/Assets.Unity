@@ -3,14 +3,16 @@
 
 using System;
 using System.IO;
-using System.Runtime.CompilerServices;
-using Depra.Assets.Runtime.Async.Tokens;
+using System.Threading;
+using Cysharp.Threading.Tasks;
+using Depra.Assets.Runtime.Exceptions;
+using Depra.Assets.Runtime.Extensions;
+using Depra.Assets.Runtime.Files.Idents;
 using Depra.Assets.Runtime.Files.Interfaces;
+using Depra.Assets.Runtime.Files.Resource;
 using Depra.Assets.Runtime.Files.Structs;
-using Depra.Assets.Runtime.Utils;
 using UnityEditor;
 using UnityEngine;
-using UnityEngine.Profiling;
 using static Depra.Assets.Runtime.Common.Constants;
 using Object = UnityEngine.Object;
 
@@ -20,18 +22,18 @@ namespace Depra.Assets.Runtime.Files.Database
     {
         private readonly Type _assetType;
         private readonly string _absoluteFilePath;
-        private readonly string _absoluteDirectoryPath;
+        private readonly DirectoryInfo _absoluteDirectory;
 
         private TAsset _loadedAsset;
 
-        public DatabaseAsset(string directoryPath, string name, string typeExtension = AssetTypes.BASE)
+        public DatabaseAsset(FileSystemAssetIdent ident)
         {
-            Name = name;
+            Name = ident.Name;
             _assetType = typeof(TAsset);
-            _absoluteDirectoryPath = System.IO.Path.Combine(Application.dataPath, directoryPath);
-            var nameWithExtension = Name + typeExtension;
-            _absoluteFilePath = System.IO.Path.Combine(_absoluteDirectoryPath, nameWithExtension);
-            var projectPath = System.IO.Path.Combine(AssetsFolderName, directoryPath, nameWithExtension);
+            _absoluteDirectory = new DirectoryInfo(System.IO.Path.Combine(Application.dataPath, ident.Directory));
+            var nameWithExtension = Name + ident.Extension;
+            _absoluteFilePath = System.IO.Path.Combine(_absoluteDirectory.FullName, nameWithExtension);
+            var projectPath = System.IO.Path.Combine(ASSETS_FOLDER_NAME, ident.Directory, nameWithExtension);
             Path = projectPath;
         }
 
@@ -39,7 +41,7 @@ namespace Depra.Assets.Runtime.Files.Database
         public string Path { get; }
 
         public bool IsLoaded => _loadedAsset != null;
-        public FileSize Size => new(Profiler.GetRuntimeMemorySizeLong(_loadedAsset));
+        public FileSize Size { get; private set; } = FileSize.Unknown;
 
         public TAsset Load()
         {
@@ -48,20 +50,22 @@ namespace Depra.Assets.Runtime.Files.Database
                 return _loadedAsset;
             }
 
-            TAsset asset = null;
+            TAsset loadedAsset = null;
 #if UNITY_EDITOR
             if (File.Exists(_absoluteFilePath))
             {
-                asset = AssetDatabase.LoadAssetAtPath<TAsset>(Path);
+                loadedAsset = AssetDatabase.LoadAssetAtPath<TAsset>(Path);
             }
 #endif
-            if (asset == null)
+            if (loadedAsset == null)
             {
-                asset = CreateAsset();
+                loadedAsset = CreateAsset();
             }
 
-            EnsureAsset(asset);
-            _loadedAsset = asset;
+            Guard.AgainstNull(loadedAsset, () => new AssetCreationException(_assetType, _assetType.Name));
+
+            _loadedAsset = loadedAsset;
+            Size = FileSize.FromProfiler(_loadedAsset);
 
             return _loadedAsset;
         }
@@ -79,36 +83,34 @@ namespace Depra.Assets.Runtime.Files.Database
             _loadedAsset = null;
         }
 
-        public IAsyncToken LoadAsync(Action<TAsset> onLoaded, Action<DownloadProgress> onProgress = null,
-            Action<Exception> onFailed = null)
+        public async UniTask<TAsset> LoadAsync(CancellationToken cancellationToken,
+            DownloadProgressDelegate onProgress = null)
         {
             if (IsLoaded)
             {
-                return AlreadyLoadedAsset<TAsset>.Create(_loadedAsset, onLoaded, onProgress);
+                onProgress?.Invoke(DownloadProgress.Full);
+
+                return _loadedAsset;
             }
 
-            var task = UnityMainThreadDispatcher.Instance().EnqueueAsync(() =>
-            {
-                try
-                {
-                    var asset = Load();
-                    onProgress?.Invoke(DownloadProgress.Full);
-                    onLoaded.Invoke(asset);
-                }
-                catch (Exception exception)
-                {
-                    onFailed?.Invoke(exception);
-                }
-            });
+            await UniTask.SwitchToMainThread(cancellationToken: cancellationToken);
+            var loadedAsset = await UniTask.RunOnThreadPool(Load, configureAwait: false, cancellationToken);
 
-            return AsyncActionToken.Empty;
+            onProgress?.Invoke(DownloadProgress.Full);
+
+            Guard.AgainstNull(loadedAsset, () => new AssetCreationException(_assetType, _assetType.Name));
+
+            _loadedAsset = loadedAsset;
+            Size = FileSize.FromProfiler(_loadedAsset);
+
+            return _loadedAsset;
         }
 
         private TAsset CreateAsset()
         {
             var asset = ScriptableObject.CreateInstance<TAsset>();
 #if UNITY_EDITOR
-            asset = (TAsset)ActivateAsset(asset);
+            asset = (TAsset) ActivateAsset(asset);
 #endif
 
             return asset;
@@ -117,7 +119,7 @@ namespace Depra.Assets.Runtime.Files.Database
 #if UNITY_EDITOR
         private Object ActivateAsset(Object asset)
         {
-            CreateFolderIfDoesNotExist();
+            _absoluteDirectory.CreateIfNotExists();
 
             asset.name = Name;
             AssetDatabase.CreateAsset(asset, Path);
@@ -127,24 +129,6 @@ namespace Depra.Assets.Runtime.Files.Database
             return asset;
         }
 #endif
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void EnsureAsset(Object asset)
-        {
-            if (asset == null)
-            {
-                throw new AssetCreationException(_assetType, _assetType.Name);
-            }
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void CreateFolderIfDoesNotExist()
-        {
-            if (Directory.Exists(_absoluteDirectoryPath) == false)
-            {
-                Directory.CreateDirectory(_absoluteDirectoryPath);
-            }
-        }
 
         void IDisposable.Dispose() => Unload();
     }

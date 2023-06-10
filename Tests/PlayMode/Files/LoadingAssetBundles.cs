@@ -5,9 +5,12 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Threading;
+using Cysharp.Threading.Tasks;
 using Depra.Assets.Runtime.Files.Bundles.Files;
 using Depra.Assets.Runtime.Files.Bundles.IO;
 using Depra.Assets.Runtime.Files.Bundles.Memory;
+using Depra.Assets.Runtime.Files.Idents;
 using Depra.Assets.Runtime.Files.Structs;
 using Depra.Assets.Tests.PlayMode.Mocks;
 using NUnit.Framework;
@@ -15,7 +18,6 @@ using UnityEngine;
 using UnityEngine.TestTools;
 using static UnityEngine.Debug;
 using Assert = NUnit.Framework.Assert;
-using Object = UnityEngine.Object;
 
 namespace Depra.Assets.Tests.PlayMode.Files
 {
@@ -24,64 +26,60 @@ namespace Depra.Assets.Tests.PlayMode.Files
     {
         private const string TEST_BUNDLE_NAME = "test";
 
-        private static CoroutineHostMock _coroutineHost;
         private Stopwatch _stopwatch;
-
-        private static CoroutineHostMock CoroutineHost =>
-            _coroutineHost ??= CoroutineHostMock.Create();
+        private AssetBundle _loadedBundle;
 
         private static IEnumerable<AssetBundleFile> AllBundles()
         {
             var sourceType = typeof(TestAssetBundlesDirectory);
             var assetBundlesDirectory = new TestAssetBundlesDirectory(sourceType);
-            var bundleIdent = new AssetIdent(TEST_BUNDLE_NAME, assetBundlesDirectory.AbsolutePath);
+            var bundleIdent = new FileSystemAssetIdent(TEST_BUNDLE_NAME, assetBundlesDirectory.AbsolutePath);
 
-            yield return new AssetBundleFromFile(bundleIdent, CoroutineHost);
-            yield return new AssetBundleFromMemory(bundleIdent, CoroutineHost);
-            yield return new AssetBundleFromStream(bundleIdent, CoroutineHost);
-            //yield return new AssetBundleFromWeb(bundleIdent, CoroutineHost);
+            yield return new AssetBundleFromFile(bundleIdent);
+            yield return new AssetBundleFromMemory(bundleIdent);
+            yield return new AssetBundleFromStream(bundleIdent);
+            //yield return new AssetBundleFromWeb(bundleIdent);
         }
 
         private static IEnumerable<AssetBundleFile> InvalidBundles()
         {
-            var invalidBundleIdent = new AssetIdent("InvalidBundle", "InvalidPath");
+            var invalidIdent = FileSystemAssetIdent.Invalid;
 
-            yield return new AssetBundleFromFile(invalidBundleIdent, CoroutineHost);
-            yield return new AssetBundleFromMemory(invalidBundleIdent, CoroutineHost);
-            yield return new AssetBundleFromStream(invalidBundleIdent, CoroutineHost);
-            //yield return new AssetBundleFromWeb(bundleIdent, CoroutineHost);
+            yield return new AssetBundleFromFile(invalidIdent);
+            yield return new AssetBundleFromMemory(invalidIdent);
+            yield return new AssetBundleFromStream(invalidIdent);
+            //yield return new AssetBundleFromWeb(invalidIdent);
         }
 
         [OneTimeSetUp]
-        public void OneTimeSetup()
+        public void OneTimeSetup() => _stopwatch = new Stopwatch();
+        
+        [TearDown]
+        public void TearDown()
         {
-            _stopwatch = new Stopwatch();
+            if (_loadedBundle == null)
+            {
+                return;
+            }
+            
+            _loadedBundle.Unload(true);
+            _loadedBundle = null;
         }
 
-        [OneTimeTearDown]
-        public void OneTimeTearDown()
-        {
-            Object.DestroyImmediate(_coroutineHost.gameObject);
-        }
-
-        [UnityTest]
-        public IEnumerator BundleShouldBeLoaded([ValueSource(nameof(AllBundles))] AssetBundleFile bundleFile)
+        [Test]
+        public void BundleShouldBeLoaded([ValueSource(nameof(AllBundles))] AssetBundleFile bundleFile)
         {
             // Arrange.
 
             // Act.
-            var loadedAssetBundle = bundleFile.Load();
+            _loadedBundle = bundleFile.Load();
 
             // Assert.
-            Assert.That(loadedAssetBundle, Is.Not.Null);
+            Assert.That(_loadedBundle, Is.Not.Null);
             Assert.That(bundleFile.IsLoaded);
 
             // Debug.
             Log($"The bundle was loaded by path: {bundleFile.Path}.");
-
-            // Cleanup.
-            loadedAssetBundle.Unload(true);
-            yield return null;
         }
 
         [UnityTest]
@@ -116,112 +114,93 @@ namespace Depra.Assets.Tests.PlayMode.Files
         }
 
         [UnityTest]
-        public IEnumerator BundleShouldBeLoadedAsync([ValueSource(nameof(AllBundles))] AssetBundleFile bundleFile)
-        {
-            // Arrange.
-            AssetBundle loadedBundle = null;
-
-            // Act.
-            _stopwatch.Restart();
-            var asyncToken = bundleFile.LoadAsync(
-                onLoaded: asset => loadedBundle = asset,
-                onFailed: exception => throw exception);
-
-            while (loadedBundle == null)
+        public IEnumerator BundleShouldBeLoadedAsync([ValueSource(nameof(AllBundles))] AssetBundleFile bundleFile) =>
+            UniTask.ToCoroutine(async () =>
             {
-                yield return null;
-            }
+                // Arrange.
 
-            _stopwatch.Stop();
+                // Act.
+                _stopwatch.Restart();
+                _loadedBundle = await bundleFile.LoadAsync(CancellationToken.None);
+                _stopwatch.Stop();
 
-            // Assert.
-            Assert.That(loadedBundle, Is.Not.Null);
-            Assert.That(bundleFile.IsLoaded);
-            Assert.That(asyncToken.IsCanceled, Is.False);
+                // Assert.
+                Assert.That(bundleFile.IsLoaded);
+                Assert.That(_loadedBundle, Is.Not.Null);
+                Assert.IsInstanceOf<AssetBundle>(_loadedBundle);
 
-            // Debug.
-            Log($"Loaded bundle {loadedBundle.name} " +
-                      $"by path: {bundleFile.Path} " +
-                      $"in {_stopwatch.ElapsedMilliseconds} ms.");
+                // Debug.
+                Log($"Loaded bundle {_loadedBundle.name} " +
+                    $"by path: {bundleFile.Path} " +
+                    $"in {_stopwatch.ElapsedMilliseconds} ms.");
 
-            // Cleanup.
-            loadedBundle.Unload(true);
-            yield return null;
-        }
+                await UniTask.Yield();
+            });
 
         [UnityTest]
         public IEnumerator BundleShouldBeLoadedWithProgress(
-            [ValueSource(nameof(AllBundles))] AssetBundleFile bundleFile)
-        {
-            // Arrange.
-            var callbacksCalled = false;
-            var callbackCalls = 0;
-            AssetBundle loadedBundle = null;
-            DownloadProgress lastProgress = default;
-
-            // Act.
-            _stopwatch.Restart();
-            bundleFile.LoadAsync(
-                onLoaded: asset => loadedBundle = asset,
-                onProgress: progress =>
-                {
-                    callbackCalls++;
-                    callbacksCalled = true;
-                    lastProgress = progress;
-                },
-                onFailed: exception => throw exception);
-
-            while (bundleFile.IsLoaded == false)
+            [ValueSource(nameof(AllBundles))] AssetBundleFile bundleFile) =>
+            UniTask.ToCoroutine(async () =>
             {
-                yield return null;
-            }
+                // Arrange.
+                var callbackCalls = 0;
+                var callbacksCalled = false;
+                DownloadProgress lastProgress = default;
 
-            _stopwatch.Stop();
+                // Act.
+                _stopwatch.Restart();
+                _loadedBundle = await bundleFile.LoadAsync(
+                    CancellationToken.None,
+                    onProgress: progress =>
+                    {
+                        callbackCalls++;
+                        callbacksCalled = true;
+                        lastProgress = progress;
+                    });
+                _stopwatch.Stop();
 
-            // Assert.
-            Assert.That(callbacksCalled);
-            Assert.That(callbackCalls, Is.GreaterThan(0));
-            Assert.That(lastProgress, Is.EqualTo(DownloadProgress.Full));
+                // Assert.
+                Assert.That(callbacksCalled);
+                Assert.That(callbackCalls, Is.GreaterThan(0));
+                Assert.That(lastProgress, Is.EqualTo(DownloadProgress.Full));
 
-            // Debug.
-            Log("Progress event was called " +
-                      $"{callbackCalls} times " +
-                      $"in {_stopwatch.ElapsedMilliseconds} ms. " +
-                      $"Last value is {lastProgress.NormalizedValue}.");
-
-            // Cleanup.
-            loadedBundle.Unload(true);
-            yield return null;
-        }
+                // Debug.
+                Log("Progress event was called " +
+                    $"{callbackCalls} times " +
+                    $"in {_stopwatch.ElapsedMilliseconds} ms. " +
+                    $"Last value is {lastProgress.NormalizedValue}.");
+                
+                await UniTask.Yield();
+            });
 
         [UnityTest]
-        public IEnumerator BundleLoadingShouldBeCanceled([ValueSource(nameof(AllBundles))] AssetBundleFile bundleFile)
-        {
-            // Arrange.
-            AssetBundle loadedBundle = null;
+        public IEnumerator BundleLoadingShouldBeCanceled([ValueSource(nameof(AllBundles))] AssetBundleFile bundleFile) =>
+            UniTask.ToCoroutine(async () =>
+            {
+                // Arrange.
+                var cancellationTokenSource = new CancellationTokenSource();
+                var cancellationToken = cancellationTokenSource.Token;
 
-            // Act.
-            var asyncToken = bundleFile.LoadAsync(
-                onLoaded: asset => loadedBundle = asset,
-                onFailed: exception => throw exception);
-            asyncToken.Cancel();
+                // Act.
+                _loadedBundle = await bundleFile.LoadAsync(cancellationToken);
+                cancellationTokenSource.Cancel();
 
-            // Assert.
-            Assert.That(loadedBundle, Is.Null);
-            Assert.That(asyncToken.IsCanceled);
+                // Assert.
+                Assert.That(_loadedBundle, Is.Null);
+                Assert.That(cancellationToken.IsCancellationRequested);
 
-            // Debug.
-            Log($"Loading of bundle {bundleFile.Name} was canceled.");
+                // Debug.
+                Log($"Loading of bundle {bundleFile.Name} was canceled.");
 
-            yield return null;
-        }
+                await UniTask.Yield();
+            });
 
         [UnityTest]
         public IEnumerator BundleSizeShouldNotBeZeroOrUnknown(
             [ValueSource(nameof(AllBundles))] AssetBundleFile bundleFile)
         {
             // Arrange.
-            var loadedBundle = bundleFile.Load();
+            _loadedBundle = bundleFile.Load();
             yield return null;
 
             // Act.
@@ -234,8 +213,6 @@ namespace Depra.Assets.Tests.PlayMode.Files
             // Debug.
             Log($"Size of {bundleFile.Name} is {bundleSize.ToHumanReadableString()}.");
 
-            // Cleanup.
-            loadedBundle.Unload(true);
             yield return null;
         }
     }

@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Depra.Assets.Runtime.Files.Bundles.Files;
-using Unity.EditorCoroutines.Editor;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Networking;

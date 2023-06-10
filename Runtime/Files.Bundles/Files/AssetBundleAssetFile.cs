@@ -2,33 +2,29 @@
 // SPDX-License-Identifier: Apache-2.0
 
 using System;
-using System.Collections;
-using System.Runtime.CompilerServices;
-using Depra.Assets.Runtime.Async.Threads;
-using Depra.Assets.Runtime.Async.Tokens;
+using System.Threading;
+using Cysharp.Threading.Tasks;
+using Depra.Assets.Runtime.Exceptions;
 using Depra.Assets.Runtime.Files.Bundles.Exceptions;
+using Depra.Assets.Runtime.Files.Idents;
 using Depra.Assets.Runtime.Files.Interfaces;
+using Depra.Assets.Runtime.Files.Resource;
 using Depra.Assets.Runtime.Files.Structs;
-using Depra.Assets.Runtime.Utils;
-using Depra.Coroutines.Domain.Entities;
 using UnityEngine;
-using UnityEngine.Profiling;
 using Object = UnityEngine.Object;
 
 namespace Depra.Assets.Runtime.Files.Bundles.Files
 {
     public sealed class AssetBundleAssetFile<TAsset> : ILoadableAsset<TAsset>, IDisposable where TAsset : Object
     {
-        private readonly AssetIdent _ident;
         private readonly AssetBundle _assetBundle;
-        private readonly ICoroutineHost _coroutineHost;
+        private readonly FileSystemAssetIdent _ident;
 
         private TAsset _loadedAsset;
 
-        public AssetBundleAssetFile(AssetIdent ident, AssetBundle assetBundle, ICoroutineHost coroutineHost = null)
+        public AssetBundleAssetFile(FileSystemAssetIdent ident, AssetBundle assetBundle)
         {
-            _ident = ident;
-            _coroutineHost = coroutineHost ?? AssetCoroutineHook.Instance;
+            _ident = ident ?? throw new ArgumentNullException(nameof(ident));
             _assetBundle = assetBundle ? assetBundle : throw new ArgumentNullException(nameof(assetBundle));
         }
 
@@ -46,7 +42,12 @@ namespace Depra.Assets.Runtime.Files.Bundles.Files
             }
 
             var loadedAsset = _assetBundle.LoadAsset<TAsset>(Name);
-            return OnLoaded(loadedAsset, onFailed: exception => throw exception);
+            Guard.AgainstNull(loadedAsset, () => new AssetBundleFileNotLoadedException(Name, _assetBundle.name));
+
+            _loadedAsset = loadedAsset;
+            Size = FileSize.FromProfiler(_loadedAsset);
+
+            return _loadedAsset;
         }
 
         public void Unload()
@@ -57,58 +58,35 @@ namespace Depra.Assets.Runtime.Files.Bundles.Files
             }
         }
 
-        public IAsyncToken LoadAsync(Action<TAsset> onLoaded, Action<DownloadProgress> onProgress = null,
-            Action<Exception> onFailed = null)
+        public async UniTask<TAsset> LoadAsync(CancellationToken cancellationToken,
+            DownloadProgressDelegate onProgress = null)
         {
             if (IsLoaded)
             {
-                return AlreadyLoadedAsset<TAsset>.Create(_loadedAsset, onLoaded, onProgress);
+                onProgress?.Invoke(DownloadProgress.Full);
+
+                return _loadedAsset;
             }
 
-            var loadingThread = new MainAssetThread<TAsset>(_coroutineHost, LoadingProcess);
-            loadingThread.Start(OnLoadedInternal, onProgress, onFailed);
-            void OnLoadedInternal(TAsset loadedAsset) => OnLoaded(loadedAsset, onFailed, onLoaded);
-
-            return new AsyncActionToken(loadingThread.Cancel);
-        }
-
-        private TAsset OnLoaded(TAsset asset, Action<Exception> onFailed, Action<TAsset> onLoaded = null)
-        {
-            EnsureAsset(asset, onFailed);
-            _loadedAsset = asset;
-            onLoaded?.Invoke(_loadedAsset);
-            RefreshSize(_loadedAsset);
-
-            return _loadedAsset;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private IEnumerator LoadingProcess(Action<TAsset> onLoaded, Action<DownloadProgress> onProgress = null,
-            Action<Exception> onFailed = null)
-        {
-            var request = _assetBundle.LoadAssetAsync<TAsset>(Name);
-            while (request.isDone == false)
+            var assetBundleRequest = _assetBundle.LoadAssetAsync<TAsset>(Name);
+            while (assetBundleRequest.isDone == false)
             {
-                var progress = new DownloadProgress(request.progress);
+                var progress = new DownloadProgress(assetBundleRequest.progress);
                 onProgress?.Invoke(progress);
-                yield return null;
+
+                await UniTask.Yield();
             }
 
             onProgress?.Invoke(DownloadProgress.Full);
-            onLoaded.Invoke((TAsset)request.asset);
-        }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void RefreshSize(TAsset asset) =>
-            Size = new FileSize(Profiler.GetRuntimeMemorySizeLong(asset));
+            Guard.AgainstNull(assetBundleRequest.asset,
+                () => new AssetBundleFileNotLoadedException(Name, _assetBundle.name));
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void EnsureAsset(TAsset asset, Action<Exception> onFailed)
-        {
-            if (asset == null)
-            {
-                onFailed?.Invoke(new AssetBundleFileNotLoadedException(Name, _assetBundle.name));
-            }
+            var loadedAsset = (TAsset) assetBundleRequest.asset;
+            _loadedAsset = loadedAsset;
+            Size = FileSize.FromProfiler(_loadedAsset);
+
+            return _loadedAsset;
         }
 
         void IDisposable.Dispose() => Unload();

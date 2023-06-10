@@ -2,12 +2,12 @@
 // SPDX-License-Identifier: Apache-2.0
 
 using System;
-using System.Collections;
-using System.Runtime.CompilerServices;
-using Depra.Assets.Runtime.Async.Threads;
+using System.Threading;
+using Cysharp.Threading.Tasks;
+using Depra.Assets.Runtime.Exceptions;
 using Depra.Assets.Runtime.Files.Bundles.Files;
+using Depra.Assets.Runtime.Files.Idents;
 using Depra.Assets.Runtime.Files.Structs;
-using Depra.Coroutines.Domain.Entities;
 using UnityEngine;
 using UnityEngine.Networking;
 
@@ -15,13 +15,10 @@ namespace Depra.Assets.Runtime.Files.Bundles.Web
 {
     public sealed class AssetBundleFromWeb : AssetBundleFile
     {
-        private readonly ICoroutineHost _coroutineHost;
-
         private long _contentSize;
         private UnityWebRequest _webRequest;
 
-        public AssetBundleFromWeb(AssetIdent ident, ICoroutineHost coroutineHost = null) : base(ident) =>
-            _coroutineHost = coroutineHost;
+        public AssetBundleFromWeb(FileSystemAssetIdent ident) : base(ident) { }
 
         protected override AssetBundle LoadOverride()
         {
@@ -33,49 +30,31 @@ namespace Depra.Assets.Runtime.Files.Bundles.Web
                 // Spinning for Synchronous Behavior (blocking).
             }
 
-            EnsureRequestResult(request, exception => throw exception);
+            Guard.AgainstInvalidRequestResult(request,
+                (error, url) => new RemoveAssetBundleNotLoadedException(url, error));
+
             return DownloadHandlerAssetBundle.GetContent(request);
         }
 
-        protected override IAssetThread<AssetBundle> RequestAsync() =>
-            new MainAssetThread<AssetBundle>(_coroutineHost, LoadingProcess, CancelRequest);
-
-        protected override FileSize RefreshSize(AssetBundle assetBundle) => new(_contentSize);
-
-        private IEnumerator LoadingProcess(Action<AssetBundle> onLoaded, Action<DownloadProgress> onProgress = null,
-            Action<Exception> onFailed = null)
+        protected override async UniTask<AssetBundle> LoadAsyncOverride(CancellationToken cancellationToken,
+            IProgress<float> progress = null)
         {
             _webRequest = UnityWebRequestAssetBundle.GetAssetBundle(Path);
-            _webRequest.SendWebRequest();
+            await _webRequest.SendWebRequest().ToUniTask(progress, cancellationToken: cancellationToken);
 
-            while (_webRequest.isDone == false)
-            {
-                var progress = new DownloadProgress(_webRequest.downloadProgress);
-                onProgress?.Invoke(progress);
-
-                yield return null;
-            }
-
-            onProgress?.Invoke(DownloadProgress.Full);
-
-            EnsureRequestResult(_webRequest, onFailed);
+            Guard.AgainstInvalidRequestResult(_webRequest,
+                (error, url) => new RemoveAssetBundleNotLoadedException(url, error));
             
             var downloadedBundle = DownloadHandlerAssetBundle.GetContent(_webRequest);
-            onLoaded.Invoke(downloadedBundle);
 
             _contentSize = _webRequest.ParseSize();
             _webRequest.Dispose();
+
+            return downloadedBundle;
         }
+
+        protected override FileSize FindSize(AssetBundle assetBundle) => new(_contentSize);
 
         private void CancelRequest() => _webRequest?.Abort();
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void EnsureRequestResult(UnityWebRequest request, Action<Exception> onFailed = null)
-        {
-            if (request.CanGetResult() == false)
-            {
-                onFailed?.Invoke(new RemoveAssetBundleNotLoadedException(Path, request.error));
-            }
-        }
     }
 }

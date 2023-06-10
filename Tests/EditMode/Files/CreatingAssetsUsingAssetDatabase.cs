@@ -4,6 +4,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using Depra.Assets.Runtime.Files.Database;
+using Depra.Assets.Runtime.Files.Idents;
 using Depra.Assets.Runtime.Files.Structs;
 using NUnit.Framework;
 using UnityEditor;
@@ -20,15 +21,16 @@ namespace Depra.Assets.Tests.EditMode.Files
     {
         private const string ASSET_NAME = "TestAsset";
         private const string ASSET_TYPE_EXTENSION = AssetTypes.BASE;
+        private const string ASSET_NAME_WITH_EXTENSION = ASSET_NAME + ASSET_TYPE_EXTENSION;
 
-        private string _directoryName;
         private string _absoluteAssetPath;
+        private FileSystemAssetIdent _assetIdent;
 
         [SetUp]
         public void Setup()
         {
-            _directoryName = ResourcesFolderName;
-            _absoluteAssetPath = Path.Combine(AssetsFolderName, _directoryName, ASSET_NAME + ASSET_TYPE_EXTENSION);
+            _absoluteAssetPath = Path.Combine(ASSETS_FOLDER_NAME, RESOURCES_FOLDER_NAME, ASSET_NAME_WITH_EXTENSION);
+            _assetIdent = new FileSystemAssetIdent(ASSET_NAME, RESOURCES_FOLDER_NAME, ASSET_TYPE_EXTENSION);
         }
 
         [TearDown]
@@ -41,7 +43,7 @@ namespace Depra.Assets.Tests.EditMode.Files
         public void AssetShouldBeCreated()
         {
             // Arrange.
-            var databaseAsset = new DatabaseAsset<ScriptableAsset>(_directoryName, ASSET_NAME, ASSET_TYPE_EXTENSION);
+            var databaseAsset = new DatabaseAsset<ScriptableAsset>(_assetIdent);
 
             // Act.
             var loadedAsset = databaseAsset.Load();
@@ -58,7 +60,7 @@ namespace Depra.Assets.Tests.EditMode.Files
         public void LoadedAssetShouldBeDeleted()
         {
             // Arrange.
-            var databaseAsset = new DatabaseAsset<ScriptableAsset>(_directoryName, ASSET_NAME, ASSET_TYPE_EXTENSION);
+            var databaseAsset = new DatabaseAsset<ScriptableAsset>(_assetIdent);
             var createdAsset = databaseAsset.Load();
 
             // Act.
@@ -76,7 +78,7 @@ namespace Depra.Assets.Tests.EditMode.Files
         public void AssetSizeShouldNotBeZeroOrUnknown()
         {
             // Arrange.
-            var databaseAsset = new DatabaseAsset<ScriptableAsset>(_directoryName, ASSET_NAME, ASSET_TYPE_EXTENSION);
+            var databaseAsset = new DatabaseAsset<ScriptableAsset>(_assetIdent);
             databaseAsset.Load();
 
             // Act.

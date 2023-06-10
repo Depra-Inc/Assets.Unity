@@ -3,9 +3,10 @@
 
 using System;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using Depra.Assets.Runtime.Async.Tokens;
+using System.Threading;
+using Cysharp.Threading.Tasks;
 using Depra.Assets.Runtime.Files.Interfaces;
+using Depra.Assets.Runtime.Files.Resource;
 using Depra.Assets.Runtime.Files.Structs;
 using UnityEditor;
 using UnityEngine.Profiling;
@@ -45,7 +46,10 @@ namespace Depra.Assets.Editor.Files
                 loadedAsset = _asset.Load();
             }
 
-            return OnLoaded(loadedAsset);
+            _loadedAsset = loadedAsset;
+            Size = FindSize(_loadedAsset);
+
+            return _loadedAsset;
         }
 
         public void Unload()
@@ -59,31 +63,26 @@ namespace Depra.Assets.Editor.Files
             _loadedAsset = null;
         }
 
-        public IAsyncToken LoadAsync(Action<TAsset> onLoaded, Action<DownloadProgress> onProgress = null,
-            Action<Exception> onFailed = null)
+        public async UniTask<TAsset> LoadAsync(CancellationToken cancellationToken,
+            DownloadProgressDelegate onProgress = null)
         {
             if (IsLoaded)
             {
-                return OnLoadedInstantly(_loadedAsset);
-            }
-
-            if (TryGetPreloadedAsset(out var asset) || TryLoadAssetFromDatabase(out asset))
-            {
-                _loadedAsset = asset;
-                return OnLoadedInstantly(asset);
-            }
-
-            var loadingOperation = _asset.LoadAsync(onLoaded: _ => OnLoaded(_), onProgress, onFailed);
-
-            return loadingOperation;
-
-            IAsyncToken OnLoadedInstantly(TAsset readyAsset)
-            {
                 onProgress?.Invoke(DownloadProgress.Full);
-                onLoaded.Invoke(readyAsset);
 
-                return AsyncActionToken.Empty;
+                return _loadedAsset;
             }
+
+            if (TryGetPreloadedAsset(out var loadedAsset) == false &&
+                TryLoadAssetFromDatabase(out loadedAsset) == false)
+            {
+                loadedAsset = await _asset.LoadAsync(cancellationToken, onProgress);
+            }
+
+            _loadedAsset = loadedAsset;
+            Size = FindSize(_loadedAsset);
+
+            return _loadedAsset;
         }
 
         private bool TryGetPreloadedAsset(out TAsset preloadedAsset)
@@ -96,14 +95,14 @@ namespace Depra.Assets.Editor.Files
                 return false;
             }
 
-            preloadedAsset = (TAsset)assetByType;
+            preloadedAsset = (TAsset) assetByType;
             return preloadedAsset != null;
         }
 
         private bool TryLoadAssetFromDatabase(out TAsset asset)
         {
-            const string filterFormat = "t:{0}";
-            var filter = string.Format(filterFormat, _assetType.Name);
+            const string FILTER_FORMAT = "t:{0}";
+            var filter = string.Format(FILTER_FORMAT, _assetType.Name);
             var assetGuid = AssetDatabase.FindAssets(filter).FirstOrDefault();
             var assetPath = AssetDatabase.GUIDToAssetPath(assetGuid);
             asset = AssetDatabase.LoadAssetAtPath<TAsset>(assetPath);
@@ -111,15 +110,8 @@ namespace Depra.Assets.Editor.Files
             return asset != null;
         }
 
-        private TAsset OnLoaded(TAsset loadedAsset)
-        {
-            RefreshSize(_loadedAsset = loadedAsset);
-            return _loadedAsset;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void RefreshSize(Object asset) =>
-            Size = new FileSize(Profiler.GetRuntimeMemorySizeLong(asset));
+        private FileSize FindSize(Object asset) =>
+            new(Profiler.GetRuntimeMemorySizeLong(asset));
 
         void IDisposable.Dispose() => Unload();
     }

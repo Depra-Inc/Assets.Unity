@@ -1,5 +1,4 @@
-﻿using System.IO;
-using Depra.Assets.Runtime.Files.Idents;
+﻿using Depra.Assets.Runtime.Files.Idents;
 using UnityEngine;
 
 namespace Depra.Assets.Runtime.Files.Bundles.Idents
@@ -24,10 +23,11 @@ namespace Depra.Assets.Runtime.Files.Bundles.Idents
         {
             Name = name;
             AbsoluteDirectoryPath = directory ?? Application.streamingAssetsPath;
-            AbsolutePath = Path.Combine(AbsoluteDirectoryPath, Name + Extension);
-            RelativePath = Path.GetRelativePath(DataPath, AbsolutePath);
+            AbsolutePath = System.IO.Path.Combine(AbsoluteDirectoryPath, Name + Extension);
+            RelativePath = System.IO.Path.GetRelativePath(DataPath, AbsolutePath);
         }
-        
+
+        public string Uri { get; }
         public string Name { get; }
         public string Extension => EXTENSION;
         public string AbsolutePath { get; }

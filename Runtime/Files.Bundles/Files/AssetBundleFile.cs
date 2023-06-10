@@ -2,26 +2,26 @@
 // SPDX-License-Identifier: Apache-2.0
 
 using System;
-using System.Collections.Generic;
-using System.Runtime.CompilerServices;
-using Depra.Assets.Runtime.Async.Threads;
-using Depra.Assets.Runtime.Async.Tokens;
+using System.Threading;
+using Cysharp.Threading.Tasks;
+using Depra.Assets.Runtime.Exceptions;
 using Depra.Assets.Runtime.Files.Bundles.Exceptions;
 using Depra.Assets.Runtime.Files.Bundles.Extensions;
+using Depra.Assets.Runtime.Files.Idents;
 using Depra.Assets.Runtime.Files.Interfaces;
+using Depra.Assets.Runtime.Files.Resource;
 using Depra.Assets.Runtime.Files.Structs;
 using UnityEngine;
-using Object = UnityEngine.Object;
 
 namespace Depra.Assets.Runtime.Files.Bundles.Files
 {
     public abstract class AssetBundleFile : ILoadableAsset<AssetBundle>, IDisposable
     {
-        private readonly AssetIdent _ident;
-
+        private readonly FileSystemAssetIdent _ident;
         private AssetBundle _loadedAssetBundle;
 
-        protected AssetBundleFile(AssetIdent ident) => _ident = ident;
+        protected AssetBundleFile(FileSystemAssetIdent ident) =>
+            _ident = ident ?? throw new ArgumentNullException(nameof(ident));
 
         public string Name => _ident.Name;
         public string Path => _ident.Path;
@@ -37,22 +37,32 @@ namespace Depra.Assets.Runtime.Files.Bundles.Files
             }
 
             var loadedAssetBundle = LoadOverride();
-            return OnLoaded(loadedAssetBundle, onFailed: exception => throw exception);
+            Guard.AgainstNull(loadedAssetBundle, () => new AssetBundleNotLoadedException(Path));
+            _loadedAssetBundle = loadedAssetBundle;
+            Size = FindSize(_loadedAssetBundle);
+
+            return _loadedAssetBundle;
         }
 
-        public IAsyncToken LoadAsync(Action<AssetBundle> onLoaded, Action<DownloadProgress> onProgress = null,
-            Action<Exception> onFailed = null)
+        public async UniTask<AssetBundle> LoadAsync(CancellationToken cancellationToken,
+            DownloadProgressDelegate onProgress = null)
         {
             if (IsLoaded)
             {
-                return AlreadyLoadedAsset<AssetBundle>.Create(_loadedAssetBundle, onLoaded, onProgress);
+                onProgress?.Invoke(DownloadProgress.Full);
+
+                return _loadedAssetBundle;
             }
 
-            var request = RequestAsync();
-            request.Start(OnLoadedInternal, onProgress, onFailed);
-            void OnLoadedInternal(AssetBundle loadedBundle) => OnLoaded(loadedBundle, onFailed, onLoaded);
+            var progress = Progress.Create<float>(value => onProgress?.Invoke(new DownloadProgress(value)));
+            var loadedAssetBundle = await LoadAsyncOverride(cancellationToken, progress);
+            onProgress?.Invoke(DownloadProgress.Full);
+            
+            Guard.AgainstNull(loadedAssetBundle, () => new AssetBundleNotLoadedException(Path));
+            _loadedAssetBundle = loadedAssetBundle;
+            Size = FindSize(_loadedAssetBundle);
 
-            return new AsyncActionToken(request.Cancel);
+            return _loadedAssetBundle;
         }
 
         public void Unload()
@@ -77,34 +87,13 @@ namespace Depra.Assets.Runtime.Files.Bundles.Files
             _loadedAssetBundle = null;
         }
 
-        public IEnumerable<string> AllAssetNames() => Load().GetAllAssetNames();
-
         protected abstract AssetBundle LoadOverride();
 
-        protected abstract IAssetThread<AssetBundle> RequestAsync();
+        protected abstract UniTask<AssetBundle> LoadAsyncOverride(CancellationToken cancellationToken,
+            IProgress<float> progress = null);
 
-        private AssetBundle OnLoaded(AssetBundle loadedBundle, Action<Exception> onFailed,
-            Action<AssetBundle> onLoaded = null)
-        {
-            Ensure(loadedBundle, onFailed);
-            _loadedAssetBundle = loadedBundle;
-            onLoaded?.Invoke(loadedBundle);
-            Size = RefreshSize(_loadedAssetBundle);
-
-            return _loadedAssetBundle;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected virtual FileSize RefreshSize(AssetBundle assetBundle) => assetBundle.Size();
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void Ensure(Object assetBundle, Action<Exception> onFailed = null)
-        {
-            if (assetBundle == null)
-            {
-                onFailed?.Invoke(new AssetBundleNotLoadedException(Path));
-            }
-        }
+        protected virtual FileSize FindSize(AssetBundle assetBundle) =>
+            assetBundle.Size();
 
         void IDisposable.Dispose() => Unload();
     }

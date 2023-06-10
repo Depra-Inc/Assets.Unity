@@ -5,15 +5,14 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using Depra.Assets.Runtime.Async.Threads;
-using Depra.Assets.Runtime.Async.Tokens;
+using System.Threading;
+using Cysharp.Threading.Tasks;
+using Depra.Assets.Runtime.Exceptions;
 using Depra.Assets.Runtime.Files.Exceptions;
+using Depra.Assets.Runtime.Files.Idents;
 using Depra.Assets.Runtime.Files.Interfaces;
+using Depra.Assets.Runtime.Files.Resource;
 using Depra.Assets.Runtime.Files.Structs;
-using Depra.Assets.Runtime.Utils;
-using Depra.Coroutines.Domain.Entities;
-using UnityEngine;
 using Object = UnityEngine.Object;
 
 namespace Depra.Assets.Runtime.Files.Group
@@ -23,32 +22,27 @@ namespace Depra.Assets.Runtime.Files.Group
         IEnumerable<ILoadableAsset<Object>>,
         IDisposable
     {
+        private readonly AssetIdent _ident;
         private readonly List<Object> _loadedAssets;
-        private readonly ICoroutineHost _coroutineHost;
         private readonly List<ILoadableAsset<Object>> _childAssets;
 
-        public AssetGroup(string name = "", string path = "", List<ILoadableAsset<Object>> children = null,
-            ICoroutineHost coroutineHost = null)
+        public AssetGroup(AssetIdent ident, List<ILoadableAsset<Object>> children = null)
         {
-            Name = name;
-            Path = path;
+            _ident = ident;
             _childAssets = children ?? new List<ILoadableAsset<Object>>();
             _loadedAssets = new List<Object>(_childAssets.Count);
-            _coroutineHost = coroutineHost ?? AssetCoroutineHook.Instance;
         }
 
-        public string Name { get; }
-        public string Path { get; }
+        public string Name => _ident.Name;
+        public string Path => _ident.Uri;
 
         public bool IsLoaded => _childAssets.All(asset => asset.IsLoaded);
         public FileSize Size => new(_childAssets.Sum(x => x.Size.SizeInBytes));
 
         public void AddAsset(ILoadableAsset<Object> asset)
         {
-            if (_childAssets.Contains(asset))
-            {
-                throw new AssetAlreadyAddedToGroup(asset.Name);
-            }
+            Guard.AgainstNull(asset, () => new ArgumentNullException(nameof(asset)));
+            Guard.AgainstAlreadyContains(asset, _childAssets, () => new AssetAlreadyAddedToGroup(asset.Name));
 
             _childAssets.Add(asset);
         }
@@ -63,35 +57,49 @@ namespace Depra.Assets.Runtime.Files.Group
                 }
 
                 var loadedAsset = asset.Load();
-                OnLoaded(loadedAsset, onFailed: exception => throw exception);
+                Guard.AgainstNull(loadedAsset, () => new AssetGroupLoadingException(Name));
+                Guard.AgainstAlreadyContains(loadedAsset, @in: _loadedAssets,
+                    () => new AssetAlreadyLoadedException(loadedAsset.name));
+
+                _loadedAssets.Add(loadedAsset);
 
                 yield return loadedAsset;
             }
         }
 
-        public IAsyncToken LoadAsync(Action<IEnumerable<Object>> onLoaded, Action<DownloadProgress> onProgress = null,
-            Action<Exception> onFailed = null)
+        public async UniTask<IEnumerable<Object>> LoadAsync(CancellationToken cancellationToken,
+            DownloadProgressDelegate onProgress = null)
         {
             if (IsLoaded)
             {
-                return AlreadyLoadedAsset<IEnumerable<Object>>.Create(_loadedAssets, onLoaded, onProgress);
+                onProgress?.Invoke(DownloadProgress.Full);
+
+                return _loadedAssets;
             }
 
-            var loadingThread = new Thread(_coroutineHost, _childAssets, OnLoadedInternal);
-            loadingThread.Start(OnChildLoaded, onProgress, onFailed);
-            return new AsyncActionToken(loadingThread.Cancel);
+            await UniTask.WhenAll(TasksCompleted());
+            OnProgressChanged();
 
-            void OnLoadedInternal() => onLoaded?.Invoke(_loadedAssets);
+            return _loadedAssets;
 
-            void OnChildLoaded(Object loadedAsset)
+            IEnumerable<UniTask> TasksCompleted() =>
+                _childAssets.Select(asset => LoadAssetAsync(asset, cancellationToken));
+
+            async UniTask LoadAssetAsync(ILoadableAsset<Object> asset, CancellationToken token)
             {
-                OnLoaded(loadedAsset, onFailed);
+                var loadedAsset = await asset.LoadAsync(token);
                 OnProgressChanged();
+
+                Guard.AgainstNull(loadedAsset, () => new AssetGroupLoadingException(Name));
+                Guard.AgainstAlreadyContains(loadedAsset, @in: _loadedAssets,
+                    () => new AssetAlreadyLoadedException(loadedAsset.name));
+
+                _loadedAssets.Add(loadedAsset);
             }
 
             void OnProgressChanged()
             {
-                var progressValue = (float)_loadedAssets.Count / _childAssets.Count;
+                var progressValue = (float) _loadedAssets.Count / _childAssets.Count;
                 var progress = new DownloadProgress(progressValue);
                 onProgress?.Invoke(progress);
             }
@@ -106,78 +114,10 @@ namespace Depra.Assets.Runtime.Files.Group
             }
         }
 
-        private void OnLoaded(Object loadedAsset, Action<Exception> onFailed)
-        {
-            EnsureAsset(loadedAsset, onFailed);
-            if (_loadedAssets.Contains(loadedAsset))
-            {
-                onFailed?.Invoke(new AssetAlreadyLoadedException(loadedAsset.name));
-            }
-            else
-            {
-                _loadedAssets.Add(loadedAsset);
-            }
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private void EnsureAsset(Object loadedAsset, Action<Exception> onFailed)
-        {
-            if (loadedAsset == null)
-            {
-                onFailed?.Invoke(new AssetGroupLoadingException(Name));
-            }
-        }
-
         public IEnumerator<ILoadableAsset<Object>> GetEnumerator() => _childAssets.GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
         void IDisposable.Dispose() => Unload();
-
-        private sealed class Thread : IAssetThread<Object>
-        {
-            private readonly Action _onLoaded;
-            private readonly ICoroutineHost _coroutineHost;
-            private readonly IEnumerable<ILoadableAsset<Object>> _childAssets;
-
-            private ICoroutine _coroutine;
-
-            public Thread(ICoroutineHost coroutineHost, IEnumerable<ILoadableAsset<Object>> assets, Action onLoaded)
-            {
-                _childAssets = assets ?? throw new ArgumentNullException(nameof(assets));
-                _onLoaded = onLoaded ?? throw new ArgumentNullException(nameof(onLoaded));
-                _coroutineHost = coroutineHost ?? throw new ArgumentNullException(nameof(coroutineHost));
-            }
-
-            public void Start(
-                Action<Object> onChildLoaded,
-                Action<DownloadProgress> onProgress,
-                Action<Exception> onFailed) =>
-                _coroutine = _coroutineHost.StartCoroutine(LoadingProcess(onChildLoaded, onFailed));
-
-            public void Cancel() => _coroutine?.Stop();
-
-            private IEnumerator LoadingProcess(Action<Object> onChildLoaded, Action<Exception> onFailed)
-            {
-                foreach (var childAsset in _childAssets)
-                {
-                    if (childAsset.IsLoaded)
-                    {
-                        continue;
-                    }
-
-                    childAsset.LoadAsync(onChildLoaded, onFailed: InvokeCancel);
-                    yield return new WaitUntil(() => childAsset.IsLoaded);
-                }
-
-                _onLoaded.Invoke();
-
-                void InvokeCancel(Exception exception)
-                {
-                    onFailed?.Invoke(exception);
-                    Cancel();
-                }
-            }
-        }
     }
 }

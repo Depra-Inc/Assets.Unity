@@ -2,6 +2,9 @@
 // SPDX-License-Identifier: Apache-2.0
 
 using System;
+using System.Runtime.CompilerServices;
+using UnityEngine.Profiling;
+using Object = UnityEngine.Object;
 
 namespace Depra.Assets.Runtime.Files.Structs
 {
@@ -15,11 +18,14 @@ namespace Depra.Assets.Runtime.Files.Structs
         public static FileSize Zero => new(0);
         public static FileSize Unknown => new(-1);
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static FileSize FromProfiler(Object asset) => new(Profiler.GetRuntimeMemorySizeLong(asset));
+
         public FileSize(long sizeInBytes)
         {
             SizeInBytes = sizeInBytes;
-            SizeInKilobytes = (double)SizeInBytes / 1024;
-            SizeInMegabytes = (double)SizeInBytes / (1024 * 1024);
+            SizeInKilobytes = (double) SizeInBytes / 1024;
+            SizeInMegabytes = (double) SizeInBytes / (1024 * 1024);
         }
 
         public bool Equals(FileSize other) =>
@@ -30,7 +36,7 @@ namespace Depra.Assets.Runtime.Files.Structs
         public override bool Equals(object obj) =>
             obj is FileSize other && Equals(other);
 
-        public override int GetHashCode() => 
+        public override int GetHashCode() =>
             HashCode.Combine(SizeInBytes, SizeInKilobytes, SizeInMegabytes);
 
         public override string ToString() => this.ToHumanReadableString();

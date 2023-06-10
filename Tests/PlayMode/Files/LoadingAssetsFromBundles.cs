@@ -4,8 +4,11 @@
 using System.Collections;
 using System.Diagnostics;
 using System.IO;
+using System.Threading;
+using Cysharp.Threading.Tasks;
 using Depra.Assets.Runtime.Files.Bundles.Exceptions;
 using Depra.Assets.Runtime.Files.Bundles.Files;
+using Depra.Assets.Runtime.Files.Idents;
 using Depra.Assets.Runtime.Files.Structs;
 using Depra.Assets.Tests.PlayMode.Mocks;
 using Depra.Assets.Tests.PlayMode.Types;
@@ -25,7 +28,6 @@ namespace Depra.Assets.Tests.PlayMode.Files
 
         private Stopwatch _stopwatch;
         private AssetBundle _assetBundle;
-        private CoroutineHostMock _coroutineHost;
         private AssetBundleAssetFile<TestScriptableAsset> _assetFromBundle;
 
         [SetUp]
@@ -34,8 +36,8 @@ namespace Depra.Assets.Tests.PlayMode.Files
             var assetBundlesDirectory = new TestAssetBundlesDirectory(GetType());
             var assetBundlePath = Path.Combine(assetBundlesDirectory.AbsolutePath, TEST_BUNDLE_NAME);
             _assetBundle = AssetBundle.LoadFromFile(assetBundlePath);
-            var assetIdent = new AssetIdent(TEST_ASSET_NAME, assetBundlePath);
-            _assetFromBundle = new AssetBundleAssetFile<TestScriptableAsset>(assetIdent, _assetBundle, _coroutineHost);
+            var assetIdent = new FileSystemAssetIdent(TEST_ASSET_NAME, assetBundlePath);
+            _assetFromBundle = new AssetBundleAssetFile<TestScriptableAsset>(assetIdent, _assetBundle);
         }
 
         [TearDown]
@@ -49,13 +51,6 @@ namespace Depra.Assets.Tests.PlayMode.Files
         public void OneTimeSetup()
         {
             _stopwatch = new Stopwatch();
-            _coroutineHost = CoroutineHostMock.Create();
-        }
-
-        [OneTimeTearDown]
-        public void OneTimeTearDown()
-        {
-            Object.DestroyImmediate(_coroutineHost.gameObject);
         }
 
         [Test]
@@ -101,9 +96,8 @@ namespace Depra.Assets.Tests.PlayMode.Files
         {
             // Arrange.
             var bundle = _assetBundle;
-            var invalidAssetIdent = new AssetIdent("InvalidAssetName", "InvalidPath");
-            var invalidAssetFromBundle =
-                new AssetBundleAssetFile<InvalidAsset>(invalidAssetIdent, bundle, _coroutineHost);
+            var invalidAssetIdent = FileSystemAssetIdent.Invalid;
+            var invalidAssetFromBundle = new AssetBundleAssetFile<InvalidAsset>(invalidAssetIdent, bundle);
 
             // Act.
             void Act() => invalidAssetFromBundle.Load();
@@ -113,59 +107,45 @@ namespace Depra.Assets.Tests.PlayMode.Files
         }
 
         [UnityTest]
-        public IEnumerator AssetFromBundleShouldBeLoadedAsync()
+        public IEnumerator AssetFromBundleShouldBeLoadedAsync() => UniTask.ToCoroutine(async () =>
         {
             // Arrange.
-            TestScriptableAsset loadedAsset = null;
             var assetFromBundle = _assetFromBundle;
 
             // Act.
             _stopwatch.Restart();
-            assetFromBundle.LoadAsync(
-                onLoaded: asset => loadedAsset = asset,
-                onFailed: exception => throw exception);
-
-            while (loadedAsset == null)
-            {
-                yield return null;
-            }
-
+            var loadedAsset = await assetFromBundle.LoadAsync(CancellationToken.None);
             _stopwatch.Stop();
 
             // Assert.
             Assert.That(loadedAsset, Is.Not.Null);
+            Assert.IsInstanceOf<TestScriptableAsset>(loadedAsset);
 
             // Debug.
             Log($"{loadedAsset.name} loaded " +
-                      $"from bundle {_assetBundle.name} " +
-                      $"in {_stopwatch.ElapsedMilliseconds} ms.");
-        }
+                $"from bundle {_assetBundle.name} " +
+                $"in {_stopwatch.ElapsedMilliseconds} ms.");
+        });
 
         [UnityTest]
-        public IEnumerator AssetFromBundleShouldBeLoadedAsyncWithProgress()
+        public IEnumerator AssetFromBundleShouldBeLoadedAsyncWithProgress() => UniTask.ToCoroutine(async () =>
         {
             // Arrange.
-            var callbacksCalled = false;
             var callbackCalls = 0;
+            var callbacksCalled = false;
             var assetFromBundle = _assetFromBundle;
             DownloadProgress lastProgress = default;
 
             // Act.
             _stopwatch.Restart();
-            assetFromBundle.LoadAsync(onLoaded: null,
+            await assetFromBundle.LoadAsync(
+                CancellationToken.None,
                 onProgress: progress =>
                 {
                     callbackCalls++;
                     callbacksCalled = true;
                     lastProgress = progress;
-                },
-                onFailed: exception => throw exception);
-
-            while (assetFromBundle.IsLoaded == false)
-            {
-                yield return null;
-            }
-
+                });
             _stopwatch.Stop();
 
             // Assert.
@@ -175,10 +155,10 @@ namespace Depra.Assets.Tests.PlayMode.Files
 
             // Debug.
             Log("Progress event was called " +
-                      $"{callbackCalls} times " +
-                      $"in {_stopwatch.ElapsedMilliseconds} ms. " +
-                      $"Last value is {lastProgress.NormalizedValue}.");
-        }
+                $"{callbackCalls} times " +
+                $"in {_stopwatch.ElapsedMilliseconds} ms. " +
+                $"Last value is {lastProgress.NormalizedValue}.");
+        });
 
         [Test]
         public void AssetFromBundleSizeShouldNotBeZeroOrUnknown()

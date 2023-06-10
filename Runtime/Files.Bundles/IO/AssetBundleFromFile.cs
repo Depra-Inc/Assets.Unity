@@ -2,53 +2,34 @@
 // SPDX-License-Identifier: Apache-2.0
 
 using System;
-using System.Collections;
-using Depra.Assets.Runtime.Async.Threads;
+using System.Threading;
+using Cysharp.Threading.Tasks;
 using Depra.Assets.Runtime.Common;
 using Depra.Assets.Runtime.Files.Bundles.Files;
-using Depra.Assets.Runtime.Files.Structs;
-using Depra.Assets.Runtime.Utils;
-using Depra.Coroutines.Domain.Entities;
+using Depra.Assets.Runtime.Files.Idents;
 using UnityEngine;
 
 namespace Depra.Assets.Runtime.Files.Bundles.IO
 {
     public sealed class AssetBundleFromFile : AssetBundleFile
     {
-        private readonly ICoroutineHost _coroutineHost;
         private AssetBundleCreateRequest _createRequest;
 
-        public AssetBundleFromFile(AssetIdent ident, ICoroutineHost coroutineHost = null) : base(ident) =>
-            _coroutineHost = coroutineHost ?? AssetCoroutineHook.Instance;
+        public AssetBundleFromFile(FileSystemAssetIdent ident) : base(ident) { }
 
         protected override AssetBundle LoadOverride()
         {
-            RequiredFile.Ensure(Path, exception => throw exception);
-            var loadedBundle = AssetBundle.LoadFromFile(Path);
-            
-            return loadedBundle;
+            RequiredFile.Ensure(Path);
+            return AssetBundle.LoadFromFile(Path);
         }
 
-        protected override IAssetThread<AssetBundle> RequestAsync() =>
-            new MainAssetThread<AssetBundle>(_coroutineHost, LoadingProcess, CancelRequest);
-
-        private IEnumerator LoadingProcess(
-            Action<AssetBundle> onLoaded,
-            Action<DownloadProgress> onProgress = null,
-            Action<Exception> onFailed = null)
+        protected override async UniTask<AssetBundle> LoadAsyncOverride(CancellationToken cancellationToken,
+            IProgress<float> progress = null)
         {
-            RequiredFile.Ensure(Path, onFailed);
+            RequiredFile.Ensure(Path);
+            
             _createRequest = AssetBundle.LoadFromFileAsync(Path);
-            while (_createRequest.isDone == false)
-            {
-                var progress = new DownloadProgress(_createRequest.progress);
-                onProgress?.Invoke(progress);
-
-                yield return null;
-            }
-
-            onProgress?.Invoke(DownloadProgress.Full);
-            onLoaded.Invoke(_createRequest.assetBundle);
+            return await _createRequest.ToUniTask(progress, cancellationToken: cancellationToken);
         }
 
         private void CancelRequest()

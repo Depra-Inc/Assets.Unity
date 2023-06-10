@@ -2,54 +2,40 @@
 // SPDX-License-Identifier: Apache-2.0
 
 using System;
-using System.Collections;
+using System.IO;
 using System.Runtime.CompilerServices;
-using Depra.Assets.Runtime.Async.Threads;
+using System.Threading;
+using Cysharp.Threading.Tasks;
 using Depra.Assets.Runtime.Common;
 using Depra.Assets.Runtime.Files.Bundles.Files;
-using Depra.Assets.Runtime.Files.Structs;
-using Depra.Coroutines.Domain.Entities;
+using Depra.Assets.Runtime.Files.Idents;
 using UnityEngine;
 
 namespace Depra.Assets.Runtime.Files.Bundles.Memory
 {
     public sealed class AssetBundleFromMemory : AssetBundleFile
     {
-        private readonly ICoroutineHost _coroutineHost;
         private AssetBundleCreateRequest _createRequest;
 
-        public AssetBundleFromMemory(AssetIdent ident, ICoroutineHost coroutineHost = null) : base(ident) =>
-            _coroutineHost = coroutineHost;
+        public AssetBundleFromMemory(FileSystemAssetIdent ident) : base(ident) { }
 
         protected override AssetBundle LoadOverride()
         {
-            RequiredFile.Ensure(Path, exception => throw exception);
+            RequiredFile.Ensure(Path);
+
             var bytes = ReadBytes();
             var loadedBundle = AssetBundle.LoadFromMemory(bytes);
 
             return loadedBundle;
         }
 
-        protected override IAssetThread<AssetBundle> RequestAsync() =>
-            new MainAssetThread<AssetBundle>(_coroutineHost, LoadingProcess, CancelRequest);
-
-        private IEnumerator LoadingProcess(Action<AssetBundle> onLoaded, Action<DownloadProgress> onProgress = null,
-            Action<Exception> onFailed = null)
+        protected override async UniTask<AssetBundle> LoadAsyncOverride(CancellationToken cancellationToken,
+           IProgress<float> progress = null)
         {
-            RequiredFile.Ensure(Path, onFailed);
-            var bytes = ReadBytes();
-            _createRequest = AssetBundle.LoadFromMemoryAsync(bytes);
+            RequiredFile.Ensure(Path);
 
-            while (_createRequest.isDone == false)
-            {
-                var progress = new DownloadProgress(_createRequest.progress);
-                onProgress?.Invoke(progress);
-
-                yield return null;
-            }
-
-            onProgress?.Invoke(DownloadProgress.Full);
-            onLoaded.Invoke(_createRequest.assetBundle);
+            _createRequest = AssetBundle.LoadFromMemoryAsync(ReadBytes());
+            return await _createRequest.ToUniTask(progress, cancellationToken: cancellationToken);
         }
 
         private void CancelRequest()
@@ -64,6 +50,6 @@ namespace Depra.Assets.Runtime.Files.Bundles.Memory
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private byte[] ReadBytes() => System.IO.File.ReadAllBytes(Path);
+        private byte[] ReadBytes() => File.ReadAllBytes(Path);
     }
 }
