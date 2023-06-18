@@ -6,9 +6,9 @@ using System.IO;
 using Depra.Assets.Runtime.Common;
 using Depra.Assets.Runtime.Files.Database;
 using Depra.Assets.Runtime.Files.ValueObjects;
+using Depra.Assets.Tests.EditMode.Stubs;
 using NUnit.Framework;
 using UnityEditor;
-using UnityEngine;
 using static Depra.Assets.Runtime.Common.Constants;
 using static UnityEngine.Debug;
 using Assert = NUnit.Framework.Assert;
@@ -40,10 +40,10 @@ namespace Depra.Assets.Tests.EditMode.Files
         }
 
         [Test]
-        public void AssetShouldBeCreated()
+        public void Load_ShouldSucceed()
         {
             // Arrange.
-            var databaseAsset = new DatabaseAsset<ScriptableAsset>(_assetIdent);
+            var databaseAsset = new DatabaseAsset<FakeScriptableAsset>(_assetIdent);
 
             // Act.
             var loadedAsset = databaseAsset.Load();
@@ -57,10 +57,10 @@ namespace Depra.Assets.Tests.EditMode.Files
         }
 
         [Test]
-        public void LoadedAssetShouldBeDeleted()
+        public void Unload_ShouldSucceed()
         {
             // Arrange.
-            var databaseAsset = new DatabaseAsset<ScriptableAsset>(_assetIdent);
+            var databaseAsset = new DatabaseAsset<FakeScriptableAsset>(_assetIdent);
             var createdAsset = databaseAsset.Load();
 
             // Act.
@@ -71,14 +71,14 @@ namespace Depra.Assets.Tests.EditMode.Files
             Assert.That(databaseAsset.IsLoaded, Is.False);
 
             // Debug.
-            Log($"Deleted {nameof(ScriptableAsset)} at path: {databaseAsset.AbsolutePath}.");
+            Log($"Deleted {nameof(FakeScriptableAsset)} at path: {databaseAsset.AbsolutePath}.");
         }
 
         [Test]
-        public void AssetSizeShouldNotBeZeroOrUnknown()
+        public void SizeOfLoadedAsset_ShouldNotBeZeroOrUnknown()
         {
             // Arrange.
-            var databaseAsset = new DatabaseAsset<ScriptableAsset>(_assetIdent);
+            var databaseAsset = new DatabaseAsset<FakeScriptableAsset>(_assetIdent);
             databaseAsset.Load();
 
             // Act.
@@ -91,7 +91,5 @@ namespace Depra.Assets.Tests.EditMode.Files
             // Debug.
             Log($"Size of {databaseAsset.Name} is {assetSize.ToHumanReadableString()}.");
         }
-
-        private sealed class ScriptableAsset : ScriptableObject { }
     }
 }

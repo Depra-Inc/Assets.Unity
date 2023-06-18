@@ -1,14 +1,12 @@
 ﻿// Copyright © 2022 Nikolay Melnikov. All rights reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using Depra.Assets.Editor.Files;
-using Depra.Assets.Runtime.Files.Delegates;
-using Depra.Assets.Runtime.Files.Idents;
 using Depra.Assets.Runtime.Files.Interfaces;
 using Depra.Assets.Runtime.Files.ValueObjects;
+using Depra.Assets.Tests.EditMode.Stubs;
 using Depra.Assets.Tests.PlayMode.Stubs;
 using NUnit.Framework;
 using UnityEditor;
@@ -30,7 +28,7 @@ namespace Depra.Assets.Tests.EditMode.Files
 
         [OneTimeSetUp]
         public void OneTimeSetup() => 
-            _childAsset = new FakeAsset(new FakeAssetIdent(nameof(TestScriptableAsset)));
+            _childAsset = new FakeAssetFile(new FakeAssetIdent(nameof(TestScriptableAsset)));
 
         [SetUp]
         public void Setup()
@@ -134,39 +132,6 @@ namespace Depra.Assets.Tests.EditMode.Files
 
             // Debug.
             Log($"Size of {preloadedAsset.Ident.RelativeUri} is {assetSize.ToHumanReadableString()}.");
-        }
-
-        private sealed class FakeAssetIdent : IAssetIdent
-        {
-            public FakeAssetIdent(string name)
-            {
-                Uri = name;
-                RelativeUri = name;
-            }
-
-            public string Uri { get; }
-            public string RelativeUri { get; }
-        }
-
-        private sealed class FakeAsset : ILoadableAsset<TestScriptableAsset>
-        {
-            public FakeAsset(IAssetIdent ident) => Ident = ident;
-
-            public IAssetIdent Ident { get; }
-
-            public bool IsLoaded { get; private set; }
-
-            FileSize IAssetFile.Size => FileSize.Zero;
-
-            TestScriptableAsset ILoadableAsset<TestScriptableAsset>.Load() =>
-                throw new NotImplementedException();
-
-            void ILoadableAsset<TestScriptableAsset>.Unload() => IsLoaded = false;
-
-            UniTask<TestScriptableAsset> ILoadableAsset<TestScriptableAsset>.LoadAsync(
-                DownloadProgressDelegate onProgress,
-                CancellationToken cancellationToken) =>
-                throw new NotImplementedException();
         }
     }
 }
