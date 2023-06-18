@@ -19,16 +19,16 @@ namespace Depra.Assets.Runtime.Files.Bundles.IO
 
         protected override AssetBundle LoadOverride()
         {
-            RequiredFile.Ensure(Path);
-            return AssetBundle.LoadFromFile(Path);
+            RequiredFile.Ensure(Ident.Uri);
+            return AssetBundle.LoadFromFile(Ident.Uri);
         }
 
         protected override async UniTask<AssetBundle> LoadAsyncOverride(CancellationToken cancellationToken,
             IProgress<float> progress = null)
         {
-            RequiredFile.Ensure(Path);
+            RequiredFile.Ensure(Ident.Uri);
             
-            _createRequest = AssetBundle.LoadFromFileAsync(Path);
+            _createRequest = AssetBundle.LoadFromFileAsync(Ident.Uri);
             return await _createRequest.ToUniTask(progress, cancellationToken: cancellationToken);
         }
 

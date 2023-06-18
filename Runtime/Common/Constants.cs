@@ -1,6 +1,8 @@
 ﻿// Copyright © 2023 Nikolay Melnikov. All rights reserved.
 // SPDX-License-Identifier: Apache-2.0
 
+using UnityEngine;
+
 namespace Depra.Assets.Runtime.Common
 {
     internal static class Constants
@@ -15,5 +17,17 @@ namespace Depra.Assets.Runtime.Common
         public const string ASSET_BUNDLES_EXTENSION = ".unity3d";
         public const string ASSET_BUNDLES_FOLDER_NAME = "AssetBundles";
         public const string STREAMING_ASSETS_FOLDER_NAME = "StreamingAssets";
+        
+        public static string DataPathByPlatform
+        {
+            get
+            {
+#if UNITY_EDITOR
+                return Application.dataPath;
+#else
+                return Application.persistentDataPath;
+#endif
+            }
+        }
     }
 }

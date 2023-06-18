@@ -3,8 +3,7 @@
 
 using System.Threading;
 using Cysharp.Threading.Tasks;
-using Depra.Assets.Runtime.Files.Resource;
-using Depra.Assets.Runtime.Files.Structs;
+using Depra.Assets.Runtime.Files.Delegates;
 
 namespace Depra.Assets.Runtime.Files.Interfaces
 {
@@ -16,6 +15,6 @@ namespace Depra.Assets.Runtime.Files.Interfaces
 
         void Unload();
 
-        UniTask<TAsset> LoadAsync(CancellationToken cancellationToken, DownloadProgressDelegate onProgress = null);
+        UniTask<TAsset> LoadAsync(DownloadProgressDelegate onProgress = null, CancellationToken cancellationToken = default);
     }
 }

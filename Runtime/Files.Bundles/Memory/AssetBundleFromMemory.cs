@@ -21,7 +21,7 @@ namespace Depra.Assets.Runtime.Files.Bundles.Memory
 
         protected override AssetBundle LoadOverride()
         {
-            RequiredFile.Ensure(Path);
+            RequiredFile.Ensure(Ident.Uri);
 
             var bytes = ReadBytes();
             var loadedBundle = AssetBundle.LoadFromMemory(bytes);
@@ -32,7 +32,7 @@ namespace Depra.Assets.Runtime.Files.Bundles.Memory
         protected override async UniTask<AssetBundle> LoadAsyncOverride(CancellationToken cancellationToken,
            IProgress<float> progress = null)
         {
-            RequiredFile.Ensure(Path);
+            RequiredFile.Ensure(Ident.Uri);
 
             _createRequest = AssetBundle.LoadFromMemoryAsync(ReadBytes());
             return await _createRequest.ToUniTask(progress, cancellationToken: cancellationToken);
@@ -50,6 +50,6 @@ namespace Depra.Assets.Runtime.Files.Bundles.Memory
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private byte[] ReadBytes() => File.ReadAllBytes(Path);
+        private byte[] ReadBytes() => File.ReadAllBytes(Ident.Uri);
     }
 }

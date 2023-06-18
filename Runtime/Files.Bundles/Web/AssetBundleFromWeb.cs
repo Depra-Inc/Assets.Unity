@@ -7,7 +7,7 @@ using Cysharp.Threading.Tasks;
 using Depra.Assets.Runtime.Exceptions;
 using Depra.Assets.Runtime.Files.Bundles.Files;
 using Depra.Assets.Runtime.Files.Idents;
-using Depra.Assets.Runtime.Files.Structs;
+using Depra.Assets.Runtime.Files.ValueObjects;
 using UnityEngine;
 using UnityEngine.Networking;
 
@@ -22,7 +22,7 @@ namespace Depra.Assets.Runtime.Files.Bundles.Web
 
         protected override AssetBundle LoadOverride()
         {
-            using var request = UnityWebRequestAssetBundle.GetAssetBundle(Path);
+            using var request = UnityWebRequestAssetBundle.GetAssetBundle(Ident.Uri);
             request.SendWebRequest();
 
             while (request.isDone == false)
@@ -39,7 +39,7 @@ namespace Depra.Assets.Runtime.Files.Bundles.Web
         protected override async UniTask<AssetBundle> LoadAsyncOverride(CancellationToken cancellationToken,
             IProgress<float> progress = null)
         {
-            _webRequest = UnityWebRequestAssetBundle.GetAssetBundle(Path);
+            _webRequest = UnityWebRequestAssetBundle.GetAssetBundle(Ident.Uri);
             await _webRequest.SendWebRequest().ToUniTask(progress, cancellationToken: cancellationToken);
 
             Guard.AgainstInvalidRequestResult(_webRequest,

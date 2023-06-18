@@ -1,15 +1,15 @@
-﻿// Copyright © 2022 Nikolay Melnikov. All rights reserved.
+﻿// Copyright © 2023 Nikolay Melnikov. All rights reserved.
 // SPDX-License-Identifier: Apache-2.0
 
 using System;
 using System.Linq;
 using System.Threading;
 using Cysharp.Threading.Tasks;
+using Depra.Assets.Runtime.Files.Delegates;
+using Depra.Assets.Runtime.Files.Idents;
 using Depra.Assets.Runtime.Files.Interfaces;
-using Depra.Assets.Runtime.Files.Resource;
-using Depra.Assets.Runtime.Files.Structs;
+using Depra.Assets.Runtime.Files.ValueObjects;
 using UnityEditor;
-using UnityEngine.Profiling;
 using Object = UnityEngine.Object;
 
 namespace Depra.Assets.Editor.Files
@@ -21,15 +21,16 @@ namespace Depra.Assets.Editor.Files
 
         private TAsset _loadedAsset;
 
+        public static implicit operator TAsset(PreloadedAsset<TAsset> assetFile) =>
+            assetFile.Load();
+
         public PreloadedAsset(ILoadableAsset<TAsset> asset)
         {
-            _asset = asset;
             _assetType = typeof(TAsset);
+            _asset = asset ?? throw new ArgumentNullException(nameof(asset));
         }
 
-        public string Name => _asset.Name;
-        public string Path => _asset.Path;
-
+        public IAssetIdent Ident => _asset.Ident;
         public bool IsLoaded => _loadedAsset != null;
         public FileSize Size { get; private set; } = FileSize.Unknown;
 
@@ -47,7 +48,7 @@ namespace Depra.Assets.Editor.Files
             }
 
             _loadedAsset = loadedAsset;
-            Size = FindSize(_loadedAsset);
+            Size = FileSize.FromProfiler(_loadedAsset);
 
             return _loadedAsset;
         }
@@ -63,24 +64,23 @@ namespace Depra.Assets.Editor.Files
             _loadedAsset = null;
         }
 
-        public async UniTask<TAsset> LoadAsync(CancellationToken cancellationToken,
-            DownloadProgressDelegate onProgress = null)
+        public async UniTask<TAsset> LoadAsync(DownloadProgressDelegate onProgress = null,
+            CancellationToken cancellationToken = default)
         {
             if (IsLoaded)
             {
                 onProgress?.Invoke(DownloadProgress.Full);
-
                 return _loadedAsset;
             }
 
             if (TryGetPreloadedAsset(out var loadedAsset) == false &&
                 TryLoadAssetFromDatabase(out loadedAsset) == false)
             {
-                loadedAsset = await _asset.LoadAsync(cancellationToken, onProgress);
+                loadedAsset = await _asset.LoadAsync(onProgress, cancellationToken);
             }
 
             _loadedAsset = loadedAsset;
-            Size = FindSize(_loadedAsset);
+            Size = FileSize.FromProfiler(_loadedAsset);
 
             return _loadedAsset;
         }
@@ -109,9 +109,6 @@ namespace Depra.Assets.Editor.Files
 
             return asset != null;
         }
-
-        private FileSize FindSize(Object asset) =>
-            new(Profiler.GetRuntimeMemorySizeLong(asset));
 
         void IDisposable.Dispose() => Unload();
     }

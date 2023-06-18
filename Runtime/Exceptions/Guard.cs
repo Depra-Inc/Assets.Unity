@@ -28,6 +28,15 @@ namespace Depra.Assets.Runtime.Exceptions
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void AgainstEqual<T>(IEquatable<T> value, IEquatable<T> other, Func<Exception> exceptionFunc)
+        {
+            if (value.Equals(other))
+            {
+                throw exceptionFunc();
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void AgainstAlreadyContains<T>(T element, List<T> @in, Func<Exception> exceptionFunc)
         {
             if (@in.Contains(element))

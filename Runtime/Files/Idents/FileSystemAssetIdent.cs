@@ -1,39 +1,56 @@
-﻿namespace Depra.Assets.Runtime.Files.Idents
+﻿using System.IO;
+using Depra.Assets.Runtime.Extensions;
+using static Depra.Assets.Runtime.Common.Constants;
+
+namespace Depra.Assets.Runtime.Files.Idents
 {
-    public sealed class FileSystemAssetIdent : IAssetWIthExtension
+    public sealed class FileSystemAssetIdent : IAssetIdent
     {
+        private readonly FileInfo _fileSystemInfo;
+
         public static FileSystemAssetIdent Empty => new(string.Empty);
         public static FileSystemAssetIdent Invalid => new(nameof(Invalid));
 
-        public readonly string Directory;
-
         public FileSystemAssetIdent(string path)
         {
-            Path = path;
-            Extension = System.IO.Path.GetExtension(Path);
-            Directory = System.IO.Path.GetDirectoryName(Path);
-            Name = System.IO.Path.GetFileNameWithoutExtension(Path);
+            _fileSystemInfo = new FileInfo(path);
+            _fileSystemInfo.Directory.CreateIfNotExists();
+            Name = _fileSystemInfo.Name.Replace(Extension, string.Empty);
         }
 
-        public FileSystemAssetIdent(string name, string directory, string extension = null)
-        {
-            Name = name;
-            Directory = directory;
-            Path = System.IO.Path.Combine(Directory, Name);
-            Extension = extension ?? System.IO.Path.GetExtension(Path);
-        }
+        public FileSystemAssetIdent(string directory, string nameWithExtension) : this(
+            Path.Combine(directory, nameWithExtension)) { }
 
-        public string Key => Path;
+        public FileSystemAssetIdent(string name, string directory, string extension = null) : this(
+            Path.Combine(directory, name + extension)) { }
+
         public string Name { get; }
-        public string Path { get; }
-        public string Extension { get; }
-        
         public string NameWithExtension => Name + Extension;
-        
-        string IAssetIdent.Uri => Path;
+        public string Extension => _fileSystemInfo.Extension;
+        public string AbsolutePath => _fileSystemInfo.FullName;
 
-        //new DirectoryInfo(System.IO.Path.Combine(Application.dataPath, ident.Directory))
+        public string RelativePath
+        {
+            get
+            {
+                var path = AbsolutePath[DataPathByPlatform.Length..];
+                var unityRelativePath = ASSETS_FOLDER_NAME + path;
+                return unityRelativePath;
+            }
+        }
 
-        public string AbsolutePath => System.IO.Path.Combine(Directory, Name + Extension);
+        public string AbsoluteDirectoryPath => _fileSystemInfo.DirectoryName;
+        public string RelativeDirectoryPath => _fileSystemInfo.Directory!.Name;
+
+        internal void ThrowIfNotExists()
+        {
+            if (_fileSystemInfo.Exists == false)
+            {
+                throw new FileNotFoundException($"File not found at path: {AbsolutePath}");
+            }
+        }
+
+        string IAssetIdent.Uri => AbsolutePath;
+        string IAssetIdent.RelativeUri => RelativePath;
     }
 }

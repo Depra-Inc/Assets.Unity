@@ -2,9 +2,10 @@
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using Depra.Assets.Runtime.Exceptions;
+using Depra.Assets.Runtime.Files.Delegates;
 using Depra.Assets.Runtime.Files.Idents;
 using Depra.Assets.Runtime.Files.Interfaces;
-using Depra.Assets.Runtime.Files.Structs;
+using Depra.Assets.Runtime.Files.ValueObjects;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -12,19 +13,16 @@ namespace Depra.Assets.Runtime.Files.Resource
 {
     public sealed class ResourceAsset<TAsset> : ILoadableAsset<TAsset>, IDisposable where TAsset : Object
     {
-        private readonly AssetIdent _ident;
-
+        private readonly ResourceIdent _ident;
         private TAsset _loadedAsset;
 
         public static implicit operator TAsset(ResourceAsset<TAsset> asset) =>
             asset.Load();
 
-        public ResourceAsset(AssetIdent ident) =>
+        public ResourceAsset(ResourceIdent ident) =>
             _ident = ident ?? throw new ArgumentNullException(nameof(ident));
 
-        public string Path => _ident.Uri;
-        public string Name => _ident.Name;
-
+        public IAssetIdent Ident => _ident;
         public bool IsLoaded => _loadedAsset != null;
         public FileSize Size { get; private set; } = FileSize.Unknown;
 
@@ -35,9 +33,9 @@ namespace Depra.Assets.Runtime.Files.Resource
                 return _loadedAsset;
             }
 
-            var loadedAsset = Resources.Load<TAsset>(Path);
+            var loadedAsset = Resources.Load<TAsset>(_ident.RelativePath);
 
-            Guard.AgainstNull(loadedAsset, () => new ResourceNotLoadedException(Path));
+            Guard.AgainstNull(loadedAsset, () => new ResourceNotLoadedException(_ident.RelativePath));
 
             _loadedAsset = loadedAsset;
             Size = FileSize.FromProfiler(_loadedAsset);
@@ -55,25 +53,28 @@ namespace Depra.Assets.Runtime.Files.Resource
             Resources.UnloadAsset(_loadedAsset);
             _loadedAsset = null;
         }
-        
-        public async UniTask<TAsset> LoadAsync(CancellationToken cancellationToken,
-            DownloadProgressDelegate onProgress = null)
+
+        public async UniTask<TAsset> LoadAsync(DownloadProgressDelegate onProgress = null,
+            CancellationToken cancellationToken = default)
         {
             if (IsLoaded)
             {
                 onProgress?.Invoke(DownloadProgress.Full);
-
                 return _loadedAsset;
             }
 
             var progress = Progress.Create<float>(value => onProgress?.Invoke(new DownloadProgress(value)));
-            var loadedAsset = await Resources.LoadAsync<TAsset>(Path)
+            var loadedAsset = await Resources.LoadAsync<TAsset>(_ident.RelativePath)
                 .ToUniTask(progress, cancellationToken: cancellationToken);
 
-            cancellationToken.ThrowIfCancellationRequested();
+            if (cancellationToken.IsCancellationRequested)
+            {
+                return null;
+            }
+
             onProgress?.Invoke(DownloadProgress.Full);
 
-            Guard.AgainstNull(loadedAsset, () => new ResourceNotLoadedException(Path));
+            Guard.AgainstNull(loadedAsset, () => new ResourceNotLoadedException(_ident.RelativePath));
 
             _loadedAsset = (TAsset) loadedAsset;
             Size = FileSize.FromProfiler(_loadedAsset);

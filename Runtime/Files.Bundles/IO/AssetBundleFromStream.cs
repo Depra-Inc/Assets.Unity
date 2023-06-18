@@ -20,7 +20,7 @@ namespace Depra.Assets.Runtime.Files.Bundles.IO
 
         protected override AssetBundle LoadOverride()
         {
-            RequiredFile.Ensure(Path);
+            RequiredFile.Ensure(Ident.Uri);
 
             using var fileStream = OpenStream();
             var loadedAssetBundle = AssetBundle.LoadFromStream(fileStream);
@@ -31,7 +31,7 @@ namespace Depra.Assets.Runtime.Files.Bundles.IO
         protected override async UniTask<AssetBundle> LoadAsyncOverride(CancellationToken cancellationToken,
             IProgress<float> progress = null)
         {
-            RequiredFile.Ensure(Path);
+            RequiredFile.Ensure(Ident.Uri);
 
             await using var stream = OpenStream();
             _createRequest = AssetBundle.LoadFromStreamAsync(stream);
@@ -49,6 +49,6 @@ namespace Depra.Assets.Runtime.Files.Bundles.IO
             _createRequest = null;
         }
 
-        private Stream OpenStream() => new FileStream(Path, FileMode.Open, FileAccess.Read);
+        private Stream OpenStream() => new FileStream(Ident.Uri, FileMode.Open, FileAccess.Read);
     }
 }

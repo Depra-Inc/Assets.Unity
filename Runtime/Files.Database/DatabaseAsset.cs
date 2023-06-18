@@ -7,38 +7,30 @@ using System.Threading;
 using Cysharp.Threading.Tasks;
 using Depra.Assets.Runtime.Exceptions;
 using Depra.Assets.Runtime.Extensions;
+using Depra.Assets.Runtime.Files.Delegates;
 using Depra.Assets.Runtime.Files.Idents;
 using Depra.Assets.Runtime.Files.Interfaces;
-using Depra.Assets.Runtime.Files.Resource;
-using Depra.Assets.Runtime.Files.Structs;
+using Depra.Assets.Runtime.Files.ValueObjects;
 using UnityEditor;
 using UnityEngine;
-using static Depra.Assets.Runtime.Common.Constants;
 using Object = UnityEngine.Object;
 
 namespace Depra.Assets.Runtime.Files.Database
 {
     public sealed class DatabaseAsset<TAsset> : ILoadableAsset<TAsset>, IDisposable where TAsset : ScriptableObject
     {
-        private readonly Type _assetType;
-        private readonly string _absoluteFilePath;
-        private readonly DirectoryInfo _absoluteDirectory;
+        private static Type AssetType => typeof(TAsset);
+
+        private readonly DatabaseAssetIdent _ident;
 
         private TAsset _loadedAsset;
 
-        public DatabaseAsset(FileSystemAssetIdent ident)
-        {
-            Name = ident.Name;
-            _assetType = typeof(TAsset);
-            _absoluteDirectory = new DirectoryInfo(System.IO.Path.Combine(Application.dataPath, ident.Directory));
-            var nameWithExtension = Name + ident.Extension;
-            _absoluteFilePath = System.IO.Path.Combine(_absoluteDirectory.FullName, nameWithExtension);
-            var projectPath = System.IO.Path.Combine(ASSETS_FOLDER_NAME, ident.Directory, nameWithExtension);
-            Path = projectPath;
-        }
+        public DatabaseAsset(DatabaseAssetIdent ident) =>
+            _ident = ident;
 
-        public string Name { get; }
-        public string Path { get; }
+        public IAssetIdent Ident => _ident;
+        public string Name => _ident.Name;
+        public string AbsolutePath => _ident.AbsolutePath;
 
         public bool IsLoaded => _loadedAsset != null;
         public FileSize Size { get; private set; } = FileSize.Unknown;
@@ -52,9 +44,9 @@ namespace Depra.Assets.Runtime.Files.Database
 
             TAsset loadedAsset = null;
 #if UNITY_EDITOR
-            if (File.Exists(_absoluteFilePath))
+            if (File.Exists(AbsolutePath))
             {
-                loadedAsset = AssetDatabase.LoadAssetAtPath<TAsset>(Path);
+                loadedAsset = AssetDatabase.LoadAssetAtPath<TAsset>(_ident.RelativePath);
             }
 #endif
             if (loadedAsset == null)
@@ -62,7 +54,7 @@ namespace Depra.Assets.Runtime.Files.Database
                 loadedAsset = CreateAsset();
             }
 
-            Guard.AgainstNull(loadedAsset, () => new AssetCreationException(_assetType, _assetType.Name));
+            Guard.AgainstNull(loadedAsset, () => new AssetCreationException(AssetType, AssetType.Name));
 
             _loadedAsset = loadedAsset;
             Size = FileSize.FromProfiler(_loadedAsset);
@@ -78,13 +70,13 @@ namespace Depra.Assets.Runtime.Files.Database
             }
 
 #if UNITY_EDITOR
-            AssetDatabase.DeleteAsset(Path);
+            AssetDatabase.DeleteAsset(_ident.RelativePath);
 #endif
             _loadedAsset = null;
         }
 
-        public async UniTask<TAsset> LoadAsync(CancellationToken cancellationToken,
-            DownloadProgressDelegate onProgress = null)
+        public async UniTask<TAsset> LoadAsync(DownloadProgressDelegate onProgress = null,
+            CancellationToken cancellationToken = default)
         {
             if (IsLoaded)
             {
@@ -98,7 +90,7 @@ namespace Depra.Assets.Runtime.Files.Database
 
             onProgress?.Invoke(DownloadProgress.Full);
 
-            Guard.AgainstNull(loadedAsset, () => new AssetCreationException(_assetType, _assetType.Name));
+            Guard.AgainstNull(loadedAsset, () => new AssetCreationException(AssetType, AssetType.Name));
 
             _loadedAsset = loadedAsset;
             Size = FileSize.FromProfiler(_loadedAsset);
@@ -119,10 +111,10 @@ namespace Depra.Assets.Runtime.Files.Database
 #if UNITY_EDITOR
         private Object ActivateAsset(Object asset)
         {
-            _absoluteDirectory.CreateIfNotExists();
+            _ident.AbsoluteDirectory.CreateIfNotExists();
 
             asset.name = Name;
-            AssetDatabase.CreateAsset(asset, Path);
+            AssetDatabase.CreateAsset(asset, _ident.RelativePath);
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
 

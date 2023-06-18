@@ -4,7 +4,7 @@
 using System;
 using System.Globalization;
 
-namespace Depra.Assets.Runtime.Files.Structs
+namespace Depra.Assets.Runtime.Files.ValueObjects
 {
     [Serializable]
     public readonly struct DownloadProgress : IEquatable<DownloadProgress>
@@ -27,8 +27,10 @@ namespace Depra.Assets.Runtime.Files.Structs
         public override bool Equals(object obj) =>
             obj is DownloadProgress other && Equals(other);
 
-        public override int GetHashCode() => NormalizedValue.GetHashCode();
+        public override int GetHashCode() => 
+            NormalizedValue.GetHashCode();
 
-        public override string ToString() => NormalizedValue.ToString(CultureInfo.InvariantCulture);
+        public override string ToString() => 
+            NormalizedValue.ToString(CultureInfo.InvariantCulture);
     }
 }

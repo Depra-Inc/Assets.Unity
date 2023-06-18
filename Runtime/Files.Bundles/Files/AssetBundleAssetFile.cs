@@ -6,10 +6,10 @@ using System.Threading;
 using Cysharp.Threading.Tasks;
 using Depra.Assets.Runtime.Exceptions;
 using Depra.Assets.Runtime.Files.Bundles.Exceptions;
+using Depra.Assets.Runtime.Files.Delegates;
 using Depra.Assets.Runtime.Files.Idents;
 using Depra.Assets.Runtime.Files.Interfaces;
-using Depra.Assets.Runtime.Files.Resource;
-using Depra.Assets.Runtime.Files.Structs;
+using Depra.Assets.Runtime.Files.ValueObjects;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -28,9 +28,7 @@ namespace Depra.Assets.Runtime.Files.Bundles.Files
             _assetBundle = assetBundle ? assetBundle : throw new ArgumentNullException(nameof(assetBundle));
         }
 
-        public string Name => _ident.Name;
-        public string Path => _ident.Path;
-
+        public IAssetIdent Ident => _ident;
         public bool IsLoaded => _loadedAsset != null;
         public FileSize Size { get; private set; } = FileSize.Unknown;
 
@@ -41,8 +39,8 @@ namespace Depra.Assets.Runtime.Files.Bundles.Files
                 return _loadedAsset;
             }
 
-            var loadedAsset = _assetBundle.LoadAsset<TAsset>(Name);
-            Guard.AgainstNull(loadedAsset, () => new AssetBundleFileNotLoadedException(Name, _assetBundle.name));
+            var loadedAsset = _assetBundle.LoadAsset<TAsset>(_ident.Name);
+            Guard.AgainstNull(loadedAsset, () => new AssetBundleFileNotLoadedException(_ident.Name, _assetBundle.name));
 
             _loadedAsset = loadedAsset;
             Size = FileSize.FromProfiler(_loadedAsset);
@@ -58,8 +56,8 @@ namespace Depra.Assets.Runtime.Files.Bundles.Files
             }
         }
 
-        public async UniTask<TAsset> LoadAsync(CancellationToken cancellationToken,
-            DownloadProgressDelegate onProgress = null)
+        public async UniTask<TAsset> LoadAsync(DownloadProgressDelegate onProgress = null,
+            CancellationToken cancellationToken = default)
         {
             if (IsLoaded)
             {
@@ -68,7 +66,7 @@ namespace Depra.Assets.Runtime.Files.Bundles.Files
                 return _loadedAsset;
             }
 
-            var assetBundleRequest = _assetBundle.LoadAssetAsync<TAsset>(Name);
+            var assetBundleRequest = _assetBundle.LoadAssetAsync<TAsset>(_ident.Name);
             while (assetBundleRequest.isDone == false)
             {
                 var progress = new DownloadProgress(assetBundleRequest.progress);
@@ -80,7 +78,7 @@ namespace Depra.Assets.Runtime.Files.Bundles.Files
             onProgress?.Invoke(DownloadProgress.Full);
 
             Guard.AgainstNull(assetBundleRequest.asset,
-                () => new AssetBundleFileNotLoadedException(Name, _assetBundle.name));
+                () => new AssetBundleFileNotLoadedException(_ident.Name, _assetBundle.name));
 
             var loadedAsset = (TAsset) assetBundleRequest.asset;
             _loadedAsset = loadedAsset;

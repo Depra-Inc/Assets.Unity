@@ -8,11 +8,11 @@ using System.Linq;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using Depra.Assets.Runtime.Exceptions;
+using Depra.Assets.Runtime.Files.Delegates;
 using Depra.Assets.Runtime.Files.Exceptions;
 using Depra.Assets.Runtime.Files.Idents;
 using Depra.Assets.Runtime.Files.Interfaces;
-using Depra.Assets.Runtime.Files.Resource;
-using Depra.Assets.Runtime.Files.Structs;
+using Depra.Assets.Runtime.Files.ValueObjects;
 using Object = UnityEngine.Object;
 
 namespace Depra.Assets.Runtime.Files.Group
@@ -22,27 +22,26 @@ namespace Depra.Assets.Runtime.Files.Group
         IEnumerable<ILoadableAsset<Object>>,
         IDisposable
     {
-        private readonly AssetIdent _ident;
+        private readonly NamedAssetIdent _ident;
         private readonly List<Object> _loadedAssets;
         private readonly List<ILoadableAsset<Object>> _childAssets;
 
-        public AssetGroup(AssetIdent ident, List<ILoadableAsset<Object>> children = null)
+        public AssetGroup(NamedAssetIdent ident, List<ILoadableAsset<Object>> children = null)
         {
             _ident = ident;
             _childAssets = children ?? new List<ILoadableAsset<Object>>();
             _loadedAssets = new List<Object>(_childAssets.Count);
         }
 
-        public string Name => _ident.Name;
-        public string Path => _ident.Uri;
-
+        public IAssetIdent Ident => _ident;
         public bool IsLoaded => _childAssets.All(asset => asset.IsLoaded);
         public FileSize Size => new(_childAssets.Sum(x => x.Size.SizeInBytes));
 
         public void AddAsset(ILoadableAsset<Object> asset)
         {
             Guard.AgainstNull(asset, () => new ArgumentNullException(nameof(asset)));
-            Guard.AgainstAlreadyContains(asset, _childAssets, () => new AssetAlreadyAddedToGroup(asset.Name));
+            Guard.AgainstAlreadyContains(asset, _childAssets,
+                () => new AssetAlreadyAddedToGroup(asset.Ident.RelativeUri));
 
             _childAssets.Add(asset);
         }
@@ -57,7 +56,7 @@ namespace Depra.Assets.Runtime.Files.Group
                 }
 
                 var loadedAsset = asset.Load();
-                Guard.AgainstNull(loadedAsset, () => new AssetGroupLoadingException(Name));
+                Guard.AgainstNull(loadedAsset, () => new AssetGroupLoadingException(_ident.Name));
                 Guard.AgainstAlreadyContains(loadedAsset, @in: _loadedAssets,
                     () => new AssetAlreadyLoadedException(loadedAsset.name));
 
@@ -67,8 +66,8 @@ namespace Depra.Assets.Runtime.Files.Group
             }
         }
 
-        public async UniTask<IEnumerable<Object>> LoadAsync(CancellationToken cancellationToken,
-            DownloadProgressDelegate onProgress = null)
+        public async UniTask<IEnumerable<Object>> LoadAsync(DownloadProgressDelegate onProgress = null,
+            CancellationToken cancellationToken = default)
         {
             if (IsLoaded)
             {
@@ -87,10 +86,10 @@ namespace Depra.Assets.Runtime.Files.Group
 
             async UniTask LoadAssetAsync(ILoadableAsset<Object> asset, CancellationToken token)
             {
-                var loadedAsset = await asset.LoadAsync(token);
+                var loadedAsset = await asset.LoadAsync(cancellationToken: token);
                 OnProgressChanged();
 
-                Guard.AgainstNull(loadedAsset, () => new AssetGroupLoadingException(Name));
+                Guard.AgainstNull(loadedAsset, () => new AssetGroupLoadingException(_ident.Name));
                 Guard.AgainstAlreadyContains(loadedAsset, @in: _loadedAssets,
                     () => new AssetAlreadyLoadedException(loadedAsset.name));
 

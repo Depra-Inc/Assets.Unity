@@ -6,7 +6,7 @@ using System.Runtime.CompilerServices;
 using UnityEngine.Profiling;
 using Object = UnityEngine.Object;
 
-namespace Depra.Assets.Runtime.Files.Structs
+namespace Depra.Assets.Runtime.Files.ValueObjects
 {
     [Serializable]
     public readonly struct FileSize : IEquatable<FileSize>
