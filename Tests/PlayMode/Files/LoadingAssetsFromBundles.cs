@@ -9,7 +9,7 @@ using Cysharp.Threading.Tasks;
 using Depra.Assets.Runtime.Files.Bundles.Exceptions;
 using Depra.Assets.Runtime.Files.Bundles.Files;
 using Depra.Assets.Runtime.Files.Idents;
-using Depra.Assets.Runtime.Files.Structs;
+using Depra.Assets.Runtime.Files.ValueObjects;
 using Depra.Assets.Tests.PlayMode.Mocks;
 using Depra.Assets.Tests.PlayMode.Types;
 using NUnit.Framework;
@@ -88,7 +88,7 @@ namespace Depra.Assets.Tests.PlayMode.Files
             Assert.That(bundleAsset.IsLoaded, Is.False);
 
             // Debug.
-            Log($"{bundleAsset.Name} unloaded from bundle with name: {bundle.name}.");
+            Log($"{bundleAsset.Ident.RelativeUri} unloaded from bundle with name: {bundle.name}.");
         }
 
         [Test]
@@ -114,7 +114,7 @@ namespace Depra.Assets.Tests.PlayMode.Files
 
             // Act.
             _stopwatch.Restart();
-            var loadedAsset = await assetFromBundle.LoadAsync(CancellationToken.None);
+            var loadedAsset = await assetFromBundle.LoadAsync(cancellationToken: CancellationToken.None);
             _stopwatch.Stop();
 
             // Assert.
@@ -139,13 +139,13 @@ namespace Depra.Assets.Tests.PlayMode.Files
             // Act.
             _stopwatch.Restart();
             await assetFromBundle.LoadAsync(
-                CancellationToken.None,
                 onProgress: progress =>
                 {
                     callbackCalls++;
                     callbacksCalled = true;
                     lastProgress = progress;
-                });
+                },
+                CancellationToken.None);
             _stopwatch.Stop();
 
             // Assert.
@@ -175,7 +175,7 @@ namespace Depra.Assets.Tests.PlayMode.Files
             Assert.That(assetSize, Is.Not.EqualTo(FileSize.Unknown));
 
             // Debug.
-            Log($"Size of {bundleAsset.Name} is {assetSize.ToHumanReadableString()}.");
+            Log($"Size of {bundleAsset.Ident.RelativeUri} is {assetSize.ToHumanReadableString()}.");
         }
     }
 }

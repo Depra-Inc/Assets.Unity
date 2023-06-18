@@ -1,8 +1,9 @@
 ﻿using System.Threading;
 using Cysharp.Threading.Tasks;
+using Depra.Assets.Runtime.Files.Delegates;
+using Depra.Assets.Runtime.Files.Idents;
 using Depra.Assets.Runtime.Files.Interfaces;
-using Depra.Assets.Runtime.Files.Resource;
-using Depra.Assets.Runtime.Files.Structs;
+using Depra.Assets.Runtime.Files.ValueObjects;
 using Depra.Assets.Tests.PlayMode.Types;
 using UnityEngine;
 
@@ -15,14 +16,16 @@ namespace Depra.Assets.Tests.PlayMode.Mocks
 
         public FakeAsset()
         {
+            Ident = NamedAssetIdent.Empty;
             Size = new FileSize(1);
             Name = nameof(FakeAsset);
-            Path = Name;
+            AbsolutePath = Name;
         }
 
+        public IAssetIdent Ident { get; }
         public string Name { get; }
 
-        public string Path { get; }
+        public string AbsolutePath { get; }
 
         public FileSize Size { get; }
 
@@ -34,8 +37,8 @@ namespace Depra.Assets.Tests.PlayMode.Mocks
             return CreateAsset();
         }
 
-        async UniTask<Object> ILoadableAsset<Object>.LoadAsync(CancellationToken cancellationToken,
-            DownloadProgressDelegate onProgress)
+        async UniTask<Object> ILoadableAsset<Object>.LoadAsync(DownloadProgressDelegate onProgress,
+            CancellationToken cancellationToken)
         {
             var asset = CreateAsset();
             onProgress?.Invoke(DownloadProgress.Full);

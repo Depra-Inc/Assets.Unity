@@ -3,9 +3,9 @@
 
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using Depra.Assets.Runtime.Common;
 using Depra.Assets.Runtime.Files.Database;
-using Depra.Assets.Runtime.Files.Idents;
-using Depra.Assets.Runtime.Files.Structs;
+using Depra.Assets.Runtime.Files.ValueObjects;
 using NUnit.Framework;
 using UnityEditor;
 using UnityEngine;
@@ -24,13 +24,13 @@ namespace Depra.Assets.Tests.EditMode.Files
         private const string ASSET_NAME_WITH_EXTENSION = ASSET_NAME + ASSET_TYPE_EXTENSION;
 
         private string _absoluteAssetPath;
-        private FileSystemAssetIdent _assetIdent;
+        private DatabaseAssetIdent _assetIdent;
 
         [SetUp]
         public void Setup()
         {
             _absoluteAssetPath = Path.Combine(ASSETS_FOLDER_NAME, RESOURCES_FOLDER_NAME, ASSET_NAME_WITH_EXTENSION);
-            _assetIdent = new FileSystemAssetIdent(ASSET_NAME, RESOURCES_FOLDER_NAME, ASSET_TYPE_EXTENSION);
+            _assetIdent = new DatabaseAssetIdent(RESOURCES_FOLDER_NAME, ASSET_NAME, ASSET_TYPE_EXTENSION);
         }
 
         [TearDown]
@@ -53,7 +53,7 @@ namespace Depra.Assets.Tests.EditMode.Files
             Assert.That(databaseAsset.IsLoaded);
 
             // Debug.
-            Log($"Created {loadedAsset.name} at path: {databaseAsset.Path}.");
+            Log($"Created {loadedAsset.name} at path: {databaseAsset.AbsolutePath}.");
         }
 
         [Test]
@@ -71,7 +71,7 @@ namespace Depra.Assets.Tests.EditMode.Files
             Assert.That(databaseAsset.IsLoaded, Is.False);
 
             // Debug.
-            Log($"Deleted {nameof(ScriptableAsset)} at path: {databaseAsset.Path}.");
+            Log($"Deleted {nameof(ScriptableAsset)} at path: {databaseAsset.AbsolutePath}.");
         }
 
         [Test]

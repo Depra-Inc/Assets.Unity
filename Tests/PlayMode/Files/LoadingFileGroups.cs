@@ -10,7 +10,7 @@ using Cysharp.Threading.Tasks;
 using Depra.Assets.Runtime.Files.Group;
 using Depra.Assets.Runtime.Files.Idents;
 using Depra.Assets.Runtime.Files.Interfaces;
-using Depra.Assets.Runtime.Files.Structs;
+using Depra.Assets.Runtime.Files.ValueObjects;
 using Depra.Assets.Tests.PlayMode.Mocks;
 using NUnit.Framework;
 using UnityEngine;
@@ -26,14 +26,14 @@ namespace Depra.Assets.Tests.PlayMode.Files
         private const int GROUP_SIZE = 3;
 
         private Stopwatch _stopwatch;
-        private AssetIdent _testAssetIdent;
+        private NamedAssetIdent _testNamedAssetIdent;
         private List<ILoadableAsset<Object>> _testAssets;
 
         [SetUp]
         public void Setup()
         {
             _stopwatch = new Stopwatch();
-            _testAssetIdent = AssetIdent.Empty;
+            _testNamedAssetIdent = NamedAssetIdent.Empty;
             _testAssets = new List<ILoadableAsset<Object>>(GROUP_SIZE);
             for (var index = 0; index < GROUP_SIZE; index++)
             {
@@ -45,7 +45,7 @@ namespace Depra.Assets.Tests.PlayMode.Files
         public void GroupShouldBeLoaded()
         {
             // Arrange.
-            var assetGroup = new AssetGroup(_testAssetIdent, children: _testAssets);
+            var assetGroup = new AssetGroup(_testNamedAssetIdent, children: _testAssets);
 
             // Act.
             var loadedAssets = assetGroup.Load().ToArray();
@@ -62,11 +62,11 @@ namespace Depra.Assets.Tests.PlayMode.Files
         public IEnumerator GroupShouldBeLoadedAsync() => UniTask.ToCoroutine(async () =>
         {
             // Arrange.
-            var resourceAsset = new AssetGroup(_testAssetIdent, children: _testAssets);
+            var resourceAsset = new AssetGroup(_testNamedAssetIdent, children: _testAssets);
 
             // Act.
             _stopwatch.Restart();
-            var loadedAssets = await resourceAsset.LoadAsync(CancellationToken.None);
+            var loadedAssets = await resourceAsset.LoadAsync(cancellationToken: CancellationToken.None);
             loadedAssets = loadedAssets.ToArray();
             _stopwatch.Stop();
 
@@ -86,12 +86,11 @@ namespace Depra.Assets.Tests.PlayMode.Files
             var callbackCalls = 0;
             var callbacksCalled = false;
             DownloadProgress lastProgress = default;
-            var assetGroup = new AssetGroup(_testAssetIdent, children: _testAssets);
+            var assetGroup = new AssetGroup(_testNamedAssetIdent, children: _testAssets);
 
             // Act.
             _stopwatch.Restart();
             await assetGroup.LoadAsync(
-                CancellationToken.None,
                 onProgress: progress =>
                 {
                     callbackCalls++;
@@ -116,7 +115,7 @@ namespace Depra.Assets.Tests.PlayMode.Files
         public void GroupShouldBeUnloaded()
         {
             // Arrange.
-            var resourceAsset = new AssetGroup(_testAssetIdent, children: _testAssets);
+            var resourceAsset = new AssetGroup(_testNamedAssetIdent, children: _testAssets);
             var unused = resourceAsset.Load();
 
             // Act.
@@ -134,7 +133,7 @@ namespace Depra.Assets.Tests.PlayMode.Files
         {
             // Arrange.
             Assert.That(_testAssets.Sum(x => x.Size.SizeInBytes), Is.EqualTo(3));
-            var assetGroup = new AssetGroup(_testAssetIdent, children: _testAssets);
+            var assetGroup = new AssetGroup(_testNamedAssetIdent, children: _testAssets);
             var unused = assetGroup.Load();
 
             // Act.
@@ -145,7 +144,7 @@ namespace Depra.Assets.Tests.PlayMode.Files
             Assert.That(assetSize, Is.Not.EqualTo(FileSize.Unknown));
 
             // Cleanup.
-            Log($"Size of {assetGroup.Name} is {assetSize.ToHumanReadableString()}.");
+            Log($"Size of {assetGroup.Ident.RelativeUri} is {assetSize.ToHumanReadableString()}.");
         }
     }
 }

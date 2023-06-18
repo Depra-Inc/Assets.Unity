@@ -5,9 +5,10 @@ using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using Depra.Assets.Editor.Files;
+using Depra.Assets.Runtime.Files.Delegates;
+using Depra.Assets.Runtime.Files.Idents;
 using Depra.Assets.Runtime.Files.Interfaces;
-using Depra.Assets.Runtime.Files.Resource;
-using Depra.Assets.Runtime.Files.Structs;
+using Depra.Assets.Runtime.Files.ValueObjects;
 using Depra.Assets.Tests.PlayMode.Types;
 using NUnit.Framework;
 using UnityEditor;
@@ -77,7 +78,7 @@ namespace Depra.Assets.Tests.EditMode.Files
             Assert.That(preloadedAsset.IsLoaded, Is.False);
 
             // Debug.
-            Log($"{preloadedAsset.Name} unloaded from {nameof(PlayerSettings)}.");
+            Log($"{preloadedAsset.Ident.RelativeUri} unloaded from {nameof(PlayerSettings)}.");
         }
 
         [Test]
@@ -131,15 +132,12 @@ namespace Depra.Assets.Tests.EditMode.Files
             Assert.That(assetSize, Is.Not.EqualTo(FileSize.Unknown));
 
             // Debug.
-            Log($"Size of {preloadedAsset.Name} is {assetSize.ToHumanReadableString()}.");
+            Log($"Size of {preloadedAsset.Ident.RelativeUri} is {assetSize.ToHumanReadableString()}.");
         }
 
         private sealed class InvalidAsset : ILoadableAsset<TestScriptableAsset>
         {
-            string IAssetFile.Name =>
-                nameof(TestScriptableAsset);
-
-            string IAssetFile.Path =>
+            public IAssetIdent Ident =>
                 throw new NotImplementedException();
 
             bool ILoadableAsset<TestScriptableAsset>.IsLoaded =>
@@ -152,8 +150,9 @@ namespace Depra.Assets.Tests.EditMode.Files
 
             void ILoadableAsset<TestScriptableAsset>.Unload() { }
 
-            UniTask<TestScriptableAsset> ILoadableAsset<TestScriptableAsset>.LoadAsync(CancellationToken cancellationToken,
-                DownloadProgressDelegate onProgress) =>
+            UniTask<TestScriptableAsset> ILoadableAsset<TestScriptableAsset>.LoadAsync(
+                DownloadProgressDelegate onProgress,
+                CancellationToken cancellationToken) =>
                 throw new NotImplementedException();
         }
     }

@@ -11,7 +11,7 @@ using Depra.Assets.Runtime.Files.Bundles.Files;
 using Depra.Assets.Runtime.Files.Bundles.IO;
 using Depra.Assets.Runtime.Files.Bundles.Memory;
 using Depra.Assets.Runtime.Files.Idents;
-using Depra.Assets.Runtime.Files.Structs;
+using Depra.Assets.Runtime.Files.ValueObjects;
 using Depra.Assets.Tests.PlayMode.Mocks;
 using NUnit.Framework;
 using UnityEngine;
@@ -53,7 +53,7 @@ namespace Depra.Assets.Tests.PlayMode.Files
 
         [OneTimeSetUp]
         public void OneTimeSetup() => _stopwatch = new Stopwatch();
-        
+
         [TearDown]
         public void TearDown()
         {
@@ -61,7 +61,7 @@ namespace Depra.Assets.Tests.PlayMode.Files
             {
                 return;
             }
-            
+
             _loadedBundle.Unload(true);
             _loadedBundle = null;
         }
@@ -79,7 +79,7 @@ namespace Depra.Assets.Tests.PlayMode.Files
             Assert.That(bundleFile.IsLoaded);
 
             // Debug.
-            Log($"The bundle was loaded by path: {bundleFile.Path}.");
+            Log($"The bundle was loaded by path: {bundleFile.Ident.Uri}.");
         }
 
         [UnityTest]
@@ -97,7 +97,7 @@ namespace Depra.Assets.Tests.PlayMode.Files
             Assert.That(bundleFile.IsLoaded, Is.False);
 
             // Debug.
-            Log($"The bundle with name {bundleFile.Name} was unloaded.");
+            Log($"The bundle with name {bundleFile.Ident.RelativeUri} was unloaded.");
         }
 
         [Test]
@@ -121,7 +121,7 @@ namespace Depra.Assets.Tests.PlayMode.Files
 
                 // Act.
                 _stopwatch.Restart();
-                _loadedBundle = await bundleFile.LoadAsync(CancellationToken.None);
+                _loadedBundle = await bundleFile.LoadAsync();
                 _stopwatch.Stop();
 
                 // Assert.
@@ -131,7 +131,7 @@ namespace Depra.Assets.Tests.PlayMode.Files
 
                 // Debug.
                 Log($"Loaded bundle {_loadedBundle.name} " +
-                    $"by path: {bundleFile.Path} " +
+                    $"by path: {bundleFile.Ident.Uri} " +
                     $"in {_stopwatch.ElapsedMilliseconds} ms.");
 
                 await UniTask.Yield();
@@ -150,7 +150,6 @@ namespace Depra.Assets.Tests.PlayMode.Files
                 // Act.
                 _stopwatch.Restart();
                 _loadedBundle = await bundleFile.LoadAsync(
-                    CancellationToken.None,
                     onProgress: progress =>
                     {
                         callbackCalls++;
@@ -169,7 +168,7 @@ namespace Depra.Assets.Tests.PlayMode.Files
                     $"{callbackCalls} times " +
                     $"in {_stopwatch.ElapsedMilliseconds} ms. " +
                     $"Last value is {lastProgress.NormalizedValue}.");
-                
+
                 await UniTask.Yield();
             });
 
@@ -179,18 +178,16 @@ namespace Depra.Assets.Tests.PlayMode.Files
             {
                 // Arrange.
                 var cancellationTokenSource = new CancellationTokenSource();
-                var cancellationToken = cancellationTokenSource.Token;
 
                 // Act.
-                _loadedBundle = await bundleFile.LoadAsync(cancellationToken);
+                _loadedBundle = await bundleFile.LoadAsync(cancellationToken: cancellationTokenSource.Token);
                 cancellationTokenSource.Cancel();
 
                 // Assert.
                 Assert.That(_loadedBundle, Is.Null);
-                Assert.That(cancellationToken.IsCancellationRequested);
 
                 // Debug.
-                Log($"Loading of bundle {bundleFile.Name} was canceled.");
+                Log($"Loading of bundle {bundleFile.Ident.RelativeUri} was canceled.");
 
                 await UniTask.Yield();
             });
@@ -211,7 +208,7 @@ namespace Depra.Assets.Tests.PlayMode.Files
             Assert.That(bundleSize, Is.Not.EqualTo(FileSize.Unknown));
 
             // Debug.
-            Log($"Size of {bundleFile.Name} is {bundleSize.ToHumanReadableString()}.");
+            Log($"Size of {bundleFile.Ident.RelativeUri} is {bundleSize.ToHumanReadableString()}.");
 
             yield return null;
         }

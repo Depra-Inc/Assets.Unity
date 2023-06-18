@@ -4,11 +4,8 @@
 using System.Collections;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using System.IO;
-using System.Threading;
 using Cysharp.Threading.Tasks;
 using Depra.Assets.Runtime.Files.Database;
-using Depra.Assets.Runtime.Files.Idents;
 using NUnit.Framework;
 using UnityEditor;
 using UnityEngine;
@@ -26,21 +23,19 @@ namespace Depra.Assets.Tests.PlayMode.Files
         private const string ASSET_TYPE_EXTENSION = ".asset";
 
         private Stopwatch _stopwatch;
-        private string _absoluteAssetPath;
-        private FileSystemAssetIdent _assetIdent;
+        private DatabaseAssetIdent _assetIdent;
 
         [SetUp]
         public void Setup()
         {
             _stopwatch = new Stopwatch();
-            _assetIdent = new FileSystemAssetIdent(ASSET_NAME, RESOURCES_FOLDER_NAME, ASSET_TYPE_EXTENSION);
-            _absoluteAssetPath = Path.Combine(ASSETS_FOLDER_NAME, RESOURCES_FOLDER_NAME, _assetIdent.NameWithExtension);
+            _assetIdent = new DatabaseAssetIdent(RESOURCES_FOLDER_NAME, ASSET_NAME, ASSET_TYPE_EXTENSION);
         }
 
         [TearDown]
         public void TearDown()
         {
-            AssetDatabase.DeleteAsset(_absoluteAssetPath);
+            AssetDatabase.DeleteAsset(_assetIdent.AbsolutePath);
         }
 
         [UnityTest]
@@ -52,7 +47,7 @@ namespace Depra.Assets.Tests.PlayMode.Files
 
             // Act.
             _stopwatch.Restart();
-            var loadedAsset = await databaseAsset.LoadAsync(CancellationToken.None);
+            var loadedAsset = await databaseAsset.LoadAsync();
             _stopwatch.Stop();
 
             // Assert.
