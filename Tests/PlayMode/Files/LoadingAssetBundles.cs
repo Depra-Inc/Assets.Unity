@@ -12,7 +12,7 @@ using Depra.Assets.Runtime.Files.Bundles.IO;
 using Depra.Assets.Runtime.Files.Bundles.Memory;
 using Depra.Assets.Runtime.Files.Idents;
 using Depra.Assets.Runtime.Files.ValueObjects;
-using Depra.Assets.Tests.PlayMode.Mocks;
+using Depra.Assets.Tests.PlayMode.Stubs;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;

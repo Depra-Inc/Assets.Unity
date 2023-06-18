@@ -4,9 +4,8 @@
 using System.IO;
 using System.Linq;
 using Depra.Assets.Runtime.Common;
-using Depra.Assets.Runtime.Files.Database;
 
-namespace Depra.Assets.Tests.PlayMode.Mocks
+namespace Depra.Assets.Tests.PlayMode.Stubs
 {
     internal sealed class TempDirectory
     {

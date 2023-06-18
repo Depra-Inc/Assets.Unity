@@ -32,8 +32,9 @@ namespace Depra.Assets.Runtime.Files.Resource
         {
             Name = name;
             RelativeDirectoryPath = relativeDirectory;
-            var absolutePath = Path.GetFullPath(Path.Combine(ASSETS_FOLDER_NAME, RESOURCES_FOLDER_NAME,
-                relativeDirectory, name + extension));
+            var absolutePath = Path
+                .GetFullPath(Path
+                    .Combine(ASSETS_FOLDER_NAME, RESOURCES_FOLDER_NAME, relativeDirectory, name + extension));
             _fileSystemInfo = new FileInfo(absolutePath);
             RelativePath = AbsolutePath.ToRelativeResourcesFilePath();
             RelativeProjectPath = AbsolutePath.ToRelativeUnityPath();
@@ -41,7 +42,7 @@ namespace Depra.Assets.Runtime.Files.Resource
         }
 
         public string Name { get; }
-        
+
         [UsedImplicitly]
         public string Extension => _fileSystemInfo.Extension;
 

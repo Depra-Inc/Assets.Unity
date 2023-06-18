@@ -16,19 +16,15 @@ namespace Depra.Assets.Editor.Files
 {
     public sealed class PreloadedAsset<TAsset> : ILoadableAsset<TAsset>, IDisposable where TAsset : Object
     {
-        private readonly Type _assetType;
-        private readonly ILoadableAsset<TAsset> _asset;
+        public static implicit operator TAsset(PreloadedAsset<TAsset> from) => from.Load();
 
+        private static Type AssetType => typeof(TAsset);
+
+        private readonly ILoadableAsset<TAsset> _asset;
         private TAsset _loadedAsset;
 
-        public static implicit operator TAsset(PreloadedAsset<TAsset> assetFile) =>
-            assetFile.Load();
-
-        public PreloadedAsset(ILoadableAsset<TAsset> asset)
-        {
-            _assetType = typeof(TAsset);
+        public PreloadedAsset(ILoadableAsset<TAsset> asset) =>
             _asset = asset ?? throw new ArgumentNullException(nameof(asset));
-        }
 
         public IAssetIdent Ident => _asset.Ident;
         public bool IsLoaded => _loadedAsset != null;
@@ -87,8 +83,11 @@ namespace Depra.Assets.Editor.Files
 
         private bool TryGetPreloadedAsset(out TAsset preloadedAsset)
         {
-            var preloadedAssets = PlayerSettings.GetPreloadedAssets();
-            var assetByType = preloadedAssets.FirstOrDefault(asset => asset.GetType() == _assetType);
+            bool Filter(Object asset) => asset.GetType() == AssetType;
+            var assetByType = PlayerSettings
+                .GetPreloadedAssets()
+                .FirstOrDefault(Filter);
+
             if (assetByType == null)
             {
                 preloadedAsset = null;
@@ -101,9 +100,11 @@ namespace Depra.Assets.Editor.Files
 
         private bool TryLoadAssetFromDatabase(out TAsset asset)
         {
-            const string FILTER_FORMAT = "t:{0}";
-            var filter = string.Format(FILTER_FORMAT, _assetType.Name);
-            var assetGuid = AssetDatabase.FindAssets(filter).FirstOrDefault();
+            var filter = $"t:{AssetType.Name}";
+            var assetGuid = AssetDatabase
+                .FindAssets(filter)
+                .FirstOrDefault();
+
             var assetPath = AssetDatabase.GUIDToAssetPath(assetGuid);
             asset = AssetDatabase.LoadAssetAtPath<TAsset>(assetPath);
 

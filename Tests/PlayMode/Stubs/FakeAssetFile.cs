@@ -4,21 +4,20 @@ using Depra.Assets.Runtime.Files.Delegates;
 using Depra.Assets.Runtime.Files.Idents;
 using Depra.Assets.Runtime.Files.Interfaces;
 using Depra.Assets.Runtime.Files.ValueObjects;
-using Depra.Assets.Tests.PlayMode.Types;
 using UnityEngine;
 
-namespace Depra.Assets.Tests.PlayMode.Mocks
+namespace Depra.Assets.Tests.PlayMode.Stubs
 {
-    internal sealed class FakeAsset : ILoadableAsset<Object>
+    internal sealed class FakeAssetFile : ILoadableAsset<Object>
     {
         private static TestScriptableAsset CreateAsset() =>
             ScriptableObject.CreateInstance<TestScriptableAsset>();
 
-        public FakeAsset()
+        public FakeAssetFile()
         {
             Ident = NamedAssetIdent.Empty;
             Size = new FileSize(1);
-            Name = nameof(FakeAsset);
+            Name = nameof(FakeAssetFile);
             AbsolutePath = Name;
         }
 

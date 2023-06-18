@@ -7,7 +7,7 @@ using System.IO;
 using UnityEngine;
 using static Depra.Assets.Runtime.Common.Constants;
 
-namespace Depra.Assets.Tests.PlayMode.Mocks
+namespace Depra.Assets.Tests.PlayMode.Stubs
 {
     internal sealed class TestAssetBundlesDirectory
     {

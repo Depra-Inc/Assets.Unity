@@ -11,7 +11,7 @@ using Depra.Assets.Runtime.Files.Group;
 using Depra.Assets.Runtime.Files.Idents;
 using Depra.Assets.Runtime.Files.Interfaces;
 using Depra.Assets.Runtime.Files.ValueObjects;
-using Depra.Assets.Tests.PlayMode.Mocks;
+using Depra.Assets.Tests.PlayMode.Stubs;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
@@ -37,7 +37,7 @@ namespace Depra.Assets.Tests.PlayMode.Files
             _testAssets = new List<ILoadableAsset<Object>>(GROUP_SIZE);
             for (var index = 0; index < GROUP_SIZE; index++)
             {
-                _testAssets.Add(new FakeAsset());
+                _testAssets.Add(new FakeAssetFile());
             }
         }
 
