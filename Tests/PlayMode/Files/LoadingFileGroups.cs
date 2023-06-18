@@ -24,16 +24,17 @@ namespace Depra.Assets.Tests.PlayMode.Files
     internal sealed class LoadingFileGroups
     {
         private const int GROUP_SIZE = 3;
+        private const int CANCEL_DELAY = 1000;
 
         private Stopwatch _stopwatch;
-        private NamedAssetIdent _testNamedAssetIdent;
+        private NamedAssetIdent _assetIdent;
         private List<ILoadableAsset<Object>> _testAssets;
 
         [SetUp]
         public void Setup()
         {
             _stopwatch = new Stopwatch();
-            _testNamedAssetIdent = NamedAssetIdent.Empty;
+            _assetIdent = NamedAssetIdent.Empty;
             _testAssets = new List<ILoadableAsset<Object>>(GROUP_SIZE);
             for (var index = 0; index < GROUP_SIZE; index++)
             {
@@ -42,10 +43,10 @@ namespace Depra.Assets.Tests.PlayMode.Files
         }
 
         [Test]
-        public void GroupShouldBeLoaded()
+        public void Load_ShouldSucceed()
         {
             // Arrange.
-            var assetGroup = new AssetGroup(_testNamedAssetIdent, children: _testAssets);
+            var assetGroup = new AssetGroup(_assetIdent, children: _testAssets);
 
             // Act.
             var loadedAssets = assetGroup.Load().ToArray();
@@ -59,14 +60,15 @@ namespace Depra.Assets.Tests.PlayMode.Files
         }
 
         [UnityTest]
-        public IEnumerator GroupShouldBeLoadedAsync() => UniTask.ToCoroutine(async () =>
+        public IEnumerator LoadAsync_ShouldSucceed() => UniTask.ToCoroutine(async () =>
         {
             // Arrange.
-            var resourceAsset = new AssetGroup(_testNamedAssetIdent, children: _testAssets);
+            var cts = new CancellationTokenSource(CANCEL_DELAY);
+            var resourceAsset = new AssetGroup(_assetIdent, children: _testAssets);
 
             // Act.
             _stopwatch.Restart();
-            var loadedAssets = await resourceAsset.LoadAsync(cancellationToken: CancellationToken.None);
+            var loadedAssets = await resourceAsset.LoadAsync(cancellationToken: cts.Token);
             loadedAssets = loadedAssets.ToArray();
             _stopwatch.Stop();
 
@@ -80,23 +82,26 @@ namespace Depra.Assets.Tests.PlayMode.Files
         });
 
         [UnityTest]
-        public IEnumerator GroupShouldBeLoadedAsyncWithProgress() => UniTask.ToCoroutine(async () =>
+        public IEnumerator LoadAsync_WithProgress_ShouldSucceed() => UniTask.ToCoroutine(async () =>
         {
             // Arrange.
             var callbackCalls = 0;
             var callbacksCalled = false;
             DownloadProgress lastProgress = default;
-            var assetGroup = new AssetGroup(_testNamedAssetIdent, children: _testAssets);
+            var tcs = new CancellationTokenSource(CANCEL_DELAY);
+            var assetGroup = new AssetGroup(_assetIdent, children: _testAssets);
 
             // Act.
             _stopwatch.Restart();
             await assetGroup.LoadAsync(
-                onProgress: progress =>
+                progress =>
                 {
                     callbackCalls++;
                     callbacksCalled = true;
                     lastProgress = progress;
-                });
+                },
+                tcs.Token);
+
             _stopwatch.Stop();
 
             // Assert.
@@ -112,10 +117,10 @@ namespace Depra.Assets.Tests.PlayMode.Files
         });
 
         [Test]
-        public void GroupShouldBeUnloaded()
+        public void Unload_ShouldSucceed()
         {
             // Arrange.
-            var resourceAsset = new AssetGroup(_testNamedAssetIdent, children: _testAssets);
+            var resourceAsset = new AssetGroup(_assetIdent, children: _testAssets);
             var unused = resourceAsset.Load();
 
             // Act.
@@ -129,11 +134,11 @@ namespace Depra.Assets.Tests.PlayMode.Files
         }
 
         [Test]
-        public void GroupSizeShouldBeThreeBytes()
+        public void SizeOfGroup_ShouldBeThreeBytes()
         {
             // Arrange.
             Assert.That(_testAssets.Sum(x => x.Size.SizeInBytes), Is.EqualTo(3));
-            var assetGroup = new AssetGroup(_testNamedAssetIdent, children: _testAssets);
+            var assetGroup = new AssetGroup(_assetIdent, children: _testAssets);
             var unused = assetGroup.Load();
 
             // Act.
