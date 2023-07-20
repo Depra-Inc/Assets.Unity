@@ -1,24 +1,25 @@
 ﻿// Copyright © 2023 Nikolay Melnikov. All rights reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-using System.Collections;
 using System.Diagnostics;
-using Cysharp.Threading.Tasks;
+using System.IO;
+using System.Threading.Tasks;
+using Depra.Assets.Unity.Runtime.Common;
+using Depra.Assets.Unity.Runtime.Exceptions;
 using Depra.Assets.Unity.Runtime.Files.Database;
+using Depra.Assets.Unity.Tests.PlayMode.Stubs;
 using NUnit.Framework;
-using UnityEditor;
 using UnityEngine;
-using UnityEngine.TestTools;
 using static Depra.Assets.Unity.Runtime.Common.Constants;
-using Assert = NUnit.Framework.Assert;
+using static Depra.Assets.Unity.Runtime.Common.Paths;
 
 namespace Depra.Assets.Unity.Tests.PlayMode.Files
 {
     [TestFixture(TestOf = typeof(DatabaseAsset<>))]
     internal sealed class LoadingDatabaseAssets
     {
-        private const string ASSET_NAME = "TestAsset";
-        private const string ASSET_TYPE_EXTENSION = ".asset";
+        private const string TESTS_FOLDER_NAME = "Tests";
+        private const string ASSET_NAME = nameof(TestScriptableAsset);
 
         private Stopwatch _stopwatch;
         private DatabaseAssetIdent _assetIdent;
@@ -27,34 +28,24 @@ namespace Depra.Assets.Unity.Tests.PlayMode.Files
         public void Setup()
         {
             _stopwatch = new Stopwatch();
-            _assetIdent = new DatabaseAssetIdent(RESOURCES_FOLDER_NAME, ASSET_NAME, ASSET_TYPE_EXTENSION);
+            _assetIdent = new DatabaseAssetIdent(
+                relativeDirectory: Path.Combine(PACKAGES_FOLDER_NAME, FullModuleName, TESTS_FOLDER_NAME, ASSETS_FOLDER_NAME),
+                name: ASSET_NAME,
+                extension: AssetTypes.BASE);
         }
-
-        [TearDown]
-        public void TearDown() =>
-            AssetDatabase.DeleteAsset(_assetIdent.RelativePath);
-
-        [UnityTest]
-        public IEnumerator LoadAsync_ShouldSucceed() => UniTask.ToCoroutine(async () =>
+        
+        [Test]
+        public void LoadAsync_ShouldThrowsAssetCanNotBeLoadedException()
         {
             // Arrange.
             var databaseAsset = new DatabaseAsset<ScriptableAsset>(_assetIdent);
 
             // Act.
-            _stopwatch.Restart();
-            var loadedAsset = await databaseAsset.LoadAsync();
-            _stopwatch.Stop();
+            async Task Act() => await databaseAsset.LoadAsync();
 
             // Assert.
-            Assert.That(databaseAsset.IsLoaded);
-            Assert.That(loadedAsset, Is.Not.Null);
-            Assert.IsInstanceOf<ScriptableAsset>(loadedAsset);
-
-            // Debug.
-            TestContext.WriteLine($"{loadedAsset.name} loaded " +
-                                  $"from {nameof(AssetDatabase)} " +
-                                  $"in {_stopwatch.ElapsedMilliseconds} ms.");
-        });
+            Assert.ThrowsAsync<AssetCanNotBeLoaded>(Act);
+        }
 
         private sealed class ScriptableAsset : ScriptableObject { }
     }

@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 using System.IO;
-using static Depra.Assets.Unity.Runtime.Common.Constants;
+using static Depra.Assets.Unity.Runtime.Common.Paths;
 
 namespace Depra.Assets.Unity.Runtime.Files.Extensions
 {

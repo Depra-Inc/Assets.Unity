@@ -7,9 +7,9 @@ using System.Threading;
 using Cysharp.Threading.Tasks;
 using Depra.Assets.Delegates;
 using Depra.Assets.Idents;
-using Depra.Assets.Unity.Runtime.Extensions;
 using Depra.Assets.Unity.Runtime.Common;
 using Depra.Assets.Unity.Runtime.Exceptions;
+using Depra.Assets.Unity.Runtime.Extensions;
 using Depra.Assets.Unity.Runtime.Files.Adapter;
 using Depra.Assets.ValueObjects;
 using UnityEditor;
@@ -73,24 +73,16 @@ namespace Depra.Assets.Unity.Runtime.Files.Database
             _loadedAsset = null;
         }
 
-        public override async UniTask<TAsset> LoadAsync(DownloadProgressDelegate onProgress = null,
+        public override UniTask<TAsset> LoadAsync(DownloadProgressDelegate onProgress = null,
             CancellationToken cancellationToken = default)
         {
             if (IsLoaded)
             {
                 onProgress?.Invoke(DownloadProgress.Full);
-                return _loadedAsset;
+                return UniTask.FromResult(_loadedAsset);
             }
 
-            await UniTask.SwitchToMainThread(cancellationToken);
-            var loadedAsset = await UniTask.RunOnThreadPool(Load, configureAwait: false, cancellationToken);
-            Guard.AgainstNull(loadedAsset, () => new AssetCreationException(AssetType, AssetType.Name));
-
-            _loadedAsset = loadedAsset;
-            onProgress?.Invoke(DownloadProgress.Full);
-            Size = UnityFileSize.FromProfiler(_loadedAsset);
-
-            return _loadedAsset;
+            throw new AssetCanNotBeLoaded("Asynchronous loading is not supported by Unity");
         }
 
         private TAsset CreateAsset()

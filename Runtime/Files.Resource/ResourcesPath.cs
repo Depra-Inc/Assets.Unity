@@ -4,7 +4,7 @@ using Depra.Assets.Idents;
 using Depra.Assets.Unity.Runtime.Exceptions;
 using Depra.Assets.Unity.Runtime.Files.Resource.Exceptions;
 using JetBrains.Annotations;
-using static Depra.Assets.Unity.Runtime.Common.Constants;
+using static Depra.Assets.Unity.Runtime.Common.Paths;
 
 namespace Depra.Assets.Unity.Runtime.Files.Resource
 {

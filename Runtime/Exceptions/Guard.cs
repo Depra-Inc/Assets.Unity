@@ -48,7 +48,7 @@ namespace Depra.Assets.Unity.Runtime.Exceptions
                 throw exceptionFunc();
             }
         }
-        
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void AgainstFileNotFound(string filePath)
         {
@@ -57,7 +57,7 @@ namespace Depra.Assets.Unity.Runtime.Exceptions
                 throw new FileNotFoundException($"File {filePath} not found");
             }
         }
-        
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void AgainstEmptyString(string value, Func<Exception> exceptionFunc)
         {

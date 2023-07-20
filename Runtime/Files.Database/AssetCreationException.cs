@@ -10,6 +10,8 @@ namespace Depra.Assets.Unity.Runtime.Files.Database
     {
         private const string MESSAGE_FORMAT = "Asset {0} with type {1} can not be created!";
 
+        public AssetCreationException(string message) : base(message) { }
+
         public AssetCreationException(MemberInfo assetType, string assetName) :
             base(string.Format(MESSAGE_FORMAT, assetName, assetType.Name)) { }
     }

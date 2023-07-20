@@ -1,30 +1,41 @@
 ﻿using System.IO;
 using Depra.Assets.Idents;
-using static Depra.Assets.Unity.Runtime.Common.Constants;
+using JetBrains.Annotations;
 
 namespace Depra.Assets.Unity.Runtime.Files.Database
 {
     public readonly struct DatabaseAssetIdent : IAssetIdent
     {
+        public static DatabaseAssetIdent Empty = new();
+
         public DatabaseAssetIdent(string relativeDirectory, string name, string extension)
         {
             Name = name;
             Extension = extension;
             NameWithExtension = Name + Extension;
-            AbsoluteDirectoryPath = Path.Combine(DataPathByPlatform, relativeDirectory);
+
+            RelativePath = Path.Combine(relativeDirectory, NameWithExtension);
+
+            AbsolutePath = Path.GetFullPath(RelativePath);
+            AbsoluteDirectoryPath = Path.GetFullPath(relativeDirectory);
             AbsoluteDirectory = new DirectoryInfo(AbsoluteDirectoryPath);
-            AbsolutePath = Path.Combine(AbsoluteDirectoryPath, NameWithExtension);
-            RelativePath = Path.Combine(ASSETS_FOLDER_NAME, relativeDirectory, NameWithExtension);
         }
 
         public string Name { get; }
+
+        [UsedImplicitly]
         public string Extension { get; }
+
+        [UsedImplicitly]
         public string NameWithExtension { get; }
 
         public string RelativePath { get; }
         public string AbsolutePath { get; }
+
+        [UsedImplicitly]
         public string AbsoluteDirectoryPath { get; }
-        public DirectoryInfo AbsoluteDirectory { get; }
+
+        internal DirectoryInfo AbsoluteDirectory { get; }
 
         string IAssetIdent.Uri => AbsolutePath;
         string IAssetIdent.RelativeUri => RelativePath;

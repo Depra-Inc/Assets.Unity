@@ -3,8 +3,8 @@
 
 using System.IO;
 using Depra.Assets.Idents;
-using Depra.Assets.Unity.Runtime.Common;
 using UnityEngine;
+using static Depra.Assets.Unity.Runtime.Common.Paths;
 
 namespace Depra.Assets.Unity.Runtime.Files.Bundles.Idents
 {
@@ -17,7 +17,7 @@ namespace Depra.Assets.Unity.Runtime.Files.Bundles.Idents
             Name = name;
             AbsoluteDirectoryPath = directory ?? Application.streamingAssetsPath;
             AbsolutePath = Path.Combine(AbsoluteDirectoryPath, Name + Extension);
-            RelativePath = Path.GetRelativePath(Constants.DataPathByPlatform, AbsolutePath);
+            RelativePath = Path.GetRelativePath(DataPathByPlatform, AbsolutePath);
         }
 
         public string Name { get; }

@@ -4,7 +4,7 @@
 using System.IO;
 using Depra.Assets.Idents;
 using Depra.Assets.Unity.Runtime.Extensions;
-using static Depra.Assets.Unity.Runtime.Common.Constants;
+using static Depra.Assets.Unity.Runtime.Common.Paths;
 
 namespace Depra.Assets.Unity.Runtime.Files.Idents
 {

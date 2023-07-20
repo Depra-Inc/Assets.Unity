@@ -5,7 +5,7 @@ using System;
 using System.IO;
 using Depra.Assets.Unity.Tests.PlayMode.Utils;
 using UnityEngine;
-using static Depra.Assets.Unity.Runtime.Common.Constants;
+using static Depra.Assets.Unity.Runtime.Common.Paths;
 
 namespace Depra.Assets.Unity.Tests.PlayMode.Stubs
 {

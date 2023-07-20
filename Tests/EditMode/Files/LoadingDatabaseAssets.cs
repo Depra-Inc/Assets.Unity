@@ -8,8 +8,7 @@ using Depra.Assets.Unity.Tests.EditMode.Stubs;
 using Depra.Assets.ValueObjects;
 using NUnit.Framework;
 using UnityEditor;
-using static Depra.Assets.Unity.Runtime.Common.Constants;
-using Assert = NUnit.Framework.Assert;
+using static Depra.Assets.Unity.Runtime.Common.Paths;
 
 namespace Depra.Assets.Unity.Tests.EditMode.Files
 {

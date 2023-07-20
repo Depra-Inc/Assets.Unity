@@ -8,7 +8,7 @@ using System.Linq;
 using Depra.Assets.Unity.Runtime.Extensions;
 using UnityEditor;
 using UnityEngine;
-using static Depra.Assets.Unity.Runtime.Common.Constants;
+using static Depra.Assets.Unity.Runtime.Common.Paths;
 
 namespace Depra.Assets.Unity.Tests.PlayMode.Utils
 {
