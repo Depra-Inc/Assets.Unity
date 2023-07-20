@@ -14,7 +14,6 @@ using Depra.Assets.ValueObjects;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
-using static UnityEngine.Debug;
 using Assert = NUnit.Framework.Assert;
 
 namespace Depra.Assets.Unity.Tests.PlayMode.Files
@@ -60,7 +59,7 @@ namespace Depra.Assets.Unity.Tests.PlayMode.Files
             Assert.That(_assetFromBundle.IsLoaded);
 
             // Debug.
-            Log($"{loadedAsset.name} loaded from bundle with name: {_assetBundle.name}.");
+            TestContext.WriteLine($"{loadedAsset.name} loaded from bundle with name: {_assetBundle.name}.");
         }
 
         [UnityTest]
@@ -78,7 +77,7 @@ namespace Depra.Assets.Unity.Tests.PlayMode.Files
             Assert.That(_assetFromBundle.IsLoaded, Is.False);
 
             // Debug.
-            Log($"{_assetFromBundle.Ident.RelativeUri} unloaded from bundle with name: {_assetBundle.name}.");
+            TestContext.WriteLine($"{_assetFromBundle.Ident.RelativeUri} unloaded from bundle: {_assetBundle.name}.");
         }
 
         [UnityTest]
@@ -97,9 +96,9 @@ namespace Depra.Assets.Unity.Tests.PlayMode.Files
             Assert.IsInstanceOf<TestScriptableAsset>(loadedAsset);
 
             // Debug.
-            Log($"{loadedAsset.name} loaded " +
-                $"from bundle {_assetBundle.name} " +
-                $"in {_stopwatch.ElapsedMilliseconds} ms.");
+            TestContext.WriteLine($"{loadedAsset.name} loaded " +
+                                  $"from bundle {_assetBundle.name} " +
+                                  $"in {_stopwatch.ElapsedMilliseconds} ms.");
         });
 
         [UnityTest]
@@ -129,10 +128,10 @@ namespace Depra.Assets.Unity.Tests.PlayMode.Files
             Assert.That(lastProgress, Is.EqualTo(DownloadProgress.Full));
 
             // Debug.
-            Log("Progress event was called " +
-                $"{callbackCalls} times " +
-                $"in {_stopwatch.ElapsedMilliseconds} ms. " +
-                $"Last value is {lastProgress.NormalizedValue}.");
+            TestContext.WriteLine("Progress event was called " +
+                                  $"{callbackCalls} times " +
+                                  $"in {_stopwatch.ElapsedMilliseconds} ms. " +
+                                  $"Last value is {lastProgress.NormalizedValue}.");
         });
 
         [Test]
@@ -163,7 +162,8 @@ namespace Depra.Assets.Unity.Tests.PlayMode.Files
             Assert.That(assetSize, Is.Not.EqualTo(FileSize.Unknown));
 
             // Debug.
-            Log($"Size of {_assetFromBundle.Ident.RelativeUri} is {assetSize.ToHumanReadableString()}.");
+            TestContext.WriteLine($"Size of {_assetFromBundle.Ident.RelativeUri} " +
+                                  $"is {assetSize.ToHumanReadableString()}.");
         }
     }
 }

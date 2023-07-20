@@ -11,7 +11,6 @@ using Depra.Assets.ValueObjects;
 using NUnit.Framework;
 using UnityEditor;
 using UnityEngine;
-using static UnityEngine.Debug;
 using Assert = NUnit.Framework.Assert;
 
 namespace Depra.Assets.Unity.Tests.EditMode.Files
@@ -26,7 +25,7 @@ namespace Depra.Assets.Unity.Tests.EditMode.Files
         private IUnityLoadableAsset<TestScriptableAsset> _childAsset;
 
         [OneTimeSetUp]
-        public void OneTimeSetup() => 
+        public void OneTimeSetup() =>
             _childAsset = new FakeAssetFile(new FakeAssetIdent(nameof(TestScriptableAsset)));
 
         [SetUp]
@@ -58,7 +57,7 @@ namespace Depra.Assets.Unity.Tests.EditMode.Files
             Assert.That(preloadedAsset.IsLoaded);
 
             // Debug.
-            Log($"{nameof(TestScriptableAsset)} loaded from {nameof(PlayerSettings)}.");
+            TestContext.WriteLine($"{nameof(TestScriptableAsset)} loaded from {nameof(PlayerSettings)}.");
         }
 
         [Test]
@@ -77,7 +76,7 @@ namespace Depra.Assets.Unity.Tests.EditMode.Files
             Assert.That(firstLoadedAsset, Is.EqualTo(secondLoadedAsset));
 
             // Debug.
-            Log($"{firstLoadedAsset.name} loaded from {nameof(PlayerSettings)}.");
+            TestContext.WriteLine($"{firstLoadedAsset.name} loaded from {nameof(PlayerSettings)}.");
         }
 
         [Test]
@@ -95,7 +94,7 @@ namespace Depra.Assets.Unity.Tests.EditMode.Files
             Assert.That(preloadedAsset.IsLoaded);
 
             // Debug.
-            Log($"{loadedAsset.name} loaded from {nameof(PlayerSettings)}.");
+            TestContext.WriteLine($"{loadedAsset.name} loaded from {nameof(PlayerSettings)}.");
         });
 
         [Test]
@@ -112,7 +111,7 @@ namespace Depra.Assets.Unity.Tests.EditMode.Files
             Assert.That(preloadedAsset.IsLoaded, Is.False);
 
             // Debug.
-            Log($"{preloadedAsset.Ident.RelativeUri} unloaded from {nameof(PlayerSettings)}.");
+            TestContext.WriteLine($"{preloadedAsset.Ident.RelativeUri} unloaded from {nameof(PlayerSettings)}.");
         }
 
         [Test]
@@ -130,7 +129,7 @@ namespace Depra.Assets.Unity.Tests.EditMode.Files
             Assert.That(assetSize, Is.Not.EqualTo(FileSize.Unknown));
 
             // Debug.
-            Log($"Size of {preloadedAsset.Ident.RelativeUri} is {assetSize.ToHumanReadableString()}.");
+            TestContext.WriteLine($"Size of {preloadedAsset.Ident.RelativeUri} is {assetSize.ToHumanReadableString()}.");
         }
     }
 }

@@ -9,7 +9,6 @@ using Depra.Assets.ValueObjects;
 using NUnit.Framework;
 using UnityEditor;
 using static Depra.Assets.Unity.Runtime.Common.Constants;
-using static UnityEngine.Debug;
 using Assert = NUnit.Framework.Assert;
 
 namespace Depra.Assets.Unity.Tests.EditMode.Files
@@ -24,11 +23,11 @@ namespace Depra.Assets.Unity.Tests.EditMode.Files
         private DatabaseAssetIdent _assetIdent;
 
         [OneTimeSetUp]
-        public void OneTimeSetup() => 
+        public void OneTimeSetup() =>
             _assetIdent = new DatabaseAssetIdent(RESOURCES_FOLDER_NAME, ASSET_NAME, ASSET_TYPE_EXTENSION);
 
         [TearDown]
-        public void TearDown() => 
+        public void TearDown() =>
             AssetDatabase.DeleteAsset(_assetIdent.RelativePath);
 
         [Test]
@@ -45,7 +44,7 @@ namespace Depra.Assets.Unity.Tests.EditMode.Files
             Assert.That(databaseAsset.IsLoaded);
 
             // Debug.
-            Log($"Created {loadedAsset.name} at path: {_assetIdent.AbsolutePath}.");
+            TestContext.WriteLine($"Created {loadedAsset.name} at path: {_assetIdent.AbsolutePath}.");
         }
 
         [Test]
@@ -63,7 +62,7 @@ namespace Depra.Assets.Unity.Tests.EditMode.Files
             Assert.That(databaseAsset.IsLoaded, Is.False);
 
             // Debug.
-            Log($"Deleted {nameof(FakeScriptableAsset)} at path: {_assetIdent.AbsolutePath}.");
+            TestContext.WriteLine($"Deleted {nameof(FakeScriptableAsset)} at path: {_assetIdent.AbsolutePath}.");
         }
 
         [Test]
@@ -81,7 +80,7 @@ namespace Depra.Assets.Unity.Tests.EditMode.Files
             Assert.That(assetSize, Is.Not.EqualTo(FileSize.Unknown));
 
             // Debug.
-            Log($"Size of {databaseAsset.Ident.RelativeUri} is {assetSize.ToHumanReadableString()}.");
+            TestContext.WriteLine($"Size of {databaseAsset.Ident.RelativeUri} is {assetSize.ToHumanReadableString()}.");
         }
     }
 }

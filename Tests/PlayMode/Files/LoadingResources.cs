@@ -16,7 +16,6 @@ using NUnit.Framework;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.TestTools;
-using static UnityEngine.Debug;
 using Assert = NUnit.Framework.Assert;
 
 namespace Depra.Assets.Unity.Tests.PlayMode.Files
@@ -86,7 +85,7 @@ namespace Depra.Assets.Unity.Tests.PlayMode.Files
             Assert.That(resourceAsset.IsLoaded);
 
             // Debug.
-            Log($"{loadedAsset.name} loaded from {nameof(Resources)}.");
+            TestContext.WriteLine($"{loadedAsset.name} loaded from {nameof(Resources)}.");
 
             // Cleanup.
             _loadedAssets.Push(loadedAsset);
@@ -108,8 +107,8 @@ namespace Depra.Assets.Unity.Tests.PlayMode.Files
             Assert.That(firstLoadedAsset, Is.EqualTo(secondLoadedAsset));
 
             // Debug.
-            Log($"{firstLoadedAsset.name} loaded from {nameof(Resources)}.");
-            Log($"{secondLoadedAsset.name} loaded from {nameof(Resources)}.");
+            TestContext.WriteLine($"{firstLoadedAsset.name} loaded from {nameof(Resources)}.");
+            TestContext.WriteLine($"{secondLoadedAsset.name} loaded from {nameof(Resources)}.");
 
             // Cleanup.
             _loadedAssets.Push(firstLoadedAsset);
@@ -134,9 +133,9 @@ namespace Depra.Assets.Unity.Tests.PlayMode.Files
             Assert.IsInstanceOf<TestScriptableAsset>(loadedAsset);
 
             // Debug.
-            Log($"{loadedAsset.name} loaded " +
-                $"from {nameof(Resources)} " +
-                $"in {_stopwatch.ElapsedMilliseconds} ms.");
+            TestContext.WriteLine($"{loadedAsset.name} loaded " +
+                                  $"from {nameof(Resources)} " +
+                                  $"in {_stopwatch.ElapsedMilliseconds} ms.");
 
             // Cleanup.
             _loadedAssets.Push(loadedAsset);
@@ -169,10 +168,10 @@ namespace Depra.Assets.Unity.Tests.PlayMode.Files
             Assert.That(lastProgress, Is.EqualTo(DownloadProgress.Full));
 
             // Debug.
-            Log("Progress event was called " +
-                $"{callbackCalls} times " +
-                $"in {_stopwatch.ElapsedMilliseconds} ms. " +
-                $"Last value is {lastProgress.NormalizedValue}.");
+            TestContext.WriteLine("Progress event was called " +
+                                  $"{callbackCalls} times " +
+                                  $"in {_stopwatch.ElapsedMilliseconds} ms. " +
+                                  $"Last value is {lastProgress.NormalizedValue}.");
 
             // Cleanup.
             _loadedAssets.Push(loadedAsset);
@@ -227,7 +226,7 @@ namespace Depra.Assets.Unity.Tests.PlayMode.Files
             Assert.That(resourceAsset.IsLoaded, Is.False);
 
             // Debug.
-            Log($"{resourceAsset.Ident.RelativeUri} unloaded from {nameof(Resources)}.");
+            TestContext.WriteLine($"{resourceAsset.Ident.RelativeUri} unloaded from {nameof(Resources)}.");
         }
 
         [Test]
@@ -245,7 +244,7 @@ namespace Depra.Assets.Unity.Tests.PlayMode.Files
             Assert.That(assetSize, Is.Not.EqualTo(FileSize.Unknown));
 
             // Debug.
-            Log($"Size of {resourceAsset.Ident.RelativeUri} is {assetSize.ToHumanReadableString()}.");
+            TestContext.WriteLine($"Size of {resourceAsset.Ident.RelativeUri} is {assetSize.ToHumanReadableString()}.");
         }
 
         [UnityTest]
@@ -263,7 +262,7 @@ namespace Depra.Assets.Unity.Tests.PlayMode.Files
             Assert.That(assetSize, Is.Not.EqualTo(FileSize.Unknown));
 
             // Debug.
-            Log($"Size of {resourceAsset.Ident.RelativeUri} is {assetSize.ToHumanReadableString()}.");
+            TestContext.WriteLine($"Size of {resourceAsset.Ident.RelativeUri} is {assetSize.ToHumanReadableString()}.");
         });
     }
 }

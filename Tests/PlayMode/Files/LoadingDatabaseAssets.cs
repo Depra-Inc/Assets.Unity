@@ -10,7 +10,6 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.TestTools;
 using static Depra.Assets.Unity.Runtime.Common.Constants;
-using static UnityEngine.Debug;
 using Assert = NUnit.Framework.Assert;
 
 namespace Depra.Assets.Unity.Tests.PlayMode.Files
@@ -32,10 +31,8 @@ namespace Depra.Assets.Unity.Tests.PlayMode.Files
         }
 
         [TearDown]
-        public void TearDown()
-        {
+        public void TearDown() =>
             AssetDatabase.DeleteAsset(_assetIdent.RelativePath);
-        }
 
         [UnityTest]
         public IEnumerator LoadAsync_ShouldSucceed() => UniTask.ToCoroutine(async () =>
@@ -54,9 +51,9 @@ namespace Depra.Assets.Unity.Tests.PlayMode.Files
             Assert.IsInstanceOf<ScriptableAsset>(loadedAsset);
 
             // Debug.
-            Log($"{loadedAsset.name} loaded " +
-                $"from {nameof(AssetDatabase)} " +
-                $"in {_stopwatch.ElapsedMilliseconds} ms.");
+            TestContext.WriteLine($"{loadedAsset.name} loaded " +
+                                  $"from {nameof(AssetDatabase)} " +
+                                  $"in {_stopwatch.ElapsedMilliseconds} ms.");
         });
 
         private sealed class ScriptableAsset : ScriptableObject { }

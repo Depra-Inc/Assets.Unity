@@ -17,7 +17,6 @@ using Depra.Assets.ValueObjects;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
-using static UnityEngine.Debug;
 using Assert = NUnit.Framework.Assert;
 
 namespace Depra.Assets.Unity.Tests.PlayMode.Files
@@ -55,8 +54,10 @@ namespace Depra.Assets.Unity.Tests.PlayMode.Files
             _stopwatch = new Stopwatch();
 
         [TearDown]
-        public void TearDown() =>
-            AssetBundle.UnloadAllAssetBundles(false);
+        public void TearDown()
+        {
+            AssetBundle.UnloadAllAssetBundles(true);
+        }
 
         [Test]
         public void Load_ShouldSucceed([ValueSource(nameof(AllBundles))] AssetBundleFile bundleFile)
@@ -69,7 +70,7 @@ namespace Depra.Assets.Unity.Tests.PlayMode.Files
             Assert.That(bundleFile.IsLoaded);
 
             // Debug.
-            Log($"The bundle was loaded by path: {bundleFile.Ident.Uri}.");
+            TestContext.WriteLine($"The bundle was loaded by path: {bundleFile.Ident.Uri}.");
         }
 
         [Test]
@@ -102,9 +103,9 @@ namespace Depra.Assets.Unity.Tests.PlayMode.Files
                 Assert.IsInstanceOf<AssetBundle>(_loadedBundle);
 
                 // Debug.
-                Log($"Loaded bundle {_loadedBundle.name} " +
-                    $"by path: {bundleFile.Ident.Uri} " +
-                    $"in {_stopwatch.ElapsedMilliseconds} ms.");
+                TestContext.WriteLine($"Loaded bundle {_loadedBundle.name} " +
+                                      $"by path: {bundleFile.Ident.Uri} " +
+                                      $"in {_stopwatch.ElapsedMilliseconds} ms.");
 
                 await UniTask.Yield();
             });
@@ -136,10 +137,10 @@ namespace Depra.Assets.Unity.Tests.PlayMode.Files
                 Assert.That(lastProgress, Is.EqualTo(DownloadProgress.Full));
 
                 // Debug.
-                Log("Progress event was called " +
-                    $"{callbackCalls} times " +
-                    $"in {_stopwatch.ElapsedMilliseconds} ms. " +
-                    $"Last value is {lastProgress.NormalizedValue}.");
+                TestContext.WriteLine("Progress event was called " +
+                                      $"{callbackCalls} times " +
+                                      $"in {_stopwatch.ElapsedMilliseconds} ms. " +
+                                      $"Last value is {lastProgress.NormalizedValue}.");
 
                 await UniTask.Yield();
             });
@@ -154,9 +155,10 @@ namespace Depra.Assets.Unity.Tests.PlayMode.Files
             // Act.
             cts.Cancel();
             var loadTask = bundleFile.LoadAsync(cancellationToken: cts.Token);
+            async Task Act() => await loadTask;
 
             // Assert.
-            Assert.ThrowsAsync<TaskCanceledException>(async () => await loadTask);
+            Assert.ThrowsAsync<TaskCanceledException>(Act);
         }
 
         [UnityTest]
@@ -193,7 +195,7 @@ namespace Depra.Assets.Unity.Tests.PlayMode.Files
             Assert.That(bundleSize, Is.Not.EqualTo(FileSize.Unknown));
 
             // Debug.
-            Log($"Size of {bundleFile.Ident.RelativeUri} is {bundleSize.ToHumanReadableString()}.");
+            TestContext.WriteLine($"Size of {bundleFile.Ident.RelativeUri} is {bundleSize.ToHumanReadableString()}.");
 
             yield return null;
         }
@@ -213,7 +215,7 @@ namespace Depra.Assets.Unity.Tests.PlayMode.Files
             Assert.That(bundleFile.IsLoaded, Is.False);
 
             // Debug.
-            Log($"The bundle with name {bundleFile.Ident.RelativeUri} was unloaded.");
+            TestContext.WriteLine($"The bundle with name {bundleFile.Ident.RelativeUri} was unloaded.");
         }
     }
 }
