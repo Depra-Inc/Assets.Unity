@@ -63,12 +63,10 @@ namespace Depra.Assets.Unity.Runtime.Files.Resource
                 return _loadedAsset;
             }
 
-            cancellationToken.ThrowIfCancellationRequested();
             var progress = Progress.Create<float>(value => onProgress?.Invoke(new DownloadProgress(value)));
             var loadedAsset = await Resources.LoadAsync<TAsset>(_ident.RelativePath)
                 .ToUniTask(progress, cancellationToken: cancellationToken);
 
-            cancellationToken.ThrowIfCancellationRequested();
             Guard.AgainstNull(loadedAsset, () => new ResourceNotLoaded(_ident.RelativePath));
 
             _loadedAsset = (TAsset) loadedAsset;

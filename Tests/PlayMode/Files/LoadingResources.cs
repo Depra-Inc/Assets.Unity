@@ -187,10 +187,10 @@ namespace Depra.Assets.Unity.Tests.PlayMode.Files
 
             // Act.
             cts.Cancel();
-            var loadingOperation = resourceAsset.LoadAsync(cancellationToken: cts.Token);
+            var loadTask = resourceAsset.LoadAsync(cancellationToken: cts.Token);
 
             // Assert.
-            Assert.ThrowsAsync<TaskCanceledException>(async () => await loadingOperation);
+            Assert.ThrowsAsync<TaskCanceledException>(async () => await loadTask);
         }
 
         [UnityTest]
@@ -203,11 +203,12 @@ namespace Depra.Assets.Unity.Tests.PlayMode.Files
             // Act.
             cts.CancelAfterSlim(TimeSpan.MinValue);
             var loadTask = resourceAsset.LoadAsync(cancellationToken: cts.Token);
+            async Task Act() => await loadTask;
 
-            yield return null;
+            yield return new WaitUntil(() => cts.Token.IsCancellationRequested);
 
             // Assert.
-            Assert.ThrowsAsync<TaskCanceledException>(async () => { await loadTask; });
+            Assert.ThrowsAsync<TaskCanceledException>(Act);
         }
 
         [UnityTest]

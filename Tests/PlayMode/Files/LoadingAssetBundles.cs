@@ -55,16 +55,8 @@ namespace Depra.Assets.Unity.Tests.PlayMode.Files
             _stopwatch = new Stopwatch();
 
         [TearDown]
-        public void TearDown()
-        {
-            if (_loadedBundle == null)
-            {
-                return;
-            }
-
-            _loadedBundle.Unload(true);
-            _loadedBundle = null;
-        }
+        public void TearDown() =>
+            AssetBundle.UnloadAllAssetBundles(false);
 
         [Test]
         public void Load_ShouldSucceed([ValueSource(nameof(AllBundles))] AssetBundleFile bundleFile)
@@ -161,10 +153,10 @@ namespace Depra.Assets.Unity.Tests.PlayMode.Files
 
             // Act.
             cts.Cancel();
-            var loadingOperation = bundleFile.LoadAsync(cancellationToken: cts.Token);
+            var loadTask = bundleFile.LoadAsync(cancellationToken: cts.Token);
 
             // Assert.
-            Assert.ThrowsAsync<TaskCanceledException>(async () => await loadingOperation);
+            Assert.ThrowsAsync<TaskCanceledException>(async () => await loadTask);
         }
 
         [UnityTest]
@@ -175,13 +167,14 @@ namespace Depra.Assets.Unity.Tests.PlayMode.Files
             var cts = new CancellationTokenSource();
 
             // Act.
-            cts.CancelAfterSlim(TimeSpan.MinValue);
+            cts.CancelAfterSlim(1);
             var loadTask = bundleFile.LoadAsync(cancellationToken: cts.Token);
+            async Task Act() => await loadTask;
 
-            yield return null;
+            yield return new WaitUntil(() => cts.Token.IsCancellationRequested);
 
             // Assert.
-            Assert.ThrowsAsync<TaskCanceledException>(async () => { await loadTask; });
+            Assert.ThrowsAsync<TaskCanceledException>(Act);
         }
 
         [UnityTest]

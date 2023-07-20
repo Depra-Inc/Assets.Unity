@@ -19,7 +19,7 @@ namespace Depra.Assets.Unity.Runtime.Files.Bundles.Files
     public abstract class AssetBundleFile : IUnityLoadableAsset<AssetBundle>, IDisposable
     {
         public static implicit operator AssetBundle(AssetBundleFile from) => from.Load();
-        
+
         private readonly FileSystemAssetIdent _ident;
         private AssetBundle _loadedAssetBundle;
 
@@ -39,7 +39,7 @@ namespace Depra.Assets.Unity.Runtime.Files.Bundles.Files
 
             var loadedAssetBundle = LoadOverride();
             Guard.AgainstNull(loadedAssetBundle, () => new AssetBundleNotLoadedException(Ident.Uri));
-            
+
             _loadedAssetBundle = loadedAssetBundle;
             Size = FindSize(_loadedAssetBundle);
 
@@ -55,13 +55,11 @@ namespace Depra.Assets.Unity.Runtime.Files.Bundles.Files
                 return _loadedAssetBundle;
             }
 
-            cancellationToken.ThrowIfCancellationRequested();
             var progress = Progress.Create<float>(value => onProgress?.Invoke(new DownloadProgress(value)));
             var loadedAssetBundle = await LoadAsyncOverride(progress, cancellationToken);
-            cancellationToken.ThrowIfCancellationRequested();
-            
+
             Guard.AgainstNull(loadedAssetBundle, () => new AssetBundleNotLoadedException(Ident.Uri));
-            
+
             _loadedAssetBundle = loadedAssetBundle;
             onProgress?.Invoke(DownloadProgress.Full);
             Size = FindSize(_loadedAssetBundle);

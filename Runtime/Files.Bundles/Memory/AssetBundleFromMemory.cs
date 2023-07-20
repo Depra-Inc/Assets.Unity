@@ -20,16 +20,23 @@ namespace Depra.Assets.Unity.Runtime.Files.Bundles.Memory
         protected override AssetBundle LoadOverride()
         {
             Guard.AgainstFileNotFound(Ident.Uri);
+
             var bytes = ReadBytes();
-            return AssetBundle.LoadFromMemory(bytes);
+            var loadedBundle = AssetBundle.LoadFromMemory(bytes);
+
+            return loadedBundle;
         }
 
         protected override async UniTask<AssetBundle> LoadAsyncOverride(IProgress<float> progress = null,
-           CancellationToken cancellationToken = default)
+            CancellationToken cancellationToken = default)
         {
             Guard.AgainstFileNotFound(Ident.Uri);
-            var createRequest = AssetBundle.LoadFromMemoryAsync(ReadBytes());
-            return await createRequest.ToUniTask(progress, cancellationToken: cancellationToken);
+
+            var asyncRequest = AssetBundle
+                .LoadFromMemoryAsync(ReadBytes())
+                .ToUniTask(progress, cancellationToken: cancellationToken);
+
+            return await asyncRequest;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

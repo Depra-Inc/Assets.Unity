@@ -47,7 +47,6 @@ namespace Depra.Assets.Unity.Runtime.Files.Bundles.Web
                 (error, url) => new RemoveAssetBundleNotLoadedException(url, error));
             
             var downloadedBundle = DownloadHandlerAssetBundle.GetContent(webRequest);
-
             _contentSize = webRequest.ParseSize();
             webRequest.Dispose();
 

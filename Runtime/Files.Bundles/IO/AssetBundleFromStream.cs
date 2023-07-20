@@ -3,9 +3,9 @@
 
 using System;
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using Cysharp.Threading.Tasks;
-using Depra.Assets.Unity.Runtime.Common;
 using Depra.Assets.Unity.Runtime.Exceptions;
 using Depra.Assets.Unity.Runtime.Files.Bundles.Files;
 using Depra.Assets.Unity.Runtime.Files.Idents;
@@ -20,19 +20,27 @@ namespace Depra.Assets.Unity.Runtime.Files.Bundles.IO
         protected override AssetBundle LoadOverride()
         {
             Guard.AgainstFileNotFound(Ident.Uri);
+
             using var fileStream = OpenStream();
-            return AssetBundle.LoadFromStream(fileStream);
+            var loadedBundle = AssetBundle.LoadFromStream(fileStream);
+
+            return loadedBundle;
         }
 
         protected override async UniTask<AssetBundle> LoadAsyncOverride(IProgress<float> progress = null,
             CancellationToken cancellationToken = default)
         {
             Guard.AgainstFileNotFound(Ident.Uri);
+
             await using var stream = OpenStream();
-            var createRequest = AssetBundle.LoadFromStreamAsync(stream);
-            return await createRequest.ToUniTask(progress, cancellationToken: cancellationToken);
+            var asyncRequest = AssetBundle
+                .LoadFromStreamAsync(stream)
+                .ToUniTask(progress, cancellationToken: cancellationToken);
+
+            return await asyncRequest;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private Stream OpenStream() => new FileStream(Ident.Uri, FileMode.Open, FileAccess.Read);
     }
 }

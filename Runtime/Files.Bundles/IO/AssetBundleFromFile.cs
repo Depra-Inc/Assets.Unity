@@ -18,15 +18,21 @@ namespace Depra.Assets.Unity.Runtime.Files.Bundles.IO
         protected override AssetBundle LoadOverride()
         {
             Guard.AgainstFileNotFound(Ident.Uri);
-            return AssetBundle.LoadFromFile(Ident.Uri);
+            var loadedBundle = AssetBundle.LoadFromFile(Ident.Uri);
+
+            return loadedBundle;
         }
 
-        protected override async UniTask<AssetBundle> LoadAsyncOverride(IProgress<float> progress = null,
+        protected override UniTask<AssetBundle> LoadAsyncOverride(IProgress<float> progress = null,
             CancellationToken cancellationToken = default)
         {
             Guard.AgainstFileNotFound(Ident.Uri);
-            var createRequest = AssetBundle.LoadFromFileAsync(Ident.Uri);
-            return await createRequest.ToUniTask(progress, cancellationToken: cancellationToken);
+
+            var asyncRequest = AssetBundle
+                .LoadFromFileAsync(Ident.Uri)
+                .ToUniTask(progress, cancellationToken: cancellationToken);
+
+            return asyncRequest;
         }
     }
 }
