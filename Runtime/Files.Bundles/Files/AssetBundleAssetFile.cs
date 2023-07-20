@@ -20,15 +20,14 @@ namespace Depra.Assets.Unity.Runtime.Files.Bundles.Files
     {
         public static implicit operator TAsset(AssetBundleAssetFile<TAsset> from) => from.Load();
 
-        private readonly string _assetName;
+        private readonly AssetName _ident;
         private readonly AssetBundle _assetBundle;
-        private readonly AssetBundleAssetFileIdent _ident;
 
         private TAsset _loadedAsset;
 
-        public AssetBundleAssetFile(string assetName, AssetBundle assetBundle)
+        public AssetBundleAssetFile(AssetName name, AssetBundle assetBundle)
         {
-            _ident = new AssetBundleAssetFileIdent(assetName ?? throw new ArgumentNullException(nameof(assetName)));
+            _ident = name ?? throw new ArgumentNullException(nameof(name));
             _assetBundle = assetBundle ? assetBundle : throw new ArgumentNullException(nameof(assetBundle));
         }
 
@@ -90,15 +89,5 @@ namespace Depra.Assets.Unity.Runtime.Files.Bundles.Files
         }
 
         void IDisposable.Dispose() => Unload();
-
-        private readonly struct AssetBundleAssetFileIdent : IAssetIdent
-        {
-            public readonly string Name;
-
-            public AssetBundleAssetFileIdent(string name) => Name = name;
-
-            string IAssetIdent.Uri => Name;
-            string IAssetIdent.RelativeUri => Name;
-        }
     }
 }

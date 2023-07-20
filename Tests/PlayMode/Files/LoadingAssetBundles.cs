@@ -6,6 +6,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
+using System.Threading.Tasks;
 using Cysharp.Threading.Tasks;
 using Depra.Assets.Unity.Runtime.Files.Bundles.Files;
 using Depra.Assets.Unity.Runtime.Files.Bundles.IO;
@@ -151,25 +152,37 @@ namespace Depra.Assets.Unity.Tests.PlayMode.Files
                 await UniTask.Yield();
             });
 
+        [Test]
+        public void LoadAsync_CancelBeforeStart_ShouldThrowTaskCanceledException(
+            [ValueSource(nameof(AllBundles))] AssetBundleFile bundleFile)
+        {
+            // Arrange.
+            var cts = new CancellationTokenSource();
+
+            // Act.
+            cts.Cancel();
+            var loadingOperation = bundleFile.LoadAsync(cancellationToken: cts.Token);
+
+            // Assert.
+            Assert.ThrowsAsync<TaskCanceledException>(async () => await loadingOperation);
+        }
+
         [UnityTest]
-        public IEnumerator BundleLoadingShouldBeCanceled([ValueSource(nameof(AllBundles))] AssetBundleFile bundleFile) =>
-            UniTask.ToCoroutine(async () =>
-            {
-                // Arrange.
-                var cancellationTokenSource = new CancellationTokenSource();
+        public IEnumerator LoadAsync_CancelDuringExecution_ShouldThrowTaskCanceledException(
+            [ValueSource(nameof(AllBundles))] AssetBundleFile bundleFile)
+        {
+            // Arrange.
+            var cts = new CancellationTokenSource();
 
-                // Act.
-                _loadedBundle = await bundleFile.LoadAsync(cancellationToken: cancellationTokenSource.Token);
-                cancellationTokenSource.Cancel();
+            // Act.
+            cts.CancelAfterSlim(TimeSpan.MinValue);
+            var loadTask = bundleFile.LoadAsync(cancellationToken: cts.Token);
 
-                // Assert.
-                Assert.That(_loadedBundle, Is.Null);
+            yield return null;
 
-                // Debug.
-                Log($"Loading of bundle {bundleFile.Ident.RelativeUri} was canceled.");
-
-                await UniTask.Yield();
-            });
+            // Assert.
+            Assert.ThrowsAsync<TaskCanceledException>(async () => { await loadTask; });
+        }
 
         [UnityTest]
         public IEnumerator SizeOfLoadedAsset_ShouldNotBeZeroOrUnknown(

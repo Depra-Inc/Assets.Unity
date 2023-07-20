@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Threading;
 using Cysharp.Threading.Tasks;
+using Depra.Assets.Idents;
 using Depra.Assets.Unity.Runtime.Files.Bundles.Exceptions;
 using Depra.Assets.Unity.Runtime.Files.Bundles.Files;
 using Depra.Assets.Unity.Tests.PlayMode.Stubs;
@@ -34,7 +35,8 @@ namespace Depra.Assets.Unity.Tests.PlayMode.Files
             var assetBundlesDirectory = new TestAssetBundlesDirectory(GetType());
             var assetBundlePath = Path.Combine(assetBundlesDirectory.AbsolutePath, TEST_BUNDLE_NAME);
             _assetBundle = AssetBundle.LoadFromFile(assetBundlePath);
-            _assetFromBundle = new AssetBundleAssetFile<TestScriptableAsset>(TEST_ASSET_NAME, _assetBundle);
+            var assetIdent = new AssetName(TEST_ASSET_NAME);
+            _assetFromBundle = new AssetBundleAssetFile<TestScriptableAsset>(assetIdent, _assetBundle);
         }
 
         [TearDown]
@@ -137,7 +139,7 @@ namespace Depra.Assets.Unity.Tests.PlayMode.Files
         public void Load_InvalidAssetFromBundle_ShouldThrowAssetBundleFileNotLoadedException()
         {
             // Arrange.
-            var invalidIdent = string.Empty;
+            var invalidIdent = AssetName.Invalid;
             var invalidAssetFromBundle = new AssetBundleAssetFile<TestMonoAsset>(invalidIdent, _assetBundle);
 
             // Act.

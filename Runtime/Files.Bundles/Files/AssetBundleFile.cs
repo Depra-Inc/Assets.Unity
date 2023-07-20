@@ -55,8 +55,11 @@ namespace Depra.Assets.Unity.Runtime.Files.Bundles.Files
                 return _loadedAssetBundle;
             }
 
+            cancellationToken.ThrowIfCancellationRequested();
             var progress = Progress.Create<float>(value => onProgress?.Invoke(new DownloadProgress(value)));
             var loadedAssetBundle = await LoadAsyncOverride(progress, cancellationToken);
+            cancellationToken.ThrowIfCancellationRequested();
+            
             Guard.AgainstNull(loadedAssetBundle, () => new AssetBundleNotLoadedException(Ident.Uri));
             
             _loadedAssetBundle = loadedAssetBundle;
