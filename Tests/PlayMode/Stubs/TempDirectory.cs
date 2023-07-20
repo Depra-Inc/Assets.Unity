@@ -3,9 +3,9 @@
 
 using System.IO;
 using System.Linq;
-using Depra.Assets.Runtime.Common;
+using Depra.Assets.Unity.Runtime.Common;
 
-namespace Depra.Assets.Tests.PlayMode.Stubs
+namespace Depra.Assets.Unity.Tests.PlayMode.Stubs
 {
     internal sealed class TempDirectory
     {

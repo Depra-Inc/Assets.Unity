@@ -1,8 +1,11 @@
-﻿using System.Collections.Generic;
-using Depra.Assets.Runtime.Files.Interfaces;
+﻿// Copyright © 2023 Nikolay Melnikov. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
+
+using System.Collections.Generic;
+using Depra.Assets.Files;
 using UnityEngine;
 
-namespace Depra.Assets.Runtime.Files.Bundles.Extensions
+namespace Depra.Assets.Unity.Runtime.Files.Bundles.Extensions
 {
     public static class AssetBundleFileExtensions
     {

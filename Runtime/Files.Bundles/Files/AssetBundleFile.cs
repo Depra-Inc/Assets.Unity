@@ -1,24 +1,26 @@
-﻿// Copyright © 2022 Nikolay Melnikov. All rights reserved.
+﻿// Copyright © 2023 Nikolay Melnikov. All rights reserved.
 // SPDX-License-Identifier: Apache-2.0
 
 using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
-using Depra.Assets.Runtime.Exceptions;
-using Depra.Assets.Runtime.Files.Bundles.Exceptions;
-using Depra.Assets.Runtime.Files.Bundles.Extensions;
-using Depra.Assets.Runtime.Files.Delegates;
-using Depra.Assets.Runtime.Files.Idents;
-using Depra.Assets.Runtime.Files.Interfaces;
-using Depra.Assets.Runtime.Files.ValueObjects;
+using Depra.Assets.Delegates;
+using Depra.Assets.Idents;
+using Depra.Assets.Unity.Runtime.Files.Bundles.Extensions;
+using Depra.Assets.Unity.Runtime.Exceptions;
+using Depra.Assets.Unity.Runtime.Files.Adapter;
+using Depra.Assets.Unity.Runtime.Files.Bundles.Exceptions;
+using Depra.Assets.Unity.Runtime.Files.Idents;
+using Depra.Assets.ValueObjects;
 using UnityEngine;
 
-namespace Depra.Assets.Runtime.Files.Bundles.Files
+namespace Depra.Assets.Unity.Runtime.Files.Bundles.Files
 {
-    public abstract class AssetBundleFile : ILoadableAsset<AssetBundle>, IDisposable
+    public abstract class AssetBundleFile : IUnityLoadableAsset<AssetBundle>, IDisposable
     {
-        private readonly FileSystemAssetIdent _ident;
+        public static implicit operator AssetBundle(AssetBundleFile from) => from.Load();
         
+        private readonly FileSystemAssetIdent _ident;
         private AssetBundle _loadedAssetBundle;
 
         protected AssetBundleFile(FileSystemAssetIdent ident) =>
@@ -37,6 +39,7 @@ namespace Depra.Assets.Runtime.Files.Bundles.Files
 
             var loadedAssetBundle = LoadOverride();
             Guard.AgainstNull(loadedAssetBundle, () => new AssetBundleNotLoadedException(Ident.Uri));
+            
             _loadedAssetBundle = loadedAssetBundle;
             Size = FindSize(_loadedAssetBundle);
 
@@ -49,16 +52,15 @@ namespace Depra.Assets.Runtime.Files.Bundles.Files
             if (IsLoaded)
             {
                 onProgress?.Invoke(DownloadProgress.Full);
-
                 return _loadedAssetBundle;
             }
 
             var progress = Progress.Create<float>(value => onProgress?.Invoke(new DownloadProgress(value)));
-            var loadedAssetBundle = await LoadAsyncOverride(cancellationToken, progress);
-            onProgress?.Invoke(DownloadProgress.Full);
-            
+            var loadedAssetBundle = await LoadAsyncOverride(progress, cancellationToken);
             Guard.AgainstNull(loadedAssetBundle, () => new AssetBundleNotLoadedException(Ident.Uri));
+            
             _loadedAssetBundle = loadedAssetBundle;
+            onProgress?.Invoke(DownloadProgress.Full);
             Size = FindSize(_loadedAssetBundle);
 
             return _loadedAssetBundle;
@@ -88,8 +90,8 @@ namespace Depra.Assets.Runtime.Files.Bundles.Files
 
         protected abstract AssetBundle LoadOverride();
 
-        protected abstract UniTask<AssetBundle> LoadAsyncOverride(CancellationToken cancellationToken,
-            IProgress<float> progress = null);
+        protected abstract UniTask<AssetBundle> LoadAsyncOverride(IProgress<float> progress = null,
+            CancellationToken cancellationToken = default);
 
         protected virtual FileSize FindSize(AssetBundle assetBundle) =>
             assetBundle.Size();

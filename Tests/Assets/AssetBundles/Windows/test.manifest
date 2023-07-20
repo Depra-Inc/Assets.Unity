@@ -1,12 +1,12 @@
 ManifestFileVersion: 0
-CRC: 1288912054
+CRC: 1670575371
 Hashes:
   AssetFileHash:
     serializedVersion: 2
-    Hash: d537313022afd55ac360a13e8787d8bd
+    Hash: b1ae314a990aa101fab0ea019523dd51
   TypeTreeHash:
     serializedVersion: 2
-    Hash: 9554f1250f18acafb5bb04df89040b50
+    Hash: 9985cff655403e740addc08be25cf58c
 HashAppended: 0
 ClassTypes:
 - Class: 114
@@ -15,5 +15,5 @@ ClassTypes:
   Script: {instanceID: 0}
 SerializeReferenceClassIdentifiers: []
 Assets:
-- Assets/Depra.Assets/Tests/AssetBundles/TestAsset.asset
+- Assets/Depra.Assets.Unity/Tests/Assets/AssetBundles/Windows/TestScriptableAsset.asset
 Dependencies: []

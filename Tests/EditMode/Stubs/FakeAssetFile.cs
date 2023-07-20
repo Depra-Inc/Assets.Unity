@@ -1,15 +1,16 @@
 ﻿using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
-using Depra.Assets.Runtime.Files.Delegates;
-using Depra.Assets.Runtime.Files.Idents;
-using Depra.Assets.Runtime.Files.Interfaces;
-using Depra.Assets.Runtime.Files.ValueObjects;
-using Depra.Assets.Tests.PlayMode.Stubs;
+using Depra.Assets.Delegates;
+using Depra.Assets.Files;
+using Depra.Assets.Idents;
+using Depra.Assets.Unity.Runtime.Files.Adapter;
+using Depra.Assets.Unity.Tests.PlayMode.Stubs;
+using Depra.Assets.ValueObjects;
 
-namespace Depra.Assets.Tests.EditMode.Stubs
+namespace Depra.Assets.Unity.Tests.EditMode.Stubs
 {
-    internal sealed class FakeAssetFile : ILoadableAsset<TestScriptableAsset>
+    internal sealed class FakeAssetFile : IUnityLoadableAsset<TestScriptableAsset>
     {
         public FakeAssetFile(IAssetIdent ident) => Ident = ident;
 
@@ -19,12 +20,12 @@ namespace Depra.Assets.Tests.EditMode.Stubs
 
         FileSize IAssetFile.Size => FileSize.Zero;
 
-        TestScriptableAsset ILoadableAsset<TestScriptableAsset>.Load() =>
+        TestScriptableAsset IUnityLoadableAsset<TestScriptableAsset>.Load() =>
             throw new NotImplementedException();
 
-        void ILoadableAsset<TestScriptableAsset>.Unload() => IsLoaded = false;
+        void IUnityLoadableAsset<TestScriptableAsset>.Unload() => IsLoaded = false;
 
-        UniTask<TestScriptableAsset> ILoadableAsset<TestScriptableAsset>.LoadAsync(
+        UniTask<TestScriptableAsset> IUnityLoadableAsset<TestScriptableAsset>.LoadAsync(
             DownloadProgressDelegate onProgress,
             CancellationToken cancellationToken) =>
             throw new NotImplementedException();

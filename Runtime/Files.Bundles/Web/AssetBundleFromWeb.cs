@@ -1,22 +1,21 @@
-﻿// Copyright © 2022 Nikolay Melnikov. All rights reserved.
+﻿// Copyright © 2023 Nikolay Melnikov. All rights reserved.
 // SPDX-License-Identifier: Apache-2.0
 
 using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
-using Depra.Assets.Runtime.Exceptions;
-using Depra.Assets.Runtime.Files.Bundles.Files;
-using Depra.Assets.Runtime.Files.Idents;
-using Depra.Assets.Runtime.Files.ValueObjects;
+using Depra.Assets.Unity.Runtime.Exceptions;
+using Depra.Assets.Unity.Runtime.Files.Bundles.Files;
+using Depra.Assets.Unity.Runtime.Files.Idents;
+using Depra.Assets.ValueObjects;
 using UnityEngine;
 using UnityEngine.Networking;
 
-namespace Depra.Assets.Runtime.Files.Bundles.Web
+namespace Depra.Assets.Unity.Runtime.Files.Bundles.Web
 {
     public sealed class AssetBundleFromWeb : AssetBundleFile
     {
         private long _contentSize;
-        private UnityWebRequest _webRequest;
 
         public AssetBundleFromWeb(FileSystemAssetIdent ident) : base(ident) { }
 
@@ -36,25 +35,25 @@ namespace Depra.Assets.Runtime.Files.Bundles.Web
             return DownloadHandlerAssetBundle.GetContent(request);
         }
 
-        protected override async UniTask<AssetBundle> LoadAsyncOverride(CancellationToken cancellationToken,
-            IProgress<float> progress = null)
+        protected override async UniTask<AssetBundle> LoadAsyncOverride(IProgress<float> progress = null,
+            CancellationToken cancellationToken = default)
         {
-            _webRequest = UnityWebRequestAssetBundle.GetAssetBundle(Ident.Uri);
-            await _webRequest.SendWebRequest().ToUniTask(progress, cancellationToken: cancellationToken);
+            var webRequest = UnityWebRequestAssetBundle.GetAssetBundle(Ident.Uri);
+            await webRequest
+                .SendWebRequest()
+                .ToUniTask(progress, cancellationToken: cancellationToken);
 
-            Guard.AgainstInvalidRequestResult(_webRequest,
+            Guard.AgainstInvalidRequestResult(webRequest,
                 (error, url) => new RemoveAssetBundleNotLoadedException(url, error));
             
-            var downloadedBundle = DownloadHandlerAssetBundle.GetContent(_webRequest);
+            var downloadedBundle = DownloadHandlerAssetBundle.GetContent(webRequest);
 
-            _contentSize = _webRequest.ParseSize();
-            _webRequest.Dispose();
+            _contentSize = webRequest.ParseSize();
+            webRequest.Dispose();
 
             return downloadedBundle;
         }
 
         protected override FileSize FindSize(AssetBundle assetBundle) => new(_contentSize);
-
-        private void CancelRequest() => _webRequest?.Abort();
     }
 }

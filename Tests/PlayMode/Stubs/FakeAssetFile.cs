@@ -1,42 +1,32 @@
 ﻿using System.Threading;
 using Cysharp.Threading.Tasks;
-using Depra.Assets.Runtime.Files.Delegates;
-using Depra.Assets.Runtime.Files.Idents;
-using Depra.Assets.Runtime.Files.Interfaces;
-using Depra.Assets.Runtime.Files.ValueObjects;
+using Depra.Assets.Delegates;
+using Depra.Assets.Files;
+using Depra.Assets.Idents;
+using Depra.Assets.Unity.Runtime.Files.Adapter;
+using Depra.Assets.ValueObjects;
 using UnityEngine;
 
-namespace Depra.Assets.Tests.PlayMode.Stubs
+namespace Depra.Assets.Unity.Tests.PlayMode.Stubs
 {
-    internal sealed class FakeAssetFile : ILoadableAsset<Object>
+    internal sealed class FakeAssetFile : IUnityLoadableAsset<Object>
     {
         private static TestScriptableAsset CreateAsset() =>
             ScriptableObject.CreateInstance<TestScriptableAsset>();
 
-        public FakeAssetFile()
-        {
-            Ident = NamedAssetIdent.Empty;
-            Size = new FileSize(1);
-            Name = nameof(FakeAssetFile);
-            AbsolutePath = Name;
-        }
-
-        public IAssetIdent Ident { get; }
-        public string Name { get; }
-
-        public string AbsolutePath { get; }
-
-        public FileSize Size { get; }
-
         public bool IsLoaded { get; private set; }
 
-        Object ILoadableAsset<Object>.Load()
+        FileSize IAssetFile.Size { get; } = new(1);
+
+        IAssetIdent IAssetFile.Ident => AssetName.Empty;
+
+        Object IUnityLoadableAsset<Object>.Load()
         {
             IsLoaded = true;
             return CreateAsset();
         }
 
-        async UniTask<Object> ILoadableAsset<Object>.LoadAsync(DownloadProgressDelegate onProgress,
+        async UniTask<Object> IUnityLoadableAsset<Object>.LoadAsync(DownloadProgressDelegate onProgress,
             CancellationToken cancellationToken)
         {
             var asset = CreateAsset();
@@ -48,6 +38,6 @@ namespace Depra.Assets.Tests.PlayMode.Stubs
             return asset;
         }
 
-        void ILoadableAsset<Object>.Unload() => IsLoaded = false;
+        void IUnityLoadableAsset<Object>.Unload() => IsLoaded = false;
     }
 }

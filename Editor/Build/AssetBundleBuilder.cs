@@ -3,12 +3,12 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Depra.Assets.Runtime.Files.Bundles.Files;
+using Depra.Assets.Unity.Runtime.Files.Bundles.Files;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.Networking;
 
-namespace Depra.Assets.Editor.Build
+namespace Depra.Assets.Unity.Editor.Build
 {
     /// <summary>
     /// Functionality for building and preparing asset bundles.
@@ -36,17 +36,16 @@ namespace Depra.Assets.Editor.Build
         /// The path to the asset bundle staging directory, relative to the root
         /// directory of the Unity project.
         /// </summary>
-        private static readonly string StagingArea = Path.Combine(ROOT_BUILD_PATH, "Staging");
+        private static readonly string STAGING_AREA = Path.Combine(ROOT_BUILD_PATH, "Staging");
 
         /// <summary>
         /// The path to the asset bundle upload directory, relative to the root directory
         /// of the Unity project.
         /// </summary>
-        private static readonly string UploadArea = Path.Combine(ROOT_BUILD_PATH, "Upload");
+        private static readonly string UPLOAD_AREA = Path.Combine(ROOT_BUILD_PATH, "Upload");
 
         /// <summary>
-        /// The runtime platform that asset bundles will build for based on the active
-        /// build target.
+        /// The runtime platform that asset bundles will build for based on the active build target.
         /// </summary>
         public static RuntimePlatform CurrentBuildPlatform =>
             GetPlatformForTarget(EditorUserBuildSettings.activeBuildTarget);
@@ -113,7 +112,7 @@ namespace Depra.Assets.Editor.Build
 
             // Clear out the staging area, if it already exists. This prevents a buildup
             // of old bundles over time.
-            ResetDirectory(StagingArea);
+            ResetDirectory(STAGING_AREA);
 
             // Copy bundles to the staging area, renaming them based on the target
             // platform and asset hash.
@@ -158,7 +157,7 @@ namespace Depra.Assets.Editor.Build
 
             // Clear out the staging area, if it already exists. This prevents a buildup
             // of old bundles over time.
-            ResetDirectory(StagingArea);
+            ResetDirectory(STAGING_AREA);
 
             var manifests = new Dictionary<BuildTarget, AssetBundleManifest>();
             foreach (var buildTarget in buildTargets)
@@ -272,11 +271,11 @@ namespace Depra.Assets.Editor.Build
             // Clear out the upload area, if it already exists. This prevents a buildup
             // of bundles over time, and ensures that after a build the upload area will
             // only contain the latest bundles that need to be uploaded.
-            ResetDirectory(UploadArea);
+            ResetDirectory(UPLOAD_AREA);
 
             // Start all of the web requests at the same time and wait for them to complete.
             var bundleRoutines = Directory
-                .GetFiles(StagingArea)
+                .GetFiles(STAGING_AREA)
                 .Select(PrepareBundle)
                 .ToArray();
 
@@ -327,7 +326,7 @@ namespace Depra.Assets.Editor.Build
 
                 if (request.result == UnityWebRequest.Result.ProtocolError)
                 {
-                    var destPath = Path.Combine(UploadArea, fileName);
+                    var destPath = Path.Combine(UPLOAD_AREA, fileName);
                     File.Copy(bundlePath, destPath, true);
                 }
             }
@@ -573,7 +572,7 @@ namespace Depra.Assets.Editor.Build
                     target,
                     manifest.GetAssetBundleHash(bundle));
 
-                File.Copy(sourceFile, Path.Combine(StagingArea, fileName), true);
+                File.Copy(sourceFile, Path.Combine(STAGING_AREA, fileName), true);
             }
         }
     }

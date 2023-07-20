@@ -1,8 +1,8 @@
 ﻿using System.IO;
-using Depra.Assets.Runtime.Files.Idents;
-using static Depra.Assets.Runtime.Common.Constants;
+using Depra.Assets.Idents;
+using static Depra.Assets.Unity.Runtime.Common.Constants;
 
-namespace Depra.Assets.Runtime.Files.Database
+namespace Depra.Assets.Unity.Runtime.Files.Database
 {
     public readonly struct DatabaseAssetIdent : IAssetIdent
     {

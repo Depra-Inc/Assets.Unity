@@ -1,4 +1,4 @@
-// Copyright © 2022 Nikolay Melnikov. All rights reserved.
+// Copyright © 2023 Nikolay Melnikov. All rights reserved.
 // SPDX-License-Identifier: Apache-2.0
 
 using System;
@@ -7,7 +7,7 @@ using System.IO;
 using System.Linq;
 using UnityEngine;
 
-namespace Depra.Assets.Runtime.Files.Bundles.Files
+namespace Depra.Assets.Unity.Runtime.Files.Bundles.Files
 {
     /// <summary>
     /// Data needed to load an asset bundle at runtime.

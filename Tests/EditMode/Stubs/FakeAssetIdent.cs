@@ -1,6 +1,6 @@
-﻿using Depra.Assets.Runtime.Files.Idents;
+﻿using Depra.Assets.Idents;
 
-namespace Depra.Assets.Tests.EditMode.Stubs
+namespace Depra.Assets.Unity.Tests.EditMode.Stubs
 {
     internal sealed class FakeAssetIdent : IAssetIdent
     {

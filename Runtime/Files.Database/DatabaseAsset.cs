@@ -1,41 +1,39 @@
-﻿// Copyright © 2022 Nikolay Melnikov. All rights reserved.
+﻿// Copyright © 2023 Nikolay Melnikov. All rights reserved.
 // SPDX-License-Identifier: Apache-2.0
 
 using System;
 using System.IO;
 using System.Threading;
 using Cysharp.Threading.Tasks;
-using Depra.Assets.Runtime.Exceptions;
-using Depra.Assets.Runtime.Extensions;
-using Depra.Assets.Runtime.Files.Delegates;
-using Depra.Assets.Runtime.Files.Idents;
-using Depra.Assets.Runtime.Files.Interfaces;
-using Depra.Assets.Runtime.Files.ValueObjects;
+using Depra.Assets.Delegates;
+using Depra.Assets.Idents;
+using Depra.Assets.Unity.Runtime.Extensions;
+using Depra.Assets.Unity.Runtime.Common;
+using Depra.Assets.Unity.Runtime.Exceptions;
+using Depra.Assets.Unity.Runtime.Files.Adapter;
+using Depra.Assets.ValueObjects;
 using UnityEditor;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace Depra.Assets.Runtime.Files.Database
+namespace Depra.Assets.Unity.Runtime.Files.Database
 {
-    public sealed class DatabaseAsset<TAsset> : ILoadableAsset<TAsset>, IDisposable where TAsset : ScriptableObject
+    public sealed class DatabaseAsset<TAsset> : UnityAssetFile<TAsset>, IDisposable where TAsset : ScriptableObject
     {
+        public static implicit operator TAsset(DatabaseAsset<TAsset> from) => from.Load();
         private static Type AssetType => typeof(TAsset);
 
         private readonly DatabaseAssetIdent _ident;
-
         private TAsset _loadedAsset;
 
         public DatabaseAsset(DatabaseAssetIdent ident) =>
             _ident = ident;
 
-        public IAssetIdent Ident => _ident;
-        public string Name => _ident.Name;
-        public string AbsolutePath => _ident.AbsolutePath;
+        public override IAssetIdent Ident => _ident;
+        public override bool IsLoaded => _loadedAsset != null;
+        public override FileSize Size { get; protected set; } = FileSize.Unknown;
 
-        public bool IsLoaded => _loadedAsset != null;
-        public FileSize Size { get; private set; } = FileSize.Unknown;
-
-        public TAsset Load()
+        public override TAsset Load()
         {
             if (IsLoaded)
             {
@@ -44,7 +42,7 @@ namespace Depra.Assets.Runtime.Files.Database
 
             TAsset loadedAsset = null;
 #if UNITY_EDITOR
-            if (File.Exists(AbsolutePath))
+            if (File.Exists(_ident.AbsolutePath))
             {
                 loadedAsset = AssetDatabase.LoadAssetAtPath<TAsset>(_ident.RelativePath);
             }
@@ -57,12 +55,12 @@ namespace Depra.Assets.Runtime.Files.Database
             Guard.AgainstNull(loadedAsset, () => new AssetCreationException(AssetType, AssetType.Name));
 
             _loadedAsset = loadedAsset;
-            Size = FileSize.FromProfiler(_loadedAsset);
+            Size = UnityFileSize.FromProfiler(_loadedAsset);
 
             return _loadedAsset;
         }
 
-        public void Unload()
+        public override void Unload()
         {
             if (IsLoaded == false)
             {
@@ -75,25 +73,22 @@ namespace Depra.Assets.Runtime.Files.Database
             _loadedAsset = null;
         }
 
-        public async UniTask<TAsset> LoadAsync(DownloadProgressDelegate onProgress = null,
+        public override async UniTask<TAsset> LoadAsync(DownloadProgressDelegate onProgress = null,
             CancellationToken cancellationToken = default)
         {
             if (IsLoaded)
             {
                 onProgress?.Invoke(DownloadProgress.Full);
-
                 return _loadedAsset;
             }
 
-            await UniTask.SwitchToMainThread(cancellationToken: cancellationToken);
+            await UniTask.SwitchToMainThread(cancellationToken);
             var loadedAsset = await UniTask.RunOnThreadPool(Load, configureAwait: false, cancellationToken);
-
-            onProgress?.Invoke(DownloadProgress.Full);
-
             Guard.AgainstNull(loadedAsset, () => new AssetCreationException(AssetType, AssetType.Name));
 
             _loadedAsset = loadedAsset;
-            Size = FileSize.FromProfiler(_loadedAsset);
+            onProgress?.Invoke(DownloadProgress.Full);
+            Size = UnityFileSize.FromProfiler(_loadedAsset);
 
             return _loadedAsset;
         }
@@ -113,7 +108,7 @@ namespace Depra.Assets.Runtime.Files.Database
         {
             _ident.AbsoluteDirectory.CreateIfNotExists();
 
-            asset.name = Name;
+            asset.name = _ident.Name;
             AssetDatabase.CreateAsset(asset, _ident.RelativePath);
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();

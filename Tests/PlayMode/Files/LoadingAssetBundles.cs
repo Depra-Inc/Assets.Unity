@@ -7,33 +7,29 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 using Cysharp.Threading.Tasks;
-using Depra.Assets.Runtime.Files.Bundles.Files;
-using Depra.Assets.Runtime.Files.Bundles.IO;
-using Depra.Assets.Runtime.Files.Bundles.Memory;
-using Depra.Assets.Runtime.Files.Idents;
-using Depra.Assets.Runtime.Files.ValueObjects;
-using Depra.Assets.Tests.PlayMode.Stubs;
+using Depra.Assets.Unity.Runtime.Files.Bundles.Files;
+using Depra.Assets.Unity.Runtime.Files.Bundles.IO;
+using Depra.Assets.Unity.Runtime.Files.Bundles.Memory;
+using Depra.Assets.Unity.Runtime.Files.Idents;
+using Depra.Assets.Unity.Tests.PlayMode.Stubs;
+using Depra.Assets.ValueObjects;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
 using static UnityEngine.Debug;
 using Assert = NUnit.Framework.Assert;
 
-namespace Depra.Assets.Tests.PlayMode.Files
+namespace Depra.Assets.Unity.Tests.PlayMode.Files
 {
     [TestFixture(TestOf = typeof(AssetBundleFile))]
     internal sealed class LoadingAssetBundles
     {
         private const string TEST_BUNDLE_NAME = "test";
 
-        private Stopwatch _stopwatch;
-        private AssetBundle _loadedBundle;
-
         private static IEnumerable<AssetBundleFile> AllBundles()
         {
-            var sourceType = typeof(TestAssetBundlesDirectory);
-            var assetBundlesDirectory = new TestAssetBundlesDirectory(sourceType);
-            var bundleIdent = new FileSystemAssetIdent(TEST_BUNDLE_NAME, assetBundlesDirectory.AbsolutePath);
+            var assetBundlesDirectory = new TestAssetBundlesDirectory(typeof(TestAssetBundlesDirectory));
+            var bundleIdent = new FileSystemAssetIdent(assetBundlesDirectory.AbsolutePath, TEST_BUNDLE_NAME);
 
             yield return new AssetBundleFromFile(bundleIdent);
             yield return new AssetBundleFromMemory(bundleIdent);
@@ -44,15 +40,18 @@ namespace Depra.Assets.Tests.PlayMode.Files
         private static IEnumerable<AssetBundleFile> InvalidBundles()
         {
             var invalidIdent = FileSystemAssetIdent.Invalid;
-
             yield return new AssetBundleFromFile(invalidIdent);
             yield return new AssetBundleFromMemory(invalidIdent);
             yield return new AssetBundleFromStream(invalidIdent);
             //yield return new AssetBundleFromWeb(invalidIdent);
         }
 
+        private Stopwatch _stopwatch;
+        private AssetBundle _loadedBundle;
+
         [OneTimeSetUp]
-        public void OneTimeSetup() => _stopwatch = new Stopwatch();
+        public void OneTimeSetup() =>
+            _stopwatch = new Stopwatch();
 
         [TearDown]
         public void TearDown()
@@ -67,11 +66,9 @@ namespace Depra.Assets.Tests.PlayMode.Files
         }
 
         [Test]
-        public void BundleShouldBeLoaded([ValueSource(nameof(AllBundles))] AssetBundleFile bundleFile)
+        public void Load_ShouldSucceed([ValueSource(nameof(AllBundles))] AssetBundleFile bundleFile)
         {
-            // Arrange.
-
-            // Act.
+            // Arrange & Act.
             _loadedBundle = bundleFile.Load();
 
             // Assert.
@@ -80,24 +77,6 @@ namespace Depra.Assets.Tests.PlayMode.Files
 
             // Debug.
             Log($"The bundle was loaded by path: {bundleFile.Ident.Uri}.");
-        }
-
-        [UnityTest]
-        public IEnumerator BundleShouldBeUnloaded([ValueSource(nameof(AllBundles))] AssetBundleFile bundleFile)
-        {
-            // Arrange.
-            bundleFile.Load();
-            yield return null;
-
-            // Act.
-            bundleFile.Unload();
-            yield return null;
-
-            // Assert.
-            Assert.That(bundleFile.IsLoaded, Is.False);
-
-            // Debug.
-            Log($"The bundle with name {bundleFile.Ident.RelativeUri} was unloaded.");
         }
 
         [Test]
@@ -114,7 +93,7 @@ namespace Depra.Assets.Tests.PlayMode.Files
         }
 
         [UnityTest]
-        public IEnumerator BundleShouldBeLoadedAsync([ValueSource(nameof(AllBundles))] AssetBundleFile bundleFile) =>
+        public IEnumerator LoadAsync_ShouldSucceed([ValueSource(nameof(AllBundles))] AssetBundleFile bundleFile) =>
             UniTask.ToCoroutine(async () =>
             {
                 // Arrange.
@@ -138,7 +117,7 @@ namespace Depra.Assets.Tests.PlayMode.Files
             });
 
         [UnityTest]
-        public IEnumerator BundleShouldBeLoadedWithProgress(
+        public IEnumerator LoadAsync_WithProgress_ShouldSucceed(
             [ValueSource(nameof(AllBundles))] AssetBundleFile bundleFile) =>
             UniTask.ToCoroutine(async () =>
             {
@@ -193,7 +172,7 @@ namespace Depra.Assets.Tests.PlayMode.Files
             });
 
         [UnityTest]
-        public IEnumerator BundleSizeShouldNotBeZeroOrUnknown(
+        public IEnumerator SizeOfLoadedAsset_ShouldNotBeZeroOrUnknown(
             [ValueSource(nameof(AllBundles))] AssetBundleFile bundleFile)
         {
             // Arrange.
@@ -211,6 +190,24 @@ namespace Depra.Assets.Tests.PlayMode.Files
             Log($"Size of {bundleFile.Ident.RelativeUri} is {bundleSize.ToHumanReadableString()}.");
 
             yield return null;
+        }
+
+        [UnityTest]
+        public IEnumerator Unload_ShouldSucceed([ValueSource(nameof(AllBundles))] AssetBundleFile bundleFile)
+        {
+            // Arrange.
+            bundleFile.Load();
+            yield return null;
+
+            // Act.
+            bundleFile.Unload();
+            yield return null;
+
+            // Assert.
+            Assert.That(bundleFile.IsLoaded, Is.False);
+
+            // Debug.
+            Log($"The bundle with name {bundleFile.Ident.RelativeUri} was unloaded.");
         }
     }
 }

@@ -1,8 +1,12 @@
-﻿using Depra.Assets.Runtime.Common;
-using Depra.Assets.Runtime.Files.Idents;
+﻿// Copyright © 2023 Nikolay Melnikov. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
+
+using System.IO;
+using Depra.Assets.Idents;
+using Depra.Assets.Unity.Runtime.Common;
 using UnityEngine;
 
-namespace Depra.Assets.Runtime.Files.Bundles.Idents
+namespace Depra.Assets.Unity.Runtime.Files.Bundles.Idents
 {
     public sealed class AssetBundleIdent : IAssetIdent
     {
@@ -12,8 +16,8 @@ namespace Depra.Assets.Runtime.Files.Bundles.Idents
         {
             Name = name;
             AbsoluteDirectoryPath = directory ?? Application.streamingAssetsPath;
-            AbsolutePath = System.IO.Path.Combine(AbsoluteDirectoryPath, Name + Extension);
-            RelativePath = System.IO.Path.GetRelativePath(Constants.DataPathByPlatform, AbsolutePath);
+            AbsolutePath = Path.Combine(AbsoluteDirectoryPath, Name + Extension);
+            RelativePath = Path.GetRelativePath(Constants.DataPathByPlatform, AbsolutePath);
         }
 
         public string Name { get; }

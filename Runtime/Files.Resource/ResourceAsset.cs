@@ -1,32 +1,33 @@
 ﻿using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
-using Depra.Assets.Runtime.Exceptions;
-using Depra.Assets.Runtime.Files.Delegates;
-using Depra.Assets.Runtime.Files.Idents;
-using Depra.Assets.Runtime.Files.Interfaces;
-using Depra.Assets.Runtime.Files.ValueObjects;
+using Depra.Assets.Delegates;
+using Depra.Assets.Idents;
+using Depra.Assets.Unity.Runtime.Common;
+using Depra.Assets.Unity.Runtime.Exceptions;
+using Depra.Assets.Unity.Runtime.Files.Adapter;
+using Depra.Assets.Unity.Runtime.Files.Resource.Exceptions;
+using Depra.Assets.ValueObjects;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace Depra.Assets.Runtime.Files.Resource
+namespace Depra.Assets.Unity.Runtime.Files.Resource
 {
-    public sealed class ResourceAsset<TAsset> : ILoadableAsset<TAsset>, IDisposable where TAsset : Object
+    public sealed class ResourceAsset<TAsset> : UnityAssetFile<TAsset>, IDisposable where TAsset : Object
     {
-        private readonly ResourceIdent _ident;
+        public static implicit operator TAsset(ResourceAsset<TAsset> from) => from.Load();
+
+        private readonly ResourcesPath _ident;
         private TAsset _loadedAsset;
 
-        public static implicit operator TAsset(ResourceAsset<TAsset> asset) =>
-            asset.Load();
-
-        public ResourceAsset(ResourceIdent ident) =>
+        public ResourceAsset(ResourcesPath ident) =>
             _ident = ident ?? throw new ArgumentNullException(nameof(ident));
 
-        public IAssetIdent Ident => _ident;
-        public bool IsLoaded => _loadedAsset != null;
-        public FileSize Size { get; private set; } = FileSize.Unknown;
+        public override IAssetIdent Ident => _ident;
+        public override bool IsLoaded => _loadedAsset != null;
+        public override FileSize Size { get; protected set; } = FileSize.Unknown;
 
-        public TAsset Load()
+        public override TAsset Load()
         {
             if (IsLoaded)
             {
@@ -34,16 +35,15 @@ namespace Depra.Assets.Runtime.Files.Resource
             }
 
             var loadedAsset = Resources.Load<TAsset>(_ident.RelativePath);
-
-            Guard.AgainstNull(loadedAsset, () => new ResourceNotLoadedException(_ident.RelativePath));
+            Guard.AgainstNull(loadedAsset, () => new ResourceNotLoaded(_ident.RelativePath));
 
             _loadedAsset = loadedAsset;
-            Size = FileSize.FromProfiler(_loadedAsset);
+            Size = UnityFileSize.FromProfiler(_loadedAsset);
 
-            return loadedAsset;
+            return _loadedAsset;
         }
 
-        public void Unload()
+        public override void Unload()
         {
             if (IsLoaded == false)
             {
@@ -54,7 +54,7 @@ namespace Depra.Assets.Runtime.Files.Resource
             _loadedAsset = null;
         }
 
-        public async UniTask<TAsset> LoadAsync(DownloadProgressDelegate onProgress = null,
+        public override async UniTask<TAsset> LoadAsync(DownloadProgressDelegate onProgress = null,
             CancellationToken cancellationToken = default)
         {
             if (IsLoaded)
@@ -63,21 +63,17 @@ namespace Depra.Assets.Runtime.Files.Resource
                 return _loadedAsset;
             }
 
+            cancellationToken.ThrowIfCancellationRequested();
             var progress = Progress.Create<float>(value => onProgress?.Invoke(new DownloadProgress(value)));
             var loadedAsset = await Resources.LoadAsync<TAsset>(_ident.RelativePath)
                 .ToUniTask(progress, cancellationToken: cancellationToken);
 
-            if (cancellationToken.IsCancellationRequested)
-            {
-                return null;
-            }
-
-            onProgress?.Invoke(DownloadProgress.Full);
-
-            Guard.AgainstNull(loadedAsset, () => new ResourceNotLoadedException(_ident.RelativePath));
+            cancellationToken.ThrowIfCancellationRequested();
+            Guard.AgainstNull(loadedAsset, () => new ResourceNotLoaded(_ident.RelativePath));
 
             _loadedAsset = (TAsset) loadedAsset;
-            Size = FileSize.FromProfiler(_loadedAsset);
+            onProgress?.Invoke(DownloadProgress.Full);
+            Size = UnityFileSize.FromProfiler(_loadedAsset);
 
             return _loadedAsset;
         }

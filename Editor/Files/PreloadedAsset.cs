@@ -5,32 +5,33 @@ using System;
 using System.Linq;
 using System.Threading;
 using Cysharp.Threading.Tasks;
-using Depra.Assets.Runtime.Files.Delegates;
-using Depra.Assets.Runtime.Files.Idents;
-using Depra.Assets.Runtime.Files.Interfaces;
-using Depra.Assets.Runtime.Files.ValueObjects;
+using Depra.Assets.Delegates;
+using Depra.Assets.Idents;
+using Depra.Assets.Unity.Runtime.Common;
+using Depra.Assets.Unity.Runtime.Files.Adapter;
+using Depra.Assets.ValueObjects;
 using UnityEditor;
 using Object = UnityEngine.Object;
 
-namespace Depra.Assets.Editor.Files
+namespace Depra.Assets.Unity.Editor.Files
 {
-    public sealed class PreloadedAsset<TAsset> : ILoadableAsset<TAsset>, IDisposable where TAsset : Object
+    public sealed class PreloadedAsset<TAsset> : UnityAssetFile<TAsset>, IDisposable where TAsset : Object
     {
         public static implicit operator TAsset(PreloadedAsset<TAsset> from) => from.Load();
 
         private static Type AssetType => typeof(TAsset);
 
-        private readonly ILoadableAsset<TAsset> _asset;
+        private readonly IUnityLoadableAsset<TAsset> _asset;
         private TAsset _loadedAsset;
 
-        public PreloadedAsset(ILoadableAsset<TAsset> asset) =>
+        public PreloadedAsset(IUnityLoadableAsset<TAsset> asset) =>
             _asset = asset ?? throw new ArgumentNullException(nameof(asset));
 
-        public IAssetIdent Ident => _asset.Ident;
-        public bool IsLoaded => _loadedAsset != null;
-        public FileSize Size { get; private set; } = FileSize.Unknown;
+        public override IAssetIdent Ident => _asset.Ident;
+        public override bool IsLoaded => _loadedAsset != null;
+        public override FileSize Size { get; protected set; } = FileSize.Unknown;
 
-        public TAsset Load()
+        public override TAsset Load()
         {
             if (IsLoaded)
             {
@@ -44,12 +45,12 @@ namespace Depra.Assets.Editor.Files
             }
 
             _loadedAsset = loadedAsset;
-            Size = FileSize.FromProfiler(_loadedAsset);
+            Size = UnityFileSize.FromProfiler(_loadedAsset);
 
             return _loadedAsset;
         }
 
-        public void Unload()
+        public override void Unload()
         {
             if (IsLoaded == false)
             {
@@ -60,7 +61,7 @@ namespace Depra.Assets.Editor.Files
             _loadedAsset = null;
         }
 
-        public async UniTask<TAsset> LoadAsync(DownloadProgressDelegate onProgress = null,
+        public override async UniTask<TAsset> LoadAsync(DownloadProgressDelegate onProgress = null,
             CancellationToken cancellationToken = default)
         {
             if (IsLoaded)
@@ -76,17 +77,16 @@ namespace Depra.Assets.Editor.Files
             }
 
             _loadedAsset = loadedAsset;
-            Size = FileSize.FromProfiler(_loadedAsset);
+            Size = UnityFileSize.FromProfiler(_loadedAsset);
 
             return _loadedAsset;
         }
 
         private bool TryGetPreloadedAsset(out TAsset preloadedAsset)
         {
-            bool Filter(Object asset) => asset.GetType() == AssetType;
             var assetByType = PlayerSettings
                 .GetPreloadedAssets()
-                .FirstOrDefault(Filter);
+                .FirstOrDefault(asset => asset.GetType() == AssetType);
 
             if (assetByType == null)
             {
@@ -100,9 +100,8 @@ namespace Depra.Assets.Editor.Files
 
         private bool TryLoadAssetFromDatabase(out TAsset asset)
         {
-            var filter = $"t:{AssetType.Name}";
             var assetGuid = AssetDatabase
-                .FindAssets(filter)
+                .FindAssets($"t:{AssetType.Name}")
                 .FirstOrDefault();
 
             var assetPath = AssetDatabase.GUIDToAssetPath(assetGuid);

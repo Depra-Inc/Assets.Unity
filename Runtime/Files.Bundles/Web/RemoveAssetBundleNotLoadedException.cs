@@ -1,6 +1,9 @@
-﻿using System;
+﻿// Copyright © 2023 Nikolay Melnikov. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
-namespace Depra.Assets.Runtime.Files.Bundles.Web
+using System;
+
+namespace Depra.Assets.Unity.Runtime.Files.Bundles.Web
 {
     internal sealed class RemoveAssetBundleNotLoadedException : Exception
     {

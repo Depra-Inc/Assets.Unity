@@ -1,8 +1,12 @@
-﻿using System.IO;
-using Depra.Assets.Runtime.Extensions;
-using static Depra.Assets.Runtime.Common.Constants;
+﻿// Copyright © 2023 Nikolay Melnikov. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
-namespace Depra.Assets.Runtime.Files.Idents
+using System.IO;
+using Depra.Assets.Idents;
+using Depra.Assets.Unity.Runtime.Extensions;
+using static Depra.Assets.Unity.Runtime.Common.Constants;
+
+namespace Depra.Assets.Unity.Runtime.Files.Idents
 {
     public sealed class FileSystemAssetIdent : IAssetIdent
     {
@@ -15,7 +19,9 @@ namespace Depra.Assets.Runtime.Files.Idents
         {
             _fileSystemInfo = new FileInfo(path);
             _fileSystemInfo.Directory.CreateIfNotExists();
-            Name = _fileSystemInfo.Name.Replace(Extension, string.Empty);
+            Name = string.IsNullOrEmpty(Extension)
+                ? _fileSystemInfo.Name
+                : _fileSystemInfo.Name.Replace(Extension, string.Empty);
         }
 
         public FileSystemAssetIdent(string directory, string nameWithExtension) : this(

@@ -2,12 +2,12 @@
 // SPDX-License-Identifier: Apache-2.0
 
 using System;
-using System.Diagnostics;
 using System.IO;
+using Depra.Assets.Unity.Tests.PlayMode.Utils;
 using UnityEngine;
-using static Depra.Assets.Runtime.Common.Constants;
+using static Depra.Assets.Unity.Runtime.Common.Constants;
 
-namespace Depra.Assets.Tests.PlayMode.Stubs
+namespace Depra.Assets.Unity.Tests.PlayMode.Stubs
 {
     internal sealed class TestAssetBundlesDirectory
     {
@@ -18,7 +18,7 @@ namespace Depra.Assets.Tests.PlayMode.Stubs
 
         public TestAssetBundlesDirectory(Type sourceType)
         {
-            var sourceDirectory = GetSourceDirectoryName(sourceType);
+            var sourceDirectory = TypeUtility.GetSourceDirectoryName(sourceType);
             var assetBundlesRootDirectoryPath = FindRootTestsFolder(sourceDirectory);
             CreateIfDoesNotExist(assetBundlesRootDirectoryPath);
             AbsolutePath = Path.Combine(assetBundlesRootDirectoryPath, PlatformName());
@@ -32,10 +32,9 @@ namespace Depra.Assets.Tests.PlayMode.Stubs
 
         private static void CreateIfDoesNotExist(string path)
         {
-            var directoryInfo = new DirectoryInfo(path);
-            if (directoryInfo.Exists == false)
+            if (Directory.Exists(path) == false)
             {
-                directoryInfo.Create();
+                Directory.CreateDirectory(path);
             }
         }
 
@@ -51,26 +50,6 @@ namespace Depra.Assets.Tests.PlayMode.Stubs
             parentFolderName = Path.Combine(parentFolderName, ASSETS_FOLDER, ASSET_BUNDLES_FOLDER_NAME);
 
             return parentFolderName;
-        }
-
-        private static string GetSourceDirectoryName(Type type)
-        {
-            var stackTrace = new StackTrace(true);
-            var frames = stackTrace.GetFrames();
-            if (frames == null)
-            {
-                throw new Exception($"Can't found directory for {type.Name}!");
-            }
-
-            foreach (var frame in frames)
-            {
-                if (frame.GetMethod() is { } method && method.DeclaringType == type)
-                {
-                    return Path.GetDirectoryName(frame.GetFileName());
-                }
-            }
-
-            throw new Exception($"Can't found directory for {type.Name}!");
         }
     }
 }

@@ -1,0 +1,19 @@
+{
+    "name": "Depra.Assets.Unity",
+    "rootNamespace": "",
+    "references": [
+        "GUID:d9fc9b62b1d439949a885ee8b6ead17a",
+        "GUID:f51ebe6a0ceec4240a699833d6309b23"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "Depra.Assets.dll"
+    ],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

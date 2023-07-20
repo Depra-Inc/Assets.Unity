@@ -2,10 +2,13 @@
 // SPDX-License-Identifier: Apache-2.0
 
 using UnityEngine;
-using static Depra.Assets.Runtime.Common.Constants;
+using static Depra.Assets.Unity.Runtime.Common.Constants;
 
-namespace Depra.Assets.Tests.PlayMode.Stubs
+namespace Depra.Assets.Unity.Tests.PlayMode.Stubs
 {
-    [CreateAssetMenu(menuName = FRAMEWORK_NAME + "/" + MODULE_NAME + "/" + nameof(TestScriptableAsset), order = 51)]
+    [CreateAssetMenu(
+        fileName = nameof(TestScriptableAsset),
+        menuName = FRAMEWORK_NAME + "/" + MODULE_NAME + "/" + nameof(TestScriptableAsset),
+        order = 51)]
     public sealed class TestScriptableAsset : ScriptableObject { }
 }

@@ -1,7 +1,10 @@
-﻿using System.IO;
-using static Depra.Assets.Runtime.Common.Constants;
+﻿// Copyright © 2023 Nikolay Melnikov. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
 
-namespace Depra.Assets.Runtime.Files.Extensions
+using System.IO;
+using static Depra.Assets.Unity.Runtime.Common.Constants;
+
+namespace Depra.Assets.Unity.Runtime.Files.Extensions
 {
     internal static class StringExtensions
     {

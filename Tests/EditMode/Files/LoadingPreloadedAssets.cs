@@ -1,21 +1,20 @@
-﻿// Copyright © 2022 Nikolay Melnikov. All rights reserved.
+﻿// Copyright © 2023 Nikolay Melnikov. All rights reserved.
 // SPDX-License-Identifier: Apache-2.0
 
 using System.Threading;
 using Cysharp.Threading.Tasks;
-using Depra.Assets.Editor.Files;
-using Depra.Assets.Runtime.Files.Interfaces;
-using Depra.Assets.Runtime.Files.ValueObjects;
-using Depra.Assets.Tests.EditMode.Stubs;
-using Depra.Assets.Tests.PlayMode.Stubs;
+using Depra.Assets.Unity.Editor.Files;
+using Depra.Assets.Unity.Runtime.Files.Adapter;
+using Depra.Assets.Unity.Tests.EditMode.Stubs;
+using Depra.Assets.Unity.Tests.PlayMode.Stubs;
+using Depra.Assets.ValueObjects;
 using NUnit.Framework;
 using UnityEditor;
 using UnityEngine;
 using static UnityEngine.Debug;
 using Assert = NUnit.Framework.Assert;
-using Object = UnityEngine.Object;
 
-namespace Depra.Assets.Tests.EditMode.Files
+namespace Depra.Assets.Unity.Tests.EditMode.Files
 {
     [TestFixture(TestOf = typeof(PreloadedAsset<>))]
     internal sealed class LoadingPreloadedAssets
@@ -24,7 +23,7 @@ namespace Depra.Assets.Tests.EditMode.Files
 
         private Object _testInstance;
         private Object[] _initialPreloadedAssets;
-        private ILoadableAsset<TestScriptableAsset> _childAsset;
+        private IUnityLoadableAsset<TestScriptableAsset> _childAsset;
 
         [OneTimeSetUp]
         public void OneTimeSetup() => 

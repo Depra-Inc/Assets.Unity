@@ -3,18 +3,17 @@
 
 using UnityEngine;
 
-namespace Depra.Assets.Runtime.Common
+namespace Depra.Assets.Unity.Runtime.Common
 {
     internal static class Constants
     {
-        public const string MODULE_NAME = "Assets";
         public const string FRAMEWORK_NAME = "Depra";
+        public const string MODULE_NAME = "Assets.Unity";
         public static readonly string FullModuleName = string.Join('.', FRAMEWORK_NAME, MODULE_NAME);
 
         public const string ASSETS_FOLDER_NAME = "Assets";
         public const string RESOURCES_FOLDER_NAME = "Resources";
 
-        public const string ASSET_BUNDLES_EXTENSION = ".unity3d";
         public const string ASSET_BUNDLES_FOLDER_NAME = "AssetBundles";
         public const string STREAMING_ASSETS_FOLDER_NAME = "StreamingAssets";
         

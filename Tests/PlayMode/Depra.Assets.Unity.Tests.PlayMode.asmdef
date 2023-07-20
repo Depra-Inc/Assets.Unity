@@ -1,0 +1,23 @@
+{
+    "name": "Depra.Assets.Unity.Tests.PlayMode",
+    "rootNamespace": "",
+    "references": [
+        "Depra.Assets.Unity",
+        "UnityEngine.TestRunner",
+        "UniTask"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "Depra.Assets.dll",
+        "nunit.framework.dll"
+    ],
+    "autoReferenced": false,
+    "defineConstraints": [
+        "UNITY_INCLUDE_TESTS"
+    ],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

@@ -6,8 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using Depra.Assets.Runtime.Files.ValueObjects;
+using Depra.Assets.ValueObjects;
 using UnityEngine;
 using Object = UnityEngine.Object;
 #if UNITY_EDITOR
@@ -15,7 +14,7 @@ using UnityEngine.Profiling;
 using UnityEditor;
 #endif
 
-namespace Depra.Assets.Runtime.Files.Bundles.Extensions
+namespace Depra.Assets.Unity.Runtime.Files.Bundles.Extensions
 {
     public static class AssetBundleExtensions
     {
