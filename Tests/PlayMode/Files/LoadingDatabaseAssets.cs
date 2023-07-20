@@ -33,7 +33,7 @@ namespace Depra.Assets.Unity.Tests.PlayMode.Files
                 name: ASSET_NAME,
                 extension: AssetTypes.BASE);
         }
-        
+
         [Test]
         public void LoadAsync_ShouldThrowsAssetCanNotBeLoadedException()
         {

@@ -73,6 +73,7 @@ namespace Depra.Assets.Unity.Runtime.Files.Database
             _loadedAsset = null;
         }
 
+        [Obsolete("Not yet supported in Unity. Use DatabaseAsset<TAsset>.Load() instead")]
         public override UniTask<TAsset> LoadAsync(DownloadProgressDelegate onProgress = null,
             CancellationToken cancellationToken = default)
         {
