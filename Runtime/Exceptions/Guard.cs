@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.CompilerServices;
-using Depra.Assets.Unity.Runtime.Files.Bundles.Web;
+using Depra.Assets.Unity.Runtime.Files.Bundles.Sources;
 using UnityEngine.Networking;
 
 namespace Depra.Assets.Unity.Runtime.Exceptions
