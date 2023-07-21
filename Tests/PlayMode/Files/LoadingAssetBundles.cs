@@ -28,7 +28,7 @@ namespace Depra.Assets.Unity.Tests.PlayMode.Files
 
         private static IEnumerable<AssetBundleFile> AllBundles()
         {
-            var assetBundlesDirectory = new TestAssetBundlesDirectory(typeof(TestAssetBundlesDirectory));
+            var assetBundlesDirectory = new TestAssetBundlesDirectory();
             var bundleIdent = new FileSystemAssetIdent(assetBundlesDirectory.AbsolutePath, TEST_BUNDLE_NAME);
 
             yield return new AssetBundleFromFile(bundleIdent);

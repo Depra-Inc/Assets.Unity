@@ -14,7 +14,6 @@ using Depra.Assets.ValueObjects;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
-using Assert = NUnit.Framework.Assert;
 
 namespace Depra.Assets.Unity.Tests.PlayMode.Files
 {
@@ -31,7 +30,7 @@ namespace Depra.Assets.Unity.Tests.PlayMode.Files
         [SetUp]
         public void Setup()
         {
-            var assetBundlesDirectory = new TestAssetBundlesDirectory(GetType());
+            var assetBundlesDirectory = new TestAssetBundlesDirectory();
             var assetBundlePath = Path.Combine(assetBundlesDirectory.AbsolutePath, TEST_BUNDLE_NAME);
             _assetBundle = AssetBundle.LoadFromFile(assetBundlePath);
             var assetIdent = new AssetName(TEST_ASSET_NAME);

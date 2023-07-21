@@ -1,10 +1,8 @@
 ﻿// Copyright © 2023 Nikolay Melnikov. All rights reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-using System;
 using System.IO;
-using Depra.Assets.Unity.Tests.PlayMode.Utils;
-using UnityEngine;
+using static Depra.Assets.Unity.Runtime.Common.Constants;
 using static Depra.Assets.Unity.Runtime.Common.Paths;
 
 namespace Depra.Assets.Unity.Tests.PlayMode.Stubs
@@ -12,23 +10,21 @@ namespace Depra.Assets.Unity.Tests.PlayMode.Stubs
     internal sealed class TestAssetBundlesDirectory
     {
         private const string TESTS_FOLDER = "Tests";
-        private const string ASSETS_FOLDER = "Assets";
 
         public readonly string AbsolutePath;
 
-        public TestAssetBundlesDirectory(Type sourceType)
+        public TestAssetBundlesDirectory()
         {
-            var sourceDirectory = TypeUtility.GetSourceDirectoryName(sourceType);
-            var assetBundlesRootDirectoryPath = FindRootTestsFolder(sourceDirectory);
-            CreateIfDoesNotExist(assetBundlesRootDirectoryPath);
-            AbsolutePath = Path.Combine(assetBundlesRootDirectoryPath, PlatformName());
+            var relativePath = PACKAGES_FOLDER_NAME + "/" +
+                                    FullModuleName + "/" +
+                                    TESTS_FOLDER + "/" +
+                                    nameof(PlayMode) + "/" +
+                                    ASSETS_FOLDER_NAME + "/" +
+                                    ASSET_BUNDLES_FOLDER_NAME;
+
+            AbsolutePath = Path.GetFullPath(relativePath);
             CreateIfDoesNotExist(AbsolutePath);
         }
-
-        private static string PlatformName() => Application.platform switch
-        {
-            _ => "Windows"
-        };
 
         private static void CreateIfDoesNotExist(string path)
         {
@@ -36,20 +32,6 @@ namespace Depra.Assets.Unity.Tests.PlayMode.Stubs
             {
                 Directory.CreateDirectory(path);
             }
-        }
-
-        private static string FindRootTestsFolder(string sourcePath)
-        {
-            var index = sourcePath.IndexOf(TESTS_FOLDER, StringComparison.Ordinal);
-            if (index < 0)
-            {
-                throw new InvalidOperationException();
-            }
-
-            var parentFolderName = sourcePath[..(index + TESTS_FOLDER.Length)];
-            parentFolderName = Path.Combine(parentFolderName, ASSETS_FOLDER, ASSET_BUNDLES_FOLDER_NAME);
-
-            return parentFolderName;
         }
     }
 }
