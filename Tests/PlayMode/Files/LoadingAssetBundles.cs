@@ -52,10 +52,8 @@ namespace Depra.Assets.Unity.Tests.PlayMode.Files
             _stopwatch = new Stopwatch();
 
         [TearDown]
-        public void TearDown()
-        {
+        public void TearDown() => 
             AssetBundle.UnloadAllAssetBundles(true);
-        }
 
         [Test]
         public void Load_ShouldSucceed([ValueSource(nameof(AllBundles))] AssetBundleFile bundleFile)
@@ -143,10 +141,15 @@ namespace Depra.Assets.Unity.Tests.PlayMode.Files
                 await UniTask.Yield();
             });
 
-        [Test]
-        public void LoadAsync_CancelBeforeStart_ShouldThrowTaskCanceledException(
+        [UnityTest]
+        public IEnumerator LoadAsync_CancelBeforeStart_ShouldThrowTaskCanceledException(
             [ValueSource(nameof(AllBundles))] AssetBundleFile bundleFile)
         {
+            // Prepare.
+            // I do not understand why the bundle does not have time to unload in TearDown.
+            AssetBundle.UnloadAllAssetBundles(true);
+            yield return null;
+            
             // Arrange.
             var cts = new CancellationTokenSource();
 
@@ -163,6 +166,11 @@ namespace Depra.Assets.Unity.Tests.PlayMode.Files
         public IEnumerator LoadAsync_CancelDuringExecution_ShouldThrowTaskCanceledException(
             [ValueSource(nameof(AllBundles))] AssetBundleFile bundleFile)
         {
+            // Prepare.
+            // I do not understand why the bundle does not have time to unload in TearDown.
+            AssetBundle.UnloadAllAssetBundles(true);
+            yield return null;
+            
             // Arrange.
             var cts = new CancellationTokenSource();
 
