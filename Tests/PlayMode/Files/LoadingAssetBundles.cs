@@ -9,15 +9,13 @@ using System.Threading;
 using System.Threading.Tasks;
 using Cysharp.Threading.Tasks;
 using Depra.Assets.Unity.Runtime.Files.Bundles.Files;
-using Depra.Assets.Unity.Runtime.Files.Bundles.IO;
-using Depra.Assets.Unity.Runtime.Files.Bundles.Memory;
-using Depra.Assets.Unity.Runtime.Files.Idents;
+using Depra.Assets.Unity.Runtime.Files.Bundles.Idents;
+using Depra.Assets.Unity.Runtime.Files.Bundles.Sources;
 using Depra.Assets.Unity.Tests.PlayMode.Stubs;
 using Depra.Assets.ValueObjects;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
-using Assert = NUnit.Framework.Assert;
 
 namespace Depra.Assets.Unity.Tests.PlayMode.Files
 {
@@ -29,21 +27,21 @@ namespace Depra.Assets.Unity.Tests.PlayMode.Files
         private static IEnumerable<AssetBundleFile> AllBundles()
         {
             var assetBundlesDirectory = new TestAssetBundlesDirectory();
-            var bundleIdent = new FileSystemAssetIdent(assetBundlesDirectory.AbsolutePath, TEST_BUNDLE_NAME);
+            var bundleIdent = new AssetBundleIdent(TEST_BUNDLE_NAME, assetBundlesDirectory.ProjectRelativePath);
 
-            yield return new AssetBundleFromFile(bundleIdent);
-            yield return new AssetBundleFromMemory(bundleIdent);
-            yield return new AssetBundleFromStream(bundleIdent);
-            //yield return new AssetBundleFromWeb(bundleIdent);
+            yield return new AssetBundleFile(bundleIdent, new AssetBundleFromFile());
+            yield return new AssetBundleFile(bundleIdent, new AssetBundleFromMemory());
+            yield return new AssetBundleFile(bundleIdent, new AssetBundleFromStream());
+            //yield return new AssetBundleFile(bundleIdent, new AssetBundleFromWeb());
         }
 
         private static IEnumerable<AssetBundleFile> InvalidBundles()
         {
-            var invalidIdent = FileSystemAssetIdent.Invalid;
-            yield return new AssetBundleFromFile(invalidIdent);
-            yield return new AssetBundleFromMemory(invalidIdent);
-            yield return new AssetBundleFromStream(invalidIdent);
-            //yield return new AssetBundleFromWeb(invalidIdent);
+            var invalidIdent = AssetBundleIdent.Invalid;
+            yield return new AssetBundleFile(invalidIdent, new AssetBundleFromFile());
+            yield return new AssetBundleFile(invalidIdent, new AssetBundleFromMemory());
+            yield return new AssetBundleFile(invalidIdent, new AssetBundleFromStream());
+            //yield return new AssetBundleFile(invalidIdent, new AssetBundleFromWeb());
         }
 
         private Stopwatch _stopwatch;

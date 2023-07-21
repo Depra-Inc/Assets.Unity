@@ -3,8 +3,8 @@
 
 using System.IO;
 using Depra.Assets.Idents;
-using UnityEngine;
-using static Depra.Assets.Unity.Runtime.Common.Paths;
+using Depra.Assets.Unity.Runtime.Extensions;
+using JetBrains.Annotations;
 
 namespace Depra.Assets.Unity.Runtime.Files.Bundles.Idents
 {
@@ -12,23 +12,47 @@ namespace Depra.Assets.Unity.Runtime.Files.Bundles.Idents
     {
         private const string EXTENSION = ".assetbundle";
 
-        public AssetBundleIdent(string name, string directory = null)
+        public static AssetBundleIdent Empty => new(string.Empty);
+        public static AssetBundleIdent Invalid => new(nameof(Invalid));
+
+        private readonly FileInfo _fileSystemInfo;
+
+        public AssetBundleIdent(string path)
         {
-            Name = name;
-            AbsoluteDirectoryPath = directory ?? Application.streamingAssetsPath;
-            AbsolutePath = Path.Combine(AbsoluteDirectoryPath, Name + Extension);
-            RelativePath = Path.GetRelativePath(DataPathByPlatform, AbsolutePath);
+            _fileSystemInfo = new FileInfo(path);
+            _fileSystemInfo.Directory.CreateIfNotExists();
+            
+            Name = string.IsNullOrEmpty(Extension)
+                ? _fileSystemInfo.Name
+                : _fileSystemInfo.Name.Replace(Extension, string.Empty);
+
+            AbsolutePathWithoutExtension = AbsolutePath.Replace(EXTENSION, string.Empty);
         }
 
+        public AssetBundleIdent(string name, string directory = null) : this(name, directory, EXTENSION) { }
+
+        public AssetBundleIdent(string name, string directory, string extension = null) : this(
+            Path.Combine(directory, name + extension)) { }
+
+        [UsedImplicitly]
         public string Name { get; }
+
+        [UsedImplicitly]
         public string Extension => EXTENSION;
 
-        public string RelativePath { get; }
-        public string AbsolutePath { get; }
+        [UsedImplicitly]
+        public string NameWithExtension => Name + Extension;
 
-        public string AbsoluteDirectoryPath { get; }
+        [UsedImplicitly]
+        public string AbsolutePath => _fileSystemInfo.FullName;
+
+        [UsedImplicitly]
+        public string AbsoluteDirectoryPath => _fileSystemInfo.DirectoryName;
+
+        public string AbsolutePathWithoutExtension { get; }
 
         string IAssetIdent.Uri => AbsolutePath;
-        string IAssetIdent.RelativeUri => RelativePath;
+
+        string IAssetIdent.RelativeUri => Name;
     }
 }
