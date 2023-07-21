@@ -11,8 +11,8 @@ namespace Depra.Assets.Unity.Tests.PlayMode.Stubs
 {
     internal sealed class FakeAssetFile : IUnityLoadableAsset<Object>
     {
-        private static TestScriptableAsset CreateAsset() =>
-            ScriptableObject.CreateInstance<TestScriptableAsset>();
+        private static PlayModeTestScriptableAsset CreateAsset() =>
+            ScriptableObject.CreateInstance<PlayModeTestScriptableAsset>();
 
         public bool IsLoaded { get; private set; }
 

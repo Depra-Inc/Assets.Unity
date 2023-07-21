@@ -6,12 +6,10 @@ using Cysharp.Threading.Tasks;
 using Depra.Assets.Unity.Editor.Files;
 using Depra.Assets.Unity.Runtime.Files.Adapter;
 using Depra.Assets.Unity.Tests.EditMode.Stubs;
-using Depra.Assets.Unity.Tests.PlayMode.Stubs;
 using Depra.Assets.ValueObjects;
 using NUnit.Framework;
 using UnityEditor;
 using UnityEngine;
-using Assert = NUnit.Framework.Assert;
 
 namespace Depra.Assets.Unity.Tests.EditMode.Files
 {
@@ -22,17 +20,17 @@ namespace Depra.Assets.Unity.Tests.EditMode.Files
 
         private Object _testInstance;
         private Object[] _initialPreloadedAssets;
-        private IUnityLoadableAsset<TestScriptableAsset> _childAsset;
+        private IUnityLoadableAsset<EditModeTestScriptableAsset> _childAsset;
 
         [OneTimeSetUp]
         public void OneTimeSetup() =>
-            _childAsset = new FakeAssetFile(new FakeAssetIdent(nameof(TestScriptableAsset)));
+            _childAsset = new FakeAssetFile(new FakeAssetIdent(nameof(EditModeTestScriptableAsset)));
 
         [SetUp]
         public void Setup()
         {
             _initialPreloadedAssets = PlayerSettings.GetPreloadedAssets();
-            _testInstance = ScriptableObject.CreateInstance<TestScriptableAsset>();
+            _testInstance = ScriptableObject.CreateInstance<EditModeTestScriptableAsset>();
             PlayerSettings.SetPreloadedAssets(new[] { _testInstance });
         }
 
@@ -47,7 +45,7 @@ namespace Depra.Assets.Unity.Tests.EditMode.Files
         public void Load_ShouldSucceed()
         {
             // Arrange.
-            var preloadedAsset = new PreloadedAsset<TestScriptableAsset>(_childAsset);
+            var preloadedAsset = new PreloadedAsset<EditModeTestScriptableAsset>(_childAsset);
 
             // Act.
             var loadedAsset = preloadedAsset.Load();
@@ -57,14 +55,14 @@ namespace Depra.Assets.Unity.Tests.EditMode.Files
             Assert.That(preloadedAsset.IsLoaded);
 
             // Debug.
-            TestContext.WriteLine($"{nameof(TestScriptableAsset)} loaded from {nameof(PlayerSettings)}.");
+            TestContext.WriteLine($"{nameof(EditModeTestScriptableAsset)} loaded from {nameof(PlayerSettings)}.");
         }
 
         [Test]
         public void LoadMultiple_ShouldSucceed()
         {
             // Arrange.
-            var resourceAsset = new PreloadedAsset<TestScriptableAsset>(_childAsset);
+            var resourceAsset = new PreloadedAsset<EditModeTestScriptableAsset>(_childAsset);
 
             // Act.
             var firstLoadedAsset = resourceAsset.Load();
@@ -83,7 +81,7 @@ namespace Depra.Assets.Unity.Tests.EditMode.Files
         public void LoadAsync_ShouldSucceed() => UniTask.Void(async () =>
         {
             // Arrange.
-            var preloadedAsset = new PreloadedAsset<TestScriptableAsset>(_childAsset);
+            var preloadedAsset = new PreloadedAsset<EditModeTestScriptableAsset>(_childAsset);
             var cancellationToken = new CancellationTokenSource(CANCEL_DELAY).Token;
 
             // Act.
@@ -101,7 +99,7 @@ namespace Depra.Assets.Unity.Tests.EditMode.Files
         public void Unload_ShouldSucceed()
         {
             // Arrange.
-            var preloadedAsset = new PreloadedAsset<TestScriptableAsset>(_childAsset);
+            var preloadedAsset = new PreloadedAsset<EditModeTestScriptableAsset>(_childAsset);
             preloadedAsset.Load();
 
             // Act.
@@ -118,7 +116,7 @@ namespace Depra.Assets.Unity.Tests.EditMode.Files
         public void SizeOfLoadedAsset_ShouldNotBeZeroOrUnknown()
         {
             // Arrange.
-            var preloadedAsset = new PreloadedAsset<TestScriptableAsset>(_childAsset);
+            var preloadedAsset = new PreloadedAsset<EditModeTestScriptableAsset>(_childAsset);
             preloadedAsset.Load();
 
             // Act.

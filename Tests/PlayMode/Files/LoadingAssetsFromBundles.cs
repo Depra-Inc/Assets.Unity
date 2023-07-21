@@ -22,11 +22,11 @@ namespace Depra.Assets.Unity.Tests.PlayMode.Files
     internal sealed class LoadingAssetsFromBundles
     {
         private const string TEST_BUNDLE_NAME = "test";
-        private const string TEST_ASSET_NAME = nameof(TestScriptableAsset);
+        private const string TEST_ASSET_NAME = nameof(PlayModeTestScriptableAsset);
 
         private Stopwatch _stopwatch;
         private AssetBundle _assetBundle;
-        private AssetBundleAssetFile<TestScriptableAsset> _assetFromBundle;
+        private AssetBundleAssetFile<PlayModeTestScriptableAsset> _assetFromBundle;
 
         [SetUp]
         public void Setup()
@@ -35,7 +35,7 @@ namespace Depra.Assets.Unity.Tests.PlayMode.Files
             var assetBundlePath = Path.Combine(assetBundlesDirectory.AbsolutePath, TEST_BUNDLE_NAME);
             _assetBundle = AssetBundle.LoadFromFile(assetBundlePath);
             var assetIdent = new AssetName(TEST_ASSET_NAME);
-            _assetFromBundle = new AssetBundleAssetFile<TestScriptableAsset>(assetIdent, _assetBundle);
+            _assetFromBundle = new AssetBundleAssetFile<PlayModeTestScriptableAsset>(assetIdent, _assetBundle);
         }
 
         [TearDown]
@@ -93,7 +93,7 @@ namespace Depra.Assets.Unity.Tests.PlayMode.Files
 
             // Assert.
             Assert.That(loadedAsset, Is.Not.Null);
-            Assert.IsInstanceOf<TestScriptableAsset>(loadedAsset);
+            Assert.IsInstanceOf<PlayModeTestScriptableAsset>(loadedAsset);
 
             // Debug.
             TestContext.WriteLine($"{loadedAsset.name} loaded " +

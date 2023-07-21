@@ -10,26 +10,28 @@ namespace Depra.Assets.Unity.Runtime.Files.Resource
 {
     public sealed class ResourcesPath : IAssetIdent
     {
-        private static readonly string RESOURCES_FOLDER_PATH =
-            Path.DirectorySeparatorChar +
-            RESOURCES_FOLDER_NAME +
-            Path.DirectorySeparatorChar;
+        private static readonly string RESOURCES_FOLDER_PATH = RESOURCES_FOLDER_NAME + Path.DirectorySeparatorChar;
 
-        public static ResourcesPath Empty => new(string.Empty, string.Empty);
-        public static ResourcesPath Invalid => new(string.Empty, nameof(Invalid));
-
-        internal ResourcesPath(string name, string relativeDirectory = null, string extension = null) : this(
+        private static string CombineProjectPath(string name, string directory = null, string extension = null) =>
             Path.Combine(
                 ASSETS_FOLDER_NAME,
                 RESOURCES_FOLDER_NAME,
-                relativeDirectory ?? string.Empty,
-                name + extension)) { }
+                directory ?? string.Empty,
+                name + extension);
+
+        public static ResourcesPath Empty => new(string.Empty);
+        public static ResourcesPath Invalid => new(nameof(Invalid));
+
+        internal ResourcesPath(string name, string relativeDirectory = null, string extension = null) : this(
+            CombineProjectPath(name, relativeDirectory, extension)) { }
 
         internal ResourcesPath(string projectPath)
         {
             ProjectPath = projectPath;
             RelativePath = FindRelativePath();
             AbsolutePath = Path.GetFullPath(ProjectPath);
+            AbsoluteDirectoryPath = Path.GetDirectoryName(AbsolutePath);
+            Directory = new DirectoryInfo(AbsoluteDirectoryPath!);
         }
 
         public string ProjectPath { get; }
@@ -39,11 +41,15 @@ namespace Depra.Assets.Unity.Runtime.Files.Resource
         [UsedImplicitly]
         public string AbsolutePath { get; }
 
+        internal DirectoryInfo Directory { get; }
+
+        private string AbsoluteDirectoryPath { get; }
+
         internal string FindRelativePath()
         {
             Guard.AgainstEmptyString(ProjectPath, () => new NullReferenceException(nameof(ProjectPath)));
             var folderIndex = ProjectPath.IndexOf(RESOURCES_FOLDER_PATH, StringComparison.Ordinal);
-            Guard.AgainstEqual(folderIndex, -1, () => new PathDoesNotContainResourcesFolder());
+            Guard.AgainstEqual(folderIndex, -1, () => new PathDoesNotContainResourcesFolder(ProjectPath));
 
             folderIndex += RESOURCES_FOLDER_PATH.Length;
             var length = ProjectPath.Length - folderIndex;

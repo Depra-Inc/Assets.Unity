@@ -14,10 +14,10 @@ namespace Depra.Assets.Unity.Runtime.Files.Database
             Extension = extension;
             NameWithExtension = Name + Extension;
 
-            RelativePath = Path.Combine(relativeDirectory, NameWithExtension);
+            RelativePath = Path.Combine(relativeDirectory, NameWithExtension).Replace(@"\", "/");
 
-            AbsolutePath = Path.GetFullPath(RelativePath);
-            AbsoluteDirectoryPath = Path.GetFullPath(relativeDirectory);
+            AbsolutePath = Path.GetFullPath(RelativePath).Replace(@"\", "/");
+            AbsoluteDirectoryPath = Path.GetFullPath(relativeDirectory).Replace(@"\", "/");
             AbsoluteDirectory = new DirectoryInfo(AbsoluteDirectoryPath);
         }
 

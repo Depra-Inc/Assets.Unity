@@ -5,12 +5,11 @@ using Depra.Assets.Delegates;
 using Depra.Assets.Files;
 using Depra.Assets.Idents;
 using Depra.Assets.Unity.Runtime.Files.Adapter;
-using Depra.Assets.Unity.Tests.PlayMode.Stubs;
 using Depra.Assets.ValueObjects;
 
 namespace Depra.Assets.Unity.Tests.EditMode.Stubs
 {
-    internal sealed class FakeAssetFile : IUnityLoadableAsset<TestScriptableAsset>
+    internal sealed class FakeAssetFile : IUnityLoadableAsset<EditModeTestScriptableAsset>
     {
         public FakeAssetFile(IAssetIdent ident) => Ident = ident;
 
@@ -20,12 +19,12 @@ namespace Depra.Assets.Unity.Tests.EditMode.Stubs
 
         FileSize IAssetFile.Size => FileSize.Zero;
 
-        TestScriptableAsset IUnityLoadableAsset<TestScriptableAsset>.Load() =>
+        EditModeTestScriptableAsset IUnityLoadableAsset<EditModeTestScriptableAsset>.Load() =>
             throw new NotImplementedException();
 
-        void IUnityLoadableAsset<TestScriptableAsset>.Unload() => IsLoaded = false;
+        void IUnityLoadableAsset<EditModeTestScriptableAsset>.Unload() => IsLoaded = false;
 
-        UniTask<TestScriptableAsset> IUnityLoadableAsset<TestScriptableAsset>.LoadAsync(
+        UniTask<EditModeTestScriptableAsset> IUnityLoadableAsset<EditModeTestScriptableAsset>.LoadAsync(
             DownloadProgressDelegate onProgress,
             CancellationToken cancellationToken) =>
             throw new NotImplementedException();

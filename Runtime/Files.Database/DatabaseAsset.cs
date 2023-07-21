@@ -3,6 +3,7 @@
 
 using System;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using Depra.Assets.Delegates;
@@ -45,6 +46,11 @@ namespace Depra.Assets.Unity.Runtime.Files.Database
             if (File.Exists(_ident.AbsolutePath))
             {
                 loadedAsset = AssetDatabase.LoadAssetAtPath<TAsset>(_ident.RelativePath);
+            }
+
+            if (loadedAsset == null)
+            {
+                loadedAsset = FindExistingAsset();
             }
 #endif
             if (loadedAsset == null)
@@ -105,6 +111,18 @@ namespace Depra.Assets.Unity.Runtime.Files.Database
             AssetDatabase.CreateAsset(asset, _ident.RelativePath);
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
+
+            return asset;
+        }
+
+        private TAsset FindExistingAsset()
+        {
+            var typeName = typeof(TAsset).Name;
+            var assets = AssetDatabase.FindAssets($"t:{typeName}", new[] { _ident.AbsoluteDirectory.Name });
+            var asset = assets
+                .Select(AssetDatabase.GUIDToAssetPath)
+                .Select(AssetDatabase.LoadAssetAtPath<TAsset>)
+                .FirstOrDefault(asset => asset.name == _ident.Name);
 
             return asset;
         }
