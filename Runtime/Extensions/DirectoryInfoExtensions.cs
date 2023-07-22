@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Runtime.CompilerServices;
 using Depra.Assets.Unity.Runtime.Common;
-using UnityEngine;
 
 namespace Depra.Assets.Unity.Runtime.Extensions
 {
@@ -18,8 +17,8 @@ namespace Depra.Assets.Unity.Runtime.Extensions
                 return;
             }
 
-            File.Delete(directoryInfo.FullName + AssetTypes.META);
             directoryInfo.Delete(true);
+            File.Delete(directoryInfo.FullName + AssetTypes.META);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

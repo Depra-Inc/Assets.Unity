@@ -3,13 +3,13 @@
 
 using System.IO;
 using Depra.Assets.Unity.Runtime.Common;
+using Depra.Assets.Unity.Runtime.Extensions;
 using Depra.Assets.Unity.Runtime.Files.Database;
 using Depra.Assets.Unity.Tests.EditMode.Stubs;
 using Depra.Assets.ValueObjects;
 using NUnit.Framework;
-using static Depra.Assets.Unity.Runtime.Common.Constants;
+using Tests.EditMode.Utils;
 using static Depra.Assets.Unity.Runtime.Common.Paths;
-using static Tests.EditMode.StaticData;
 
 namespace Depra.Assets.Unity.Tests.EditMode.Files
 {
@@ -17,32 +17,57 @@ namespace Depra.Assets.Unity.Tests.EditMode.Files
     internal sealed class LoadingDatabaseAssets
     {
         private const string ASSET_TYPE_EXTENSION = AssetTypes.BASE;
-        private const string ASSET_NAME = nameof(EditModeTestScriptableAsset);
+        private const string EXISTENT_ASSET_NAME = nameof(EditModeTestScriptableAsset);
+        private const string NON_EXISTENT_ASSET_NAME = nameof(NonExistentScriptableAsset);
 
-        private DatabaseAssetIdent _existingAssetIdent;
+        private DatabaseAssetIdent _existentAssetIdent;
+        private EditModeTestScriptableAsset _existentAsset;
+
+        private DatabaseAssetIdent _nonExistentAssetIdent;
+        private NonExistentScriptableAsset _nonExistentAsset;
 
         [OneTimeSetUp]
         public void OneTimeSetup()
         {
-            var relativeDirectory = PACKAGES_FOLDER_NAME + "/" + 
-                                    FullModuleName + "/" + 
-                                    TESTS_FOLDER_NAME + "/" +
-                                    nameof(EditMode) + "/" + 
-                                    ASSETS_FOLDER_NAME;
-            var temp = Path.Combine(PACKAGES_FOLDER_NAME, FullModuleName, TESTS_FOLDER_NAME,
-                nameof(EditMode), ASSETS_FOLDER_NAME);
+            var projectResourcesPath = Path.Combine(ASSETS_FOLDER_NAME, RESOURCES_FOLDER_NAME);
             
-            _existingAssetIdent = new DatabaseAssetIdent(
-                relativeDirectory: relativeDirectory,
-                name: ASSET_NAME,
+            _nonExistentAssetIdent = new DatabaseAssetIdent(
+                relativeDirectory: projectResourcesPath,
+                name: NON_EXISTENT_ASSET_NAME,
                 extension: ASSET_TYPE_EXTENSION);
+
+            _existentAssetIdent = new DatabaseAssetIdent(
+                relativeDirectory: projectResourcesPath,
+                name: EXISTENT_ASSET_NAME,
+                extension: ASSET_TYPE_EXTENSION);
+            
+            _existentAssetIdent.Directory.CreateIfNotExists();
+            _existentAsset = TestEnvironment.CreateAsset<EditModeTestScriptableAsset>(_existentAssetIdent.RelativePath);
+        }
+
+        [TearDown]
+        public void TearDown()
+        {
+            if (TestEnvironment.TryDeleteAsset(_nonExistentAsset))
+            {
+                _nonExistentAssetIdent.Directory.DeleteIfEmpty();
+            }
+        }
+
+        [OneTimeTearDown]
+        public void OneTimeTearDown()
+        {
+            if (TestEnvironment.TryDeleteAsset(_existentAsset))
+            {
+                _existentAssetIdent.Directory.DeleteIfEmpty();
+            }
         }
 
         [Test]
-        public void Load_ShouldSucceed()
+        public void Load_ExistentAsset_ShouldSucceed()
         {
             // Arrange.
-            var databaseAsset = new DatabaseAsset<EditModeTestScriptableAsset>(_existingAssetIdent);
+            var databaseAsset = new DatabaseAsset<EditModeTestScriptableAsset>(_existentAssetIdent);
 
             // Act.
             var loadedAsset = databaseAsset.Load();
@@ -52,14 +77,31 @@ namespace Depra.Assets.Unity.Tests.EditMode.Files
             Assert.That(databaseAsset.IsLoaded);
 
             // Debug.
-            TestContext.WriteLine($"Created {loadedAsset.name} at path: {_existingAssetIdent.AbsolutePath}.");
+            TestContext.WriteLine($"Created {loadedAsset.name} at path: {_existentAssetIdent.AbsolutePath}.");
+        }
+
+        [Test]
+        public void Load_NonExistentAsset_ShouldSucceed()
+        {
+            // Arrange.
+            var databaseAsset = new DatabaseAsset<NonExistentScriptableAsset>(_nonExistentAssetIdent);
+
+            // Act.
+            _nonExistentAsset = databaseAsset.Load();
+
+            // Assert.
+            Assert.That(_nonExistentAsset, Is.Not.Null);
+            Assert.That(databaseAsset.IsLoaded);
+
+            // Debug.
+            TestContext.WriteLine($"Created {_nonExistentAsset.name} at path: {_existentAssetIdent.AbsolutePath}.");
         }
 
         [Test]
         public void Unload_ShouldSucceed()
         {
             // Arrange.
-            var databaseAsset = new DatabaseAsset<EditModeTestScriptableAsset>(_existingAssetIdent);
+            var databaseAsset = new DatabaseAsset<EditModeTestScriptableAsset>(_existentAssetIdent);
             var createdAsset = databaseAsset.Load();
 
             // Act.
@@ -71,14 +113,14 @@ namespace Depra.Assets.Unity.Tests.EditMode.Files
 
             // Debug.
             TestContext.WriteLine(
-                $"Deleted {nameof(EditModeTestScriptableAsset)} at path: {_existingAssetIdent.AbsolutePath}.");
+                $"Deleted {nameof(EditModeTestScriptableAsset)} at path: {_existentAssetIdent.AbsolutePath}.");
         }
 
         [Test]
-        public void SizeOfLoadedAsset_ShouldNotBeZeroOrUnknown()
+        public void Size_OfLoadedAsset_ShouldNotBeZeroOrUnknown()
         {
             // Arrange.
-            var databaseAsset = new DatabaseAsset<EditModeTestScriptableAsset>(_existingAssetIdent);
+            var databaseAsset = new DatabaseAsset<EditModeTestScriptableAsset>(_existentAssetIdent);
             databaseAsset.Load();
 
             // Act.

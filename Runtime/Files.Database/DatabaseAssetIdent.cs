@@ -18,7 +18,7 @@ namespace Depra.Assets.Unity.Runtime.Files.Database
 
             AbsolutePath = Path.GetFullPath(RelativePath).Replace(@"\", "/");
             AbsoluteDirectoryPath = Path.GetFullPath(relativeDirectory).Replace(@"\", "/");
-            AbsoluteDirectory = new DirectoryInfo(AbsoluteDirectoryPath);
+            Directory = new DirectoryInfo(AbsoluteDirectoryPath);
         }
 
         public string Name { get; }
@@ -35,7 +35,7 @@ namespace Depra.Assets.Unity.Runtime.Files.Database
         [UsedImplicitly]
         public string AbsoluteDirectoryPath { get; }
 
-        internal DirectoryInfo AbsoluteDirectory { get; }
+        internal DirectoryInfo Directory { get; }
 
         string IAssetIdent.Uri => AbsolutePath;
         string IAssetIdent.RelativeUri => RelativePath;
