@@ -2,9 +2,9 @@
     "name": "Depra.Assets.Unity.Tests.PlayMode",
     "rootNamespace": "",
     "references": [
-        "Depra.Assets.Unity",
-        "UnityEngine.TestRunner",
-        "UniTask"
+        "GUID:ce2ab5ef472b35f498b9d47a89be9396",
+        "GUID:27619889b8ba8c24980f49ee34dbb44a",
+        "GUID:f51ebe6a0ceec4240a699833d6309b23"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
