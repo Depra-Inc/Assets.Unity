@@ -7,7 +7,6 @@ using System.Threading;
 using Cysharp.Threading.Tasks;
 using Depra.Assets.Delegates;
 using Depra.Assets.Idents;
-using Depra.Assets.Unity.Runtime.Common;
 using Depra.Assets.Unity.Runtime.Files.Adapter;
 using Depra.Assets.ValueObjects;
 using UnityEditor;

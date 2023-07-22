@@ -1,4 +1,7 @@
-﻿using Depra.Assets.Idents;
+﻿// Copyright © 2023 Nikolay Melnikov. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
+
+using Depra.Assets.Idents;
 
 namespace Depra.Assets.Unity.Tests.EditMode.Stubs
 {

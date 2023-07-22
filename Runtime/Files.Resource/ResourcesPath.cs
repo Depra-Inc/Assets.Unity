@@ -1,4 +1,7 @@
-﻿using System;
+﻿// Copyright © 2023 Nikolay Melnikov. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
+
+using System;
 using System.IO;
 using Depra.Assets.Idents;
 using Depra.Assets.Unity.Runtime.Exceptions;
@@ -12,18 +15,11 @@ namespace Depra.Assets.Unity.Runtime.Files.Resource
     {
         private static readonly string RESOURCES_FOLDER_PATH = RESOURCES_FOLDER_NAME + Path.DirectorySeparatorChar;
 
-        private static string CombineProjectPath(string name, string directory = null, string extension = null) =>
-            Path.Combine(
-                ASSETS_FOLDER_NAME,
-                RESOURCES_FOLDER_NAME,
-                directory ?? string.Empty,
-                name + extension);
-
         public static ResourcesPath Empty => new(string.Empty);
         public static ResourcesPath Invalid => new(nameof(Invalid));
 
         internal ResourcesPath(string name, string relativeDirectory = null, string extension = null) : this(
-            CombineProjectPath(name, relativeDirectory, extension)) { }
+            Utility.CombineProjectPath(name, relativeDirectory, extension)) { }
 
         internal ResourcesPath(string projectPath)
         {
@@ -45,6 +41,10 @@ namespace Depra.Assets.Unity.Runtime.Files.Resource
 
         private string AbsoluteDirectoryPath { get; }
 
+        string IAssetIdent.Uri => AbsolutePath;
+
+        string IAssetIdent.RelativeUri => RelativePath;
+
         internal string FindRelativePath()
         {
             Guard.AgainstEmptyString(ProjectPath, () => new NullReferenceException(nameof(ProjectPath)));
@@ -58,8 +58,14 @@ namespace Depra.Assets.Unity.Runtime.Files.Resource
             return ProjectPath.Substring(folderIndex, length);
         }
 
-        string IAssetIdent.Uri => AbsolutePath;
-
-        string IAssetIdent.RelativeUri => RelativePath;
+        private static class Utility
+        {
+            public static string CombineProjectPath(string name, string directory = null, string extension = null) =>
+                Path.Combine(
+                    ASSETS_FOLDER_NAME,
+                    RESOURCES_FOLDER_NAME,
+                    directory ?? string.Empty,
+                    name + extension);
+        }
     }
 }

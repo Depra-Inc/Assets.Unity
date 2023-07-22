@@ -1,4 +1,7 @@
-﻿using System;
+﻿// Copyright © 2023 Nikolay Melnikov. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
+
+using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using Depra.Assets.Delegates;

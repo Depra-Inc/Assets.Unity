@@ -1,8 +1,11 @@
-﻿using Depra.Assets.ValueObjects;
+﻿// Copyright © 2023 Nikolay Melnikov. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
+
+using Depra.Assets.ValueObjects;
 using UnityEngine;
 using UnityEngine.Profiling;
 
-namespace Depra.Assets.Unity.Runtime.Common
+namespace Depra.Assets.Unity.Runtime.Files.Adapter
 {
     public static class UnityFileSize
     {

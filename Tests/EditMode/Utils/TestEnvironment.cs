@@ -1,9 +1,12 @@
-﻿using UnityEditor;
+﻿// Copyright © 2023 Nikolay Melnikov. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
+
+using UnityEditor;
 using UnityEngine;
 
 namespace Depra.Assets.Unity.Tests.EditMode.Utils
 {
-    public static class TestEnvironment
+    internal static class TestEnvironment
     {
         public static TAsset CreateAsset<TAsset>(string path) where TAsset : ScriptableObject
         {
