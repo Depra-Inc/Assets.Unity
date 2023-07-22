@@ -12,12 +12,11 @@ using Depra.Assets.Unity.Runtime.Common;
 using Depra.Assets.Unity.Runtime.Extensions;
 using Depra.Assets.Unity.Runtime.Files.Resource;
 using Depra.Assets.Unity.Tests.PlayMode.Stubs;
+using Depra.Assets.Unity.Tests.PlayMode.Utils;
 using Depra.Assets.ValueObjects;
 using NUnit.Framework;
-using UnityEditor;
 using UnityEngine;
 using UnityEngine.TestTools;
-using Assert = NUnit.Framework.Assert;
 
 namespace Depra.Assets.Unity.Tests.PlayMode.Files
 {
@@ -40,12 +39,7 @@ namespace Depra.Assets.Unity.Tests.PlayMode.Files
             _stopwatch = new Stopwatch();
             _resourceIdent = new ResourcesPath(name: ASSET_NAME, extension: ASSET_EXTENSION);
             _resourceIdent.Directory.CreateIfNotExists();
-
-            // Create a new asset instance.
-            _testAsset = ScriptableObject.CreateInstance<PlayModeTestScriptableAsset>();
-            AssetDatabase.CreateAsset(_testAsset, _resourceIdent.ProjectPath);
-            AssetDatabase.SaveAssets();
-            AssetDatabase.Refresh();
+            _testAsset = TestEnvironment.CreateAsset<PlayModeTestScriptableAsset>(_resourceIdent.ProjectPath);
         }
 
         [TearDown]
@@ -62,13 +56,10 @@ namespace Depra.Assets.Unity.Tests.PlayMode.Files
         [OneTimeTearDown]
         public void OneTimeTearDown()
         {
-            // Delete the asset.
-            var assetPath = AssetDatabase.GetAssetPath(_testAsset);
-            AssetDatabase.DeleteAsset(assetPath);
-            AssetDatabase.SaveAssets();
-            AssetDatabase.Refresh();
-
-            _resourceIdent.Directory.DeleteIfEmpty();
+            if (TestEnvironment.TryDeleteAsset(_testAsset))
+            {
+                _resourceIdent.Directory.DeleteIfEmpty();
+            }
         }
 
         [Test]

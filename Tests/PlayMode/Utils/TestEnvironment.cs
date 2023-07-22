@@ -1,7 +1,7 @@
 ﻿using UnityEditor;
 using UnityEngine;
 
-namespace Depra.Assets.Unity.Tests.EditMode.Utils
+namespace Depra.Assets.Unity.Tests.PlayMode.Utils
 {
     public static class TestEnvironment
     {
@@ -17,11 +17,6 @@ namespace Depra.Assets.Unity.Tests.EditMode.Utils
 
         public static bool TryDeleteAsset(Object asset)
         {
-            if (asset == null)
-            {
-                return false;
-            }
-            
             var assetPath = AssetDatabase.GetAssetPath(asset);
             if (assetPath == null)
             {
