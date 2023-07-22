@@ -20,6 +20,6 @@
     "Async"
   ],
   "license": "Apache-2.0",
-  "description": "Provides API for loading:\n1) Files from the Resources folder;\n2) UnityEngine.AssetBundle files;\n3) Files from UnityEngine.AssetBundle;\n4) Files from UnityEngine.AssetDatabase;\n5) Preloaded files from UnityEditor.PlayerSettings.",
+  "description": "Provides an API for loading Unity asset files in multiple ways through a single interface.",
   "type": "module"
 }
