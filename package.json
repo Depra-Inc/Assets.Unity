@@ -1,26 +1,25 @@
 {
-  "name": "com.depra.assets",
-  "displayName": "Depra.Assets",
-  "version": "0.1.0",
-  "unity": "2021.3",
+  "name": "com.depra.assets.unity",
+  "displayName": "Depra.Assets.Unity",
+  "author": "Depra, Inc.",
+  "version": "0.2.0",
+  "unity": "2022.3",
   "hideInEditor": false,
   "keywords": [
     "Depra",
     "Assets",
     "Unity",
+    "Editor",
     "Runtime",
     "Resources",
     "AssetBundle",
-    "Addressables",
     "Preload",
     "Load",
     "Unload",
-    "Async",
     "Sync",
-    "Editor"
+    "Async"
   ],
   "license": "Apache-2.0",
-  "description": "Provides api for download:\n1) Files from the resources folder;\n2) UnityEngine.AssetBundle files;\n3) Files from UnityEngine.AssetBundle;\n4) Files from UnityEngine.AssetDatabase;\n5) Preloaded files from UnityEditor.PlayerSettings.",
-  "type": "module",
-  "unityRelease": "20f1"
+  "description": "Provides API for loading:\n1) Files from the Resources folder;\n2) UnityEngine.AssetBundle files;\n3) Files from UnityEngine.AssetBundle;\n4) Files from UnityEngine.AssetDatabase;\n5) Preloaded files from UnityEditor.PlayerSettings.",
+  "type": "module"
 }
