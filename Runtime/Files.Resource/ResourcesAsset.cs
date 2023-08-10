@@ -15,14 +15,14 @@ using Object = UnityEngine.Object;
 
 namespace Depra.Assets.Unity.Runtime.Files.Resource
 {
-	public sealed class ResourceAsset<TAsset> : UnityAssetFile<TAsset>, IDisposable where TAsset : Object
+	public sealed class ResourcesAsset<TAsset> : UnityAssetFile<TAsset>, IDisposable where TAsset : Object
 	{
-		public static implicit operator TAsset(ResourceAsset<TAsset> from) => from.Load();
+		public static implicit operator TAsset(ResourcesAsset<TAsset> from) => from.Load();
 
 		private readonly ResourcesPath _ident;
 		private TAsset _loadedAsset;
 
-		public ResourceAsset(ResourcesPath ident) =>
+		public ResourcesAsset(ResourcesPath ident) =>
 			_ident = ident ?? throw new ArgumentNullException(nameof(ident));
 
 		public override IAssetIdent Ident => _ident;
