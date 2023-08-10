@@ -4,50 +4,53 @@ using UnityEngine;
 
 namespace Depra.Assets.Unity.Editor.Ident
 {
-    [CustomPropertyDrawer(typeof(ResourcesReference), true)]
-    internal sealed class ResourcesReferenceDrawer : PropertyDrawer
-    {
-        private SerializedProperty _objectAssetProperty;
-        private SerializedProperty _projectPathProperty;
+	[CustomPropertyDrawer(typeof(ResourcesReference), true)]
+	internal sealed class ResourcesReferenceDrawer : PropertyDrawer
+	{
+		private SerializedProperty _objectAssetProperty;
+		private SerializedProperty _projectPathProperty;
 
-        public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
-        {
-            _objectAssetProperty = property.FindPropertyRelative("_objectAsset");
-            _projectPathProperty = property.FindPropertyRelative("_projectPath");
+		public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
+		{
+			_objectAssetProperty = property.FindPropertyRelative("_objectAsset");
+			_projectPathProperty = property.FindPropertyRelative("_projectPath");
 
-            position.height = EditorGUIUtility.singleLineHeight;
-            DrawObjectReferenceField(position, property, label);
-        }
+			position.height = EditorGUIUtility.singleLineHeight;
+			DrawObjectReferenceField(position, property, label);
+		}
 
-        private void DrawObjectReferenceField(Rect position, SerializedProperty property, GUIContent label)
-        {
-            var objectType = property.GetValue().GetType().GenericTypeArguments[0];
-            var propertyValue = _objectAssetProperty.objectReferenceValue;
+		private void DrawObjectReferenceField(Rect position, SerializedProperty property, GUIContent label)
+		{
+			var propertyValue = property.GetValue();
+			var propertyType = propertyValue.GetType();
+			var objectType = propertyType.IsGenericType ? propertyType.GenericTypeArguments[0] : typeof(Object);
 
-            EditorGUI.BeginChangeCheck();
-            propertyValue = EditorGUI.ObjectField(position, label, propertyValue, objectType, false);
+			var @object = _objectAssetProperty.objectReferenceValue;
 
-            if (EditorGUI.EndChangeCheck())
-            {
-                ApplyPropertyChange(propertyValue);
-            }
-        }
+			EditorGUI.BeginChangeCheck();
+			@object = EditorGUI.ObjectField(position, label, @object, objectType, false);
 
-        private void ApplyPropertyChange(Object objectAsset)
-        {
-            var assetProjectPath = string.Empty;
+			if (EditorGUI.EndChangeCheck())
+			{
+				ApplyPropertyChange(@object);
+			}
+		}
 
-            if (objectAsset != null)
-            {
-                var projectPath = AssetDatabase.GetAssetPath(objectAsset);
-                if (Resources.Load(new ResourcesPath(projectPath).FindRelativePath()) != null)
-                {
-                    assetProjectPath = projectPath;
-                }
-            }
+		private void ApplyPropertyChange(Object objectAsset)
+		{
+			var assetProjectPath = string.Empty;
 
-            _projectPathProperty.stringValue = assetProjectPath;
-            _objectAssetProperty.objectReferenceValue = objectAsset;
-        }
-    }
+			if (objectAsset != null)
+			{
+				var projectPath = AssetDatabase.GetAssetPath(objectAsset);
+				if (Resources.Load(ResourcesPath.Utility.FindRelativePath(projectPath)) != null)
+				{
+					assetProjectPath = projectPath;
+				}
+			}
+
+			_projectPathProperty.stringValue = assetProjectPath;
+			_objectAssetProperty.objectReferenceValue = objectAsset;
+		}
+	}
 }
