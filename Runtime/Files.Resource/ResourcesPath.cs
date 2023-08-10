@@ -6,11 +6,12 @@ using System.IO;
 using Depra.Assets.Idents;
 using Depra.Assets.Unity.Runtime.Exceptions;
 using Depra.Assets.Unity.Runtime.Files.Resource.Exceptions;
+using JetBrains.Annotations;
 using static Depra.Assets.Unity.Runtime.Common.Paths;
 
 namespace Depra.Assets.Unity.Runtime.Files.Resource
 {
-	public sealed class ResourcesPath : ProjectPathInfo, IAssetIdent
+	public sealed class ResourcesPath : IAssetIdent
 	{
 		private static readonly string RESOURCES_FOLDER_PATH = RESOURCES_FOLDER_NAME + Path.DirectorySeparatorChar;
 
@@ -19,21 +20,40 @@ namespace Depra.Assets.Unity.Runtime.Files.Resource
 
 		public static implicit operator ResourcesPath(string relativePath) => new(relativePath);
 
-		public ResourcesPath(string relativePath) : base(CombineProjectPath(relativePath)) =>
-			RelativePath = Utility.FindRelativePath(ProjectPath);
+		public ResourcesPath(string relativePath) =>
+			Initialize(Utility.CombineProjectPath(relativePath));
 
-		public ResourcesPath(string name, string relativeDirectory = null, string extension = null) :
-			base(CombineProjectPath(relativeDirectory, name, extension)) =>
-			RelativePath = Utility.FindRelativePath(ProjectPath);
+		public ResourcesPath(string name, string relativeDirectory = null, string extension = null) =>
+			Initialize(Utility.CombineProjectPath(relativeDirectory, name, extension));
 
-		public string RelativePath { get; }
+		public string ProjectPath { get; private set; }
+		public string RelativePath { get; private set; }
+
+		[UsedImplicitly]
+		public string AbsolutePath { get; private set; }
+
+		public DirectoryInfo Directory { get; private set; }
 
 		string IAssetIdent.Uri => AbsolutePath;
-
 		string IAssetIdent.RelativeUri => RelativePath;
+
+		private void Initialize(string projectPath)
+		{
+			ProjectPath = projectPath;
+			RelativePath = Utility.FindRelativePath(ProjectPath);
+			AbsolutePath = Path.GetFullPath(ProjectPath);
+			var absoluteDirectoryPath = Path.GetDirectoryName(AbsolutePath);
+			Directory = new DirectoryInfo(absoluteDirectoryPath!);
+		}
 
 		internal static class Utility
 		{
+			public static string CombineProjectPath(string relativePath) =>
+				Path.Combine(ASSETS_FOLDER_NAME, RESOURCES_FOLDER_NAME, relativePath);
+
+			public static string CombineProjectPath(string directory, string name, string extension = null) =>
+				CombineProjectPath(Path.Combine(directory ?? string.Empty, name + extension));
+
 			public static string FindRelativePath(string projectPath)
 			{
 				Guard.AgainstEmptyString(projectPath, () => new NullReferenceException(nameof(projectPath)));
@@ -47,32 +67,5 @@ namespace Depra.Assets.Unity.Runtime.Files.Resource
 				return projectPath.Substring(folderIndex, length);
 			}
 		}
-	}
-
-	public class ProjectPathInfo : IAssetIdent
-	{
-		protected static string CombineProjectPath(string relativePath) =>
-			Path.Combine(ASSETS_FOLDER_NAME, RESOURCES_FOLDER_NAME, relativePath);
-
-		protected static string CombineProjectPath(string directory, string name, string extension = null) =>
-			CombineProjectPath(Path.Combine(directory ?? string.Empty, name + extension));
-
-		protected ProjectPathInfo(string relativePath)
-		{
-			ProjectPath = relativePath;
-			AbsolutePath = Path.GetFullPath(ProjectPath);
-			var absoluteDirectoryPath = Path.GetDirectoryName(AbsolutePath);
-			Directory = new DirectoryInfo(absoluteDirectoryPath!);
-		}
-
-		public string ProjectPath { get; }
-
-		public DirectoryInfo Directory { get; }
-
-		protected string AbsolutePath { get; }
-
-		string IAssetIdent.Uri => AbsolutePath;
-
-		string IAssetIdent.RelativeUri => ProjectPath;
 	}
 }
