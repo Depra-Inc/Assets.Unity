@@ -22,11 +22,6 @@ namespace Depra.Assets.Unity.Runtime.Files.Resource
 		private readonly ResourcesPath _ident;
 		private TAsset _loadedAsset;
 
-		public ResourceAsset(string relativePath) : this(new ResourcesPath(relativePath)) { }
-
-		public ResourceAsset(string name, string relativeDirectory = null, string extension = null) :
-			this(new ResourcesPath(name, relativeDirectory, extension)) { }
-
 		public ResourceAsset(ResourcesPath ident) =>
 			_ident = ident ?? throw new ArgumentNullException(nameof(ident));
 

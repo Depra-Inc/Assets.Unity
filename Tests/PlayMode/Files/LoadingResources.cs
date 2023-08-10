@@ -30,16 +30,16 @@ namespace Depra.Assets.Unity.Tests.PlayMode.Files
         private readonly Stack<PlayModeTestScriptableAsset> _loadedAssets = new();
 
         private Stopwatch _stopwatch;
-        private ResourcesPath _resourceIdent;
+        private ResourcesPath _resourcesIdent;
         private PlayModeTestScriptableAsset _testAsset;
 
         [OneTimeSetUp]
         public void OneTimeSetUp()
         {
             _stopwatch = new Stopwatch();
-            _resourceIdent = new ResourcesPath(name: ASSET_NAME, extension: ASSET_EXTENSION);
-            _resourceIdent.Directory.CreateIfNotExists();
-            _testAsset = TestEnvironment.CreateAsset<PlayModeTestScriptableAsset>(_resourceIdent.ProjectPath);
+            _resourcesIdent = new ResourcesPath(name: ASSET_NAME, extension: ASSET_EXTENSION);
+            _resourcesIdent.Directory.CreateIfNotExists();
+            _testAsset = TestEnvironment.CreateAsset<PlayModeTestScriptableAsset>(_resourcesIdent.ProjectPath);
         }
 
         [TearDown]
@@ -58,7 +58,7 @@ namespace Depra.Assets.Unity.Tests.PlayMode.Files
         {
             if (TestEnvironment.TryDeleteAsset(_testAsset))
             {
-                _resourceIdent.Directory.DeleteIfEmpty();
+                _resourcesIdent.Directory.DeleteIfEmpty();
             }
         }
 
@@ -66,7 +66,7 @@ namespace Depra.Assets.Unity.Tests.PlayMode.Files
         public void Load_ShouldSucceed()
         {
             // Arrange.
-            var resourceAsset = new ResourceAsset<PlayModeTestScriptableAsset>(_resourceIdent);
+            var resourceAsset = new ResourceAsset<PlayModeTestScriptableAsset>(_resourcesIdent);
 
             // Act.
             var loadedAsset = resourceAsset.Load();
@@ -86,7 +86,7 @@ namespace Depra.Assets.Unity.Tests.PlayMode.Files
         public void LoadMultiple_ShouldSucceed()
         {
             // Arrange.
-            var resourceAsset = new ResourceAsset<PlayModeTestScriptableAsset>(_resourceIdent);
+            var resourceAsset = new ResourceAsset<PlayModeTestScriptableAsset>(_resourcesIdent);
 
             // Act.
             var firstLoadedAsset = resourceAsset.Load();
@@ -110,7 +110,7 @@ namespace Depra.Assets.Unity.Tests.PlayMode.Files
         public IEnumerator LoadAsync_ShouldSucceed() => UniTask.ToCoroutine(async () =>
         {
             // Arrange.
-            var resourceAsset = new ResourceAsset<PlayModeTestScriptableAsset>(_resourceIdent);
+            var resourceAsset = new ResourceAsset<PlayModeTestScriptableAsset>(_resourcesIdent);
             var cancellationToken = new CancellationTokenSource(CANCEL_DELAY).Token;
 
             // Act.
@@ -139,7 +139,7 @@ namespace Depra.Assets.Unity.Tests.PlayMode.Files
             var callbackCalls = 0;
             var callbacksCalled = false;
             DownloadProgress lastProgress = default;
-            var resourceAsset = new ResourceAsset<PlayModeTestScriptableAsset>(_resourceIdent);
+            var resourceAsset = new ResourceAsset<PlayModeTestScriptableAsset>(_resourcesIdent);
 
             // Act.
             _stopwatch.Restart();
@@ -173,7 +173,7 @@ namespace Depra.Assets.Unity.Tests.PlayMode.Files
         {
             // Arrange.
             var cts = new CancellationTokenSource();
-            var resourceAsset = new ResourceAsset<PlayModeTestScriptableAsset>(_resourceIdent);
+            var resourceAsset = new ResourceAsset<PlayModeTestScriptableAsset>(_resourcesIdent);
 
             // Act.
             cts.Cancel();
@@ -188,7 +188,7 @@ namespace Depra.Assets.Unity.Tests.PlayMode.Files
         {
             // Arrange.
             var cts = new CancellationTokenSource();
-            var resourceAsset = new ResourceAsset<PlayModeTestScriptableAsset>(_resourceIdent);
+            var resourceAsset = new ResourceAsset<PlayModeTestScriptableAsset>(_resourcesIdent);
 
             // Act.
             cts.CancelAfterSlim(TimeSpan.MinValue);
@@ -205,7 +205,7 @@ namespace Depra.Assets.Unity.Tests.PlayMode.Files
         public IEnumerator Unload_ShouldSucceed()
         {
             // Arrange.
-            var resourceAsset = new ResourceAsset<PlayModeTestScriptableAsset>(_resourceIdent);
+            var resourceAsset = new ResourceAsset<PlayModeTestScriptableAsset>(_resourcesIdent);
             resourceAsset.Load();
             yield return null;
 
@@ -224,7 +224,7 @@ namespace Depra.Assets.Unity.Tests.PlayMode.Files
         public void SizeOfLoadedAsset_ShouldNotBeZeroOrUnknown()
         {
             // Arrange.
-            var resourceAsset = new ResourceAsset<PlayModeTestScriptableAsset>(_resourceIdent);
+            var resourceAsset = new ResourceAsset<PlayModeTestScriptableAsset>(_resourcesIdent);
             resourceAsset.Load();
 
             // Act.
@@ -242,7 +242,7 @@ namespace Depra.Assets.Unity.Tests.PlayMode.Files
         public IEnumerator SizeOfAsyncLoadedAsset_ShouldNotBeZeroOrUnknown() => UniTask.ToCoroutine(async () =>
         {
             // Arrange.
-            var resourceAsset = new ResourceAsset<PlayModeTestScriptableAsset>(_resourceIdent);
+            var resourceAsset = new ResourceAsset<PlayModeTestScriptableAsset>(_resourcesIdent);
             await resourceAsset.LoadAsync();
 
             // Act.
