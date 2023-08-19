@@ -16,69 +16,69 @@ using UnityEditor;
 
 namespace Depra.Assets.Unity.Runtime.Files.Bundles.Extensions
 {
-    public static class AssetBundleExtensions
-    {
-        [SuppressMessage("ReSharper", "JoinDeclarationAndInitializer")]
-        public static FileSize Size(this AssetBundle assetBundle)
-        {
-            FileSize fileSize;
+	public static class AssetBundleExtensions
+	{
+		[SuppressMessage("ReSharper", "JoinDeclarationAndInitializer")]
+		public static FileSize Size(this AssetBundle assetBundle)
+		{
+			FileSize fileSize;
 #if UNITY_EDITOR
-            fileSize = SizeInRAM(assetBundle);
-            if (fileSize.SizeInBytes == 0)
+			fileSize = SizeInRAM(assetBundle);
+			if (fileSize.SizeInBytes == 0)
 #endif
-            {
-                fileSize = SizeOnDisk(assetBundle);
-            }
+			{
+				fileSize = SizeOnDisk(assetBundle);
+			}
 
-            return fileSize;
-        }
+			return fileSize;
+		}
 
-        private static FileSize SizeOnDisk(this AssetBundle assetBundle)
-        {
-            var allScenePaths = assetBundle.GetAllScenePaths();
-            var bytes = (from scenePath in allScenePaths
-                select Path.Combine(Application.streamingAssetsPath, scenePath)
-                into absolutePath
-                select new FileInfo(absolutePath)
-                into fileInfo
-                where fileInfo.Exists
-                select fileInfo.Length).Sum();
+		private static FileSize SizeOnDisk(this AssetBundle assetBundle)
+		{
+			var allScenePaths = assetBundle.GetAllScenePaths();
+			var bytes = (from scenePath in allScenePaths
+				select Path.Combine(Application.streamingAssetsPath, scenePath)
+				into absolutePath
+				select new FileInfo(absolutePath)
+				into fileInfo
+				where fileInfo.Exists
+				select fileInfo.Length).Sum();
 
-            return new FileSize(bytes);
-        }
+			return new FileSize(bytes);
+		}
 
 #if UNITY_EDITOR
-        /// <summary>
-        /// Returns size of <see cref="AssetBundle"/> in RAM.
-        /// </summary>
-        /// <param name="assetBundle"><see cref="AssetBundle"/> for calculating.</param>
-        /// <returns></returns>
-        /// <remarks>Source - https://stackoverflow.com/questions/56822948/estimate-an-assetbundle-size-in-ram</remarks>
-        [SuppressMessage("ReSharper", "InconsistentNaming")]
-        private static FileSize SizeInRAM(this Object assetBundle)
-        {
-            var serializedObject = new SerializedObject(assetBundle);
-            var serializedProperty = serializedObject.FindProperty("m_PreloadTable");
-            var sizes = new Dictionary<Type, long>();
-            for (var i = 0; i < serializedProperty.arraySize; i++)
-            {
-                var objectReference = serializedProperty.GetArrayElementAtIndex(i).objectReferenceValue;
-                var type = objectReference.GetType();
-                var size = Profiler.GetRuntimeMemorySizeLong(objectReference);
-                if (sizes.ContainsKey(type))
-                {
-                    sizes[type] += size;
-                }
-                else
-                {
-                    sizes.Add(type, size);
-                }
-            }
+		/// <summary>
+		/// Returns size of <see cref="AssetBundle"/> in RAM.
+		/// </summary>
+		/// <param name="assetBundle"><see cref="AssetBundle"/> for calculating.</param>
+		/// <returns></returns>
+		/// <remarks>Source - https://stackoverflow.com/questions/56822948/estimate-an-assetbundle-size-in-ram</remarks>
+		[SuppressMessage("ReSharper", "InconsistentNaming")]
+		private static FileSize SizeInRAM(this Object assetBundle)
+		{
+			var serializedObject = new SerializedObject(assetBundle);
+			var serializedProperty = serializedObject.FindProperty("m_PreloadTable");
+			var sizes = new Dictionary<Type, long>();
+			for (var i = 0; i < serializedProperty.arraySize; i++)
+			{
+				var objectReference = serializedProperty.GetArrayElementAtIndex(i).objectReferenceValue;
+				var type = objectReference.GetType();
+				var size = Profiler.GetRuntimeMemorySizeLong(objectReference);
+				if (sizes.ContainsKey(type))
+				{
+					sizes[type] += size;
+				}
+				else
+				{
+					sizes.Add(type, size);
+				}
+			}
 
-            var sizeInBytes = sizes.Sum(x => x.Value);
+			var sizeInBytes = sizes.Sum(x => x.Value);
 
-            return new FileSize(sizeInBytes);
-        }
+			return new FileSize(sizeInBytes);
+		}
 #endif
-    }
+	}
 }

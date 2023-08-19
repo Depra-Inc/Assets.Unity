@@ -3,18 +3,19 @@
 
 using UnityEngine;
 using static Depra.Assets.Unity.Runtime.Common.Constants;
+using static Depra.Assets.Unity.Runtime.Common.Paths;
 
 namespace Depra.Assets.Unity.Tests.EditMode.Stubs
 {
-    [CreateAssetMenu(fileName = nameof(EditModeTestScriptableAsset), menuName = MENU_PATH, order = 52)]
-    internal sealed class EditModeTestScriptableAsset : ScriptableObject
-    {
-        private const string TESTS_FOLDER_NAME = "Tests";
+	[CreateAssetMenu(fileName = nameof(EditModeTestScriptableAsset), menuName = MENU_PATH, order = 52)]
+	internal sealed class EditModeTestScriptableAsset : ScriptableObject
+	{
+		private const string TESTS_FOLDER_NAME = nameof(Tests);
 
-        private const string MENU_PATH = FRAMEWORK_NAME + "/" +
-                                         MODULE_NAME + "/" +
-                                         TESTS_FOLDER_NAME + "/" +
-                                         nameof(EditMode) + "/" +
-                                         nameof(EditModeTestScriptableAsset);
-    }
+		private const string MENU_PATH = FRAMEWORK_NAME + SEPARATOR +
+		                                 MODULE_NAME + SEPARATOR +
+		                                 TESTS_FOLDER_NAME + SEPARATOR +
+		                                 nameof(EditMode) + SEPARATOR +
+		                                 nameof(EditModeTestScriptableAsset);
+	}
 }

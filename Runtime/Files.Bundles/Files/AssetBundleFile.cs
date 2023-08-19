@@ -16,85 +16,85 @@ using UnityEngine;
 
 namespace Depra.Assets.Unity.Runtime.Files.Bundles.Files
 {
-    public sealed class AssetBundleFile : UnityAssetFile<AssetBundle>, IDisposable
-    {
-        public static implicit operator AssetBundle(AssetBundleFile from) => from.Load();
+	public sealed class AssetBundleFile : UnityAssetFile<AssetBundle>, IDisposable
+	{
+		public static implicit operator AssetBundle(AssetBundleFile from) => from.Load();
 
-        private readonly AssetBundleIdent _ident;
-        private readonly IAssetBundleSource _source;
+		private readonly AssetBundleIdent _ident;
+		private readonly IAssetBundleSource _source;
 
-        private AssetBundle _loadedAssetBundle;
+		private AssetBundle _loadedAssetBundle;
 
-        public AssetBundleFile(AssetBundleIdent ident, IAssetBundleSource source)
-        {
-            _ident = ident ?? throw new ArgumentNullException(nameof(ident));
-            _source = source ?? throw new ArgumentNullException(nameof(source));
-        }
+		public AssetBundleFile(AssetBundleIdent ident, IAssetBundleSource source)
+		{
+			_ident = ident ?? throw new ArgumentNullException(nameof(ident));
+			_source = source ?? throw new ArgumentNullException(nameof(source));
+		}
 
-        public override IAssetIdent Ident => _ident;
-        public override bool IsLoaded => _loadedAssetBundle != null;
-        public override FileSize Size { get; protected set; } = FileSize.Unknown;
+		public override IAssetIdent Ident => _ident;
+		public override bool IsLoaded => _loadedAssetBundle != null;
+		public override FileSize Size { get; protected set; } = FileSize.Unknown;
 
-        public override AssetBundle Load()
-        {
-            if (IsLoaded)
-            {
-                return _loadedAssetBundle;
-            }
+		public override AssetBundle Load()
+		{
+			if (IsLoaded)
+			{
+				return _loadedAssetBundle;
+			}
 
-            var loadedAssetBundle = _source.Load(by: _ident.AbsolutePathWithoutExtension);
-            Guard.AgainstNull(loadedAssetBundle, () => new AssetBundleNotLoadedException(Ident.Uri));
+			var loadedAssetBundle = _source.Load(by: _ident.AbsolutePathWithoutExtension);
+			Guard.AgainstNull(loadedAssetBundle, () => new AssetBundleNotLoadedException(Ident.Uri));
 
-            _loadedAssetBundle = loadedAssetBundle;
-            Size = _source.Size(of: _loadedAssetBundle);
+			_loadedAssetBundle = loadedAssetBundle;
+			Size = _source.Size(of: _loadedAssetBundle);
 
-            return _loadedAssetBundle;
-        }
+			return _loadedAssetBundle;
+		}
 
-        public override async UniTask<AssetBundle> LoadAsync(DownloadProgressDelegate onProgress = null,
-            CancellationToken cancellationToken = default)
-        {
-            if (IsLoaded)
-            {
-                onProgress?.Invoke(DownloadProgress.Full);
-                return _loadedAssetBundle;
-            }
+		public override async UniTask<AssetBundle> LoadAsync(DownloadProgressDelegate onProgress = null,
+			CancellationToken cancellationToken = default)
+		{
+			if (IsLoaded)
+			{
+				onProgress?.Invoke(DownloadProgress.Full);
+				return _loadedAssetBundle;
+			}
 
-            var loadedAssetBundle = await _source.LoadAsync(by: _ident.AbsolutePathWithoutExtension,
-                with: Progress.Create<float>(value => onProgress?.Invoke(new DownloadProgress(value))),
-                cancellationToken);
+			var loadedAssetBundle = await _source.LoadAsync(by: _ident.AbsolutePathWithoutExtension,
+				with: Progress.Create<float>(value => onProgress?.Invoke(new DownloadProgress(value))),
+				cancellationToken);
 
-            Guard.AgainstNull(loadedAssetBundle, () => new AssetBundleNotLoadedException(Ident.Uri));
+			Guard.AgainstNull(loadedAssetBundle, () => new AssetBundleNotLoadedException(Ident.Uri));
 
-            _loadedAssetBundle = loadedAssetBundle;
-            onProgress?.Invoke(DownloadProgress.Full);
-            Size = _source.Size(of: _loadedAssetBundle);
+			_loadedAssetBundle = loadedAssetBundle;
+			onProgress?.Invoke(DownloadProgress.Full);
+			Size = _source.Size(of: _loadedAssetBundle);
 
-            return _loadedAssetBundle;
-        }
+			return _loadedAssetBundle;
+		}
 
-        public override void Unload()
-        {
-            if (IsLoaded == false)
-            {
-                return;
-            }
+		public override void Unload()
+		{
+			if (IsLoaded == false)
+			{
+				return;
+			}
 
-            _loadedAssetBundle.Unload(true);
-            _loadedAssetBundle = null;
-        }
+			_loadedAssetBundle.Unload(true);
+			_loadedAssetBundle = null;
+		}
 
-        public void UnloadAsync()
-        {
-            if (IsLoaded == false)
-            {
-                return;
-            }
+		public void UnloadAsync()
+		{
+			if (IsLoaded == false)
+			{
+				return;
+			}
 
-            _loadedAssetBundle.UnloadAsync(true);
-            _loadedAssetBundle = null;
-        }
+			_loadedAssetBundle.UnloadAsync(true);
+			_loadedAssetBundle = null;
+		}
 
-        void IDisposable.Dispose() => Unload();
-    }
+		void IDisposable.Dispose() => Unload();
+	}
 }

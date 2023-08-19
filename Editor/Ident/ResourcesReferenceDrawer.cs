@@ -1,4 +1,7 @@
-﻿using Depra.Assets.Unity.Runtime.Files.Resource;
+﻿// Copyright © 2023 Nikolay Melnikov. All rights reserved.
+// SPDX-License-Identifier: Apache-2.0
+
+using Depra.Assets.Unity.Runtime.Files.Resource;
 using UnityEditor;
 using UnityEngine;
 

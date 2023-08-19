@@ -7,32 +7,32 @@ using static Depra.Assets.Unity.Runtime.Common.Paths;
 
 namespace Depra.Assets.Unity.Tests.PlayMode.Stubs
 {
-    internal sealed class TestAssetBundlesDirectory
-    {
-        private const string TESTS_FOLDER = "Tests";
+	internal sealed class TestAssetBundlesDirectory
+	{
+		private const string TESTS_FOLDER = nameof(Tests);
 
-        public readonly string AbsolutePath;
-        public readonly string ProjectRelativePath;
+		public readonly string AbsolutePath;
+		public readonly string ProjectRelativePath;
 
-        public TestAssetBundlesDirectory()
-        {
-            ProjectRelativePath = PACKAGES_FOLDER_NAME + "/" +
-                                  FullModuleName + "/" +
-                                  TESTS_FOLDER + "/" +
-                                  nameof(PlayMode) + "/" +
-                                  ASSETS_FOLDER_NAME + "/" +
-                                  ASSET_BUNDLES_FOLDER_NAME;
+		public TestAssetBundlesDirectory()
+		{
+			ProjectRelativePath = PACKAGES_FOLDER_NAME + SEPARATOR +
+			                      FullModuleName + SEPARATOR +
+			                      TESTS_FOLDER + SEPARATOR +
+			                      nameof(PlayMode) + SEPARATOR +
+			                      ASSETS_FOLDER_NAME + SEPARATOR +
+			                      ASSET_BUNDLES_FOLDER_NAME;
 
-            AbsolutePath = Path.GetFullPath(ProjectRelativePath);
-            CreateIfDoesNotExist(AbsolutePath);
-        }
+			AbsolutePath = Path.GetFullPath(ProjectRelativePath);
+			CreateIfDoesNotExist(AbsolutePath);
+		}
 
-        private static void CreateIfDoesNotExist(string path)
-        {
-            if (Directory.Exists(path) == false)
-            {
-                Directory.CreateDirectory(path);
-            }
-        }
-    }
+		private static void CreateIfDoesNotExist(string path)
+		{
+			if (Directory.Exists(path) == false)
+			{
+				Directory.CreateDirectory(path);
+			}
+		}
+	}
 }

@@ -14,101 +14,104 @@ using Object = UnityEngine.Object;
 
 namespace Depra.Assets.Unity.Editor.Files
 {
-    public sealed class PreloadedAsset<TAsset> : UnityAssetFile<TAsset>, IDisposable where TAsset : Object
-    {
-        public static implicit operator TAsset(PreloadedAsset<TAsset> from) => from.Load();
+	public sealed class PreloadedAsset<TAsset> : UnityAssetFile<TAsset>, IDisposable where TAsset : Object
+	{
+		public static implicit operator TAsset(PreloadedAsset<TAsset> from) => from.Load();
 
-        private static Type AssetType => typeof(TAsset);
+		private Type _assetType;
+		private readonly IUnityLoadableAsset<TAsset> _asset;
 
-        private readonly IUnityLoadableAsset<TAsset> _asset;
-        private TAsset _loadedAsset;
+		private TAsset _loadedAsset;
 
-        public PreloadedAsset(IUnityLoadableAsset<TAsset> asset) =>
-            _asset = asset ?? throw new ArgumentNullException(nameof(asset));
+		public PreloadedAsset(IUnityLoadableAsset<TAsset> asset)
+		{
+			_asset = asset ?? throw new ArgumentNullException(nameof(asset));
+			_assetType = typeof(TAsset);
+		}
 
-        public override IAssetIdent Ident => _asset.Ident;
-        public override bool IsLoaded => _loadedAsset != null;
-        public override FileSize Size { get; protected set; } = FileSize.Unknown;
+		public override IAssetIdent Ident => _asset.Ident;
+		public override bool IsLoaded => _loadedAsset != null;
+		public override FileSize Size { get; protected set; } = FileSize.Unknown;
 
-        public override TAsset Load()
-        {
-            if (IsLoaded)
-            {
-                return _loadedAsset;
-            }
+		public override TAsset Load()
+		{
+			if (IsLoaded)
+			{
+				return _loadedAsset;
+			}
 
-            if (TryGetPreloadedAsset(out var loadedAsset) == false &&
-                TryLoadAssetFromDatabase(out loadedAsset) == false)
-            {
-                loadedAsset = _asset.Load();
-            }
+			if (TryGetPreloadedAsset(out var loadedAsset) == false &&
+			    TryLoadAssetFromDatabase(out loadedAsset) == false)
+			{
+				loadedAsset = _asset.Load();
+			}
 
-            _loadedAsset = loadedAsset;
-            Size = UnityFileSize.FromProfiler(_loadedAsset);
+			_loadedAsset = loadedAsset;
+			Size = UnityFileSize.FromProfiler(_loadedAsset);
 
-            return _loadedAsset;
-        }
+			return _loadedAsset;
+		}
 
-        public override void Unload()
-        {
-            if (IsLoaded == false)
-            {
-                return;
-            }
+		public override void Unload()
+		{
+			if (IsLoaded == false)
+			{
+				return;
+			}
 
-            _asset.Unload();
-            _loadedAsset = null;
-        }
+			_asset.Unload();
+			_loadedAsset = null;
+		}
 
-        public override async UniTask<TAsset> LoadAsync(DownloadProgressDelegate onProgress = null,
-            CancellationToken cancellationToken = default)
-        {
-            if (IsLoaded)
-            {
-                onProgress?.Invoke(DownloadProgress.Full);
-                return _loadedAsset;
-            }
+		public override async UniTask<TAsset> LoadAsync(DownloadProgressDelegate onProgress = null,
+			CancellationToken cancellationToken = default)
+		{
+			if (IsLoaded)
+			{
+				onProgress?.Invoke(DownloadProgress.Full);
+				return _loadedAsset;
+			}
 
-            if (TryGetPreloadedAsset(out var loadedAsset) == false &&
-                TryLoadAssetFromDatabase(out loadedAsset) == false)
-            {
-                loadedAsset = await _asset.LoadAsync(onProgress, cancellationToken);
-            }
+			if (TryGetPreloadedAsset(out var loadedAsset) == false &&
+			    TryLoadAssetFromDatabase(out loadedAsset) == false)
+			{
+				loadedAsset = await _asset.LoadAsync(onProgress, cancellationToken);
+			}
 
-            _loadedAsset = loadedAsset;
-            Size = UnityFileSize.FromProfiler(_loadedAsset);
+			_loadedAsset = loadedAsset;
+			Size = UnityFileSize.FromProfiler(_loadedAsset);
 
-            return _loadedAsset;
-        }
+			return _loadedAsset;
+		}
 
-        private bool TryGetPreloadedAsset(out TAsset preloadedAsset)
-        {
-            var assetByType = PlayerSettings
-                .GetPreloadedAssets()
-                .FirstOrDefault(asset => asset.GetType() == AssetType);
+		private bool TryGetPreloadedAsset(out TAsset preloadedAsset)
+		{
+			var assetByType = PlayerSettings
+				.GetPreloadedAssets()
+				.FirstOrDefault(asset => asset.GetType() == _assetType);
 
-            if (assetByType == null)
-            {
-                preloadedAsset = null;
-                return false;
-            }
+			if (assetByType == null)
+			{
+				preloadedAsset = null;
+				return false;
+			}
 
-            preloadedAsset = (TAsset) assetByType;
-            return preloadedAsset != null;
-        }
+			preloadedAsset = (TAsset) assetByType;
+			return preloadedAsset != null;
+		}
 
-        private bool TryLoadAssetFromDatabase(out TAsset asset)
-        {
-            var assetGuid = AssetDatabase
-                .FindAssets($"t:{AssetType.Name}")
-                .FirstOrDefault();
+		private bool TryLoadAssetFromDatabase(out TAsset asset)
+		{
+			var assetGuid = AssetDatabase
+				.FindAssets(filter: $"t:{_assetType.Name}")
+				.FirstOrDefault();
 
-            var assetPath = AssetDatabase.GUIDToAssetPath(assetGuid);
-            asset = AssetDatabase.LoadAssetAtPath<TAsset>(assetPath);
+			var assetPath = AssetDatabase.GUIDToAssetPath(assetGuid);
+			asset = AssetDatabase.LoadAssetAtPath<TAsset>(assetPath);
 
-            return asset != null;
-        }
+			return asset != null;
+		}
 
-        void IDisposable.Dispose() => Unload();
-    }
+		void IDisposable.Dispose() => Unload();
+	}
 }

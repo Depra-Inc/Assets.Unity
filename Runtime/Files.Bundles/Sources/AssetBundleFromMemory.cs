@@ -13,33 +13,33 @@ using UnityEngine;
 
 namespace Depra.Assets.Unity.Runtime.Files.Bundles.Sources
 {
-    public readonly struct AssetBundleFromMemory : IAssetBundleSource
-    {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static byte[] ReadBytes(string path) => File.ReadAllBytes(path);
+	public readonly struct AssetBundleFromMemory : IAssetBundleSource
+	{
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		private static byte[] ReadBytes(string path) => File.ReadAllBytes(path);
 
-        FileSize IAssetBundleSource.Size(AssetBundle of) => of.Size();
+		FileSize IAssetBundleSource.Size(AssetBundle of) => of.Size();
 
-        AssetBundle IAssetBundleSource.Load(string by)
-        {
-            Guard.AgainstFileNotFound(by);
+		AssetBundle IAssetBundleSource.Load(string by)
+		{
+			Guard.AgainstFileNotFound(by);
 
-            var bytes = ReadBytes(by);
-            var loadedBundle = AssetBundle.LoadFromMemory(bytes);
+			var bytes = ReadBytes(by);
+			var loadedBundle = AssetBundle.LoadFromMemory(bytes);
 
-            return loadedBundle;
-        }
+			return loadedBundle;
+		}
 
-        async UniTask<AssetBundle> IAssetBundleSource.LoadAsync(string by, IProgress<float> with,
-            CancellationToken cancellationToken)
-        {
-            Guard.AgainstFileNotFound(by);
+		async UniTask<AssetBundle> IAssetBundleSource.LoadAsync(string by, IProgress<float> with,
+			CancellationToken cancellationToken)
+		{
+			Guard.AgainstFileNotFound(by);
 
-            var asyncRequest = AssetBundle
-                .LoadFromMemoryAsync(ReadBytes(by))
-                .ToUniTask(with, cancellationToken: cancellationToken);
+			var asyncRequest = AssetBundle
+				.LoadFromMemoryAsync(ReadBytes(by))
+				.ToUniTask(with, cancellationToken: cancellationToken);
 
-            return await asyncRequest;
-        }
-    }
+			return await asyncRequest;
+		}
+	}
 }

@@ -9,13 +9,13 @@ using UnityEngine;
 
 namespace Depra.Assets.Unity.Runtime.Files.Bundles.Sources
 {
-    public interface IAssetBundleSource
-    {
-        FileSize Size(AssetBundle of);
-        
-        AssetBundle Load(string by);
-        
-        UniTask<AssetBundle> LoadAsync(string by, IProgress<float> with,
-            CancellationToken cancellationToken = default);
-    }
+	public interface IAssetBundleSource
+	{
+		FileSize Size(AssetBundle of);
+
+		AssetBundle Load(string by);
+
+		UniTask<AssetBundle> LoadAsync(string by, IProgress<float> with,
+			CancellationToken cancellationToken = default);
+	}
 }

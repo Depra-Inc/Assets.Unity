@@ -13,35 +13,35 @@ using UnityEngine;
 
 namespace Depra.Assets.Unity.Runtime.Files.Bundles.Sources
 {
-    public readonly struct AssetBundleFromStream : IAssetBundleSource
-    {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static Stream OpenStream(string path) =>
-            new FileStream(path, FileMode.Open, FileAccess.Read);
+	public readonly struct AssetBundleFromStream : IAssetBundleSource
+	{
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		private static Stream OpenStream(string path) =>
+			new FileStream(path, FileMode.Open, FileAccess.Read);
 
-        FileSize IAssetBundleSource.Size(AssetBundle of) => of.Size();
+		FileSize IAssetBundleSource.Size(AssetBundle of) => of.Size();
 
-        AssetBundle IAssetBundleSource.Load(string by)
-        {
-            Guard.AgainstFileNotFound(by);
+		AssetBundle IAssetBundleSource.Load(string by)
+		{
+			Guard.AgainstFileNotFound(by);
 
-            using var fileStream = OpenStream(by);
-            var loadedBundle = AssetBundle.LoadFromStream(fileStream);
+			using var fileStream = OpenStream(by);
+			var loadedBundle = AssetBundle.LoadFromStream(fileStream);
 
-            return loadedBundle;
-        }
+			return loadedBundle;
+		}
 
-        async UniTask<AssetBundle> IAssetBundleSource.LoadAsync(string by, IProgress<float> with,
-            CancellationToken cancellationToken)
-        {
-            Guard.AgainstFileNotFound(by);
+		async UniTask<AssetBundle> IAssetBundleSource.LoadAsync(string by, IProgress<float> with,
+			CancellationToken cancellationToken)
+		{
+			Guard.AgainstFileNotFound(by);
 
-            await using var stream = OpenStream(by);
-            var asyncRequest = AssetBundle
-                .LoadFromStreamAsync(stream)
-                .ToUniTask(with, cancellationToken: cancellationToken);
+			await using var stream = OpenStream(by);
+			var asyncRequest = AssetBundle
+				.LoadFromStreamAsync(stream)
+				.ToUniTask(with, cancellationToken: cancellationToken);
 
-            return await asyncRequest;
-        }
-    }
+			return await asyncRequest;
+		}
+	}
 }

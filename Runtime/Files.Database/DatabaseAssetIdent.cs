@@ -7,40 +7,46 @@ using JetBrains.Annotations;
 
 namespace Depra.Assets.Unity.Runtime.Files.Database
 {
-    public readonly struct DatabaseAssetIdent : IAssetIdent
-    {
-        public static DatabaseAssetIdent Empty = new();
+	public readonly struct DatabaseAssetIdent : IAssetIdent
+	{
+		public static DatabaseAssetIdent Empty = new();
 
-        public DatabaseAssetIdent(string relativeDirectory, string name, string extension)
-        {
-            Name = name;
-            Extension = extension;
-            NameWithExtension = Name + Extension;
+		public static implicit operator DatabaseAssetIdent(string relativePath) => new(relativePath);
 
-            RelativePath = Path.Combine(relativeDirectory, NameWithExtension).Replace(@"\", "/");
+		public DatabaseAssetIdent(string relativePath) : this(Path.GetDirectoryName(relativePath),
+			Path.GetFileNameWithoutExtension(relativePath),
+			Path.GetExtension(relativePath)) { }
 
-            AbsolutePath = Path.GetFullPath(RelativePath).Replace(@"\", "/");
-            AbsoluteDirectoryPath = Path.GetFullPath(relativeDirectory).Replace(@"\", "/");
-            Directory = new DirectoryInfo(AbsoluteDirectoryPath);
-        }
+		public DatabaseAssetIdent(string relativeDirectory, string name, string extension)
+		{
+			Name = name;
+			Extension = extension;
+			NameWithExtension = Name + Extension;
 
-        public string Name { get; }
+			RelativePath = Path.Combine(relativeDirectory, NameWithExtension).Replace(@"\", "/");
 
-        [UsedImplicitly]
-        public string Extension { get; }
+			AbsolutePath = Path.GetFullPath(RelativePath).Replace(@"\", "/");
+			AbsoluteDirectoryPath = Path.GetFullPath(relativeDirectory).Replace(@"\", "/");
+			Directory = new DirectoryInfo(AbsoluteDirectoryPath);
+		}
 
-        [UsedImplicitly]
-        public string NameWithExtension { get; }
+		public string Name { get; }
 
-        public string RelativePath { get; }
-        public string AbsolutePath { get; }
+		[UsedImplicitly]
+		public string Extension { get; }
 
-        [UsedImplicitly]
-        public string AbsoluteDirectoryPath { get; }
+		[UsedImplicitly]
+		public string NameWithExtension { get; }
 
-        internal DirectoryInfo Directory { get; }
+		public string RelativePath { get; }
+		public string AbsolutePath { get; }
 
-        string IAssetIdent.Uri => AbsolutePath;
-        string IAssetIdent.RelativeUri => RelativePath;
-    }
+		[UsedImplicitly]
+		public string AbsoluteDirectoryPath { get; }
+
+		internal DirectoryInfo Directory { get; }
+
+		string IAssetIdent.Uri => AbsolutePath;
+		string IAssetIdent.RelativeUri => RelativePath;
+	}
 }

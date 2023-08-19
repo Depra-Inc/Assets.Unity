@@ -6,36 +6,36 @@ using UnityEngine;
 
 namespace Depra.Assets.Unity.Tests.EditMode.Utils
 {
-    internal static class TestEnvironment
-    {
-        public static TAsset CreateAsset<TAsset>(string path) where TAsset : ScriptableObject
-        {
-            var asset = ScriptableObject.CreateInstance<TAsset>();
-            AssetDatabase.CreateAsset(asset, path);
-            AssetDatabase.SaveAssets();
-            AssetDatabase.Refresh();
+	internal static class TestEnvironment
+	{
+		public static TAsset CreateAsset<TAsset>(string path) where TAsset : ScriptableObject
+		{
+			var asset = ScriptableObject.CreateInstance<TAsset>();
+			AssetDatabase.CreateAsset(asset, path);
+			AssetDatabase.SaveAssets();
+			AssetDatabase.Refresh();
 
-            return asset;
-        }
+			return asset;
+		}
 
-        public static bool TryDeleteAsset(Object asset)
-        {
-            if (asset == null)
-            {
-                return false;
-            }
-            
-            var assetPath = AssetDatabase.GetAssetPath(asset);
-            if (assetPath == null)
-            {
-                return false;
-            }
-            
-            AssetDatabase.DeleteAsset(assetPath);
-            AssetDatabase.SaveAssets();
-            AssetDatabase.Refresh();
+		public static bool TryDeleteAsset(Object asset)
+		{
+			if (asset == null)
+			{
+				return false;
+			}
 
-            return true;
-        }
-    }
+			var assetPath = AssetDatabase.GetAssetPath(asset);
+			if (assetPath == null)
+			{
+				return false;
+			}
+
+			AssetDatabase.DeleteAsset(assetPath);
+			AssetDatabase.SaveAssets();
+			AssetDatabase.Refresh();
+
+			return true;
+		}
+	}
 }

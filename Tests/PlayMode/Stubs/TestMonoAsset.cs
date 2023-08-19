@@ -5,5 +5,5 @@ using UnityEngine;
 
 namespace Depra.Assets.Unity.Tests.PlayMode.Stubs
 {
-    internal sealed class TestMonoAsset : MonoBehaviour { }
+	internal sealed class TestMonoAsset : MonoBehaviour { }
 }

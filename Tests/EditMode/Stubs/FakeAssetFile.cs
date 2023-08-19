@@ -12,24 +12,24 @@ using Depra.Assets.ValueObjects;
 
 namespace Depra.Assets.Unity.Tests.EditMode.Stubs
 {
-    internal sealed class FakeAssetFile : IUnityLoadableAsset<EditModeTestScriptableAsset>
-    {
-        public FakeAssetFile(IAssetIdent ident) => Ident = ident;
+	internal sealed class FakeAssetFile : IUnityLoadableAsset<EditModeTestScriptableAsset>
+	{
+		public FakeAssetFile(IAssetIdent ident) => Ident = ident;
 
-        public IAssetIdent Ident { get; }
+		public IAssetIdent Ident { get; }
 
-        public bool IsLoaded { get; private set; }
+		public bool IsLoaded { get; private set; }
 
-        FileSize IAssetFile.Size => FileSize.Zero;
+		FileSize IAssetFile.Size => FileSize.Zero;
 
-        EditModeTestScriptableAsset IUnityLoadableAsset<EditModeTestScriptableAsset>.Load() =>
-            throw new NotImplementedException();
+		EditModeTestScriptableAsset IUnityLoadableAsset<EditModeTestScriptableAsset>.Load() =>
+			throw new NotImplementedException();
 
-        void IUnityLoadableAsset<EditModeTestScriptableAsset>.Unload() => IsLoaded = false;
+		void IUnityLoadableAsset<EditModeTestScriptableAsset>.Unload() => IsLoaded = false;
 
-        UniTask<EditModeTestScriptableAsset> IUnityLoadableAsset<EditModeTestScriptableAsset>.LoadAsync(
-            DownloadProgressDelegate onProgress,
-            CancellationToken cancellationToken) =>
-            throw new NotImplementedException();
-    }
+		UniTask<EditModeTestScriptableAsset> IUnityLoadableAsset<EditModeTestScriptableAsset>.LoadAsync(
+			DownloadProgressDelegate onProgress,
+			CancellationToken cancellationToken) =>
+			throw new NotImplementedException();
+	}
 }
