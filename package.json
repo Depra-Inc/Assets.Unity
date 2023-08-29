@@ -1,25 +1,38 @@
 {
-  "name": "com.depra.assets.unity",
-  "displayName": "Depra.Assets.Unity",
-  "author": "Depra, Inc.",
-  "version": "0.2.0",
-  "unity": "2022.3",
-  "hideInEditor": false,
-  "keywords": [
-    "Depra",
-    "Assets",
-    "Unity",
-    "Editor",
-    "Runtime",
-    "Resources",
-    "AssetBundle",
-    "Preload",
-    "Load",
-    "Unload",
-    "Sync",
-    "Async"
-  ],
-  "license": "Apache-2.0",
-  "description": "Provides an API for loading Unity asset files in multiple ways through a single interface.",
-  "type": "module"
+	"name": "com.depra.assets.unity",
+	"version": "0.2.0",
+	"displayName": "Depra.Assets.Unity",
+	"description": "Provides an API for loading Unity asset files in multiple ways through a single interface.",
+	"unity": "2022.3",
+	"license": "Apache-2.0",
+	"keywords": [
+		"Depra",
+		"Assets",
+		"Unity",
+		"Editor",
+		"Runtime",
+		"Resources",
+		"AssetBundle",
+		"Preload",
+		"Load",
+		"Unload",
+		"Sync",
+		"Async"
+	],
+	"author": {
+		"name": "Depra, Inc.",
+		"email": "n.melnikov@depra.org",
+		"url": "https://github.com/Depression-aggression"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Depression-aggression/Assets.Unity.git"
+	},
+	"samples": [
+		{
+			"name": "Load AssetBundle",
+			"description": "Load an AssetBundle from a file and load an asset from it.",
+			"path": "Samples~"
+		}
+	]
 }
