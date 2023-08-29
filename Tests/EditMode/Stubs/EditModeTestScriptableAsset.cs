@@ -5,7 +5,7 @@ using UnityEngine;
 using static Depra.Assets.Runtime.Common.Module;
 using static Depra.Assets.Runtime.Common.Paths;
 
-namespace Depra.Assets.Unity.Tests.EditMode.Stubs
+namespace Depra.Assets.Tests.EditMode.Stubs
 {
 	[CreateAssetMenu(fileName = FILE_NAME, menuName = MENU_PATH, order = DEFAULT_ORDER)]
 	internal sealed class EditModeTestScriptableAsset : ScriptableObject

@@ -11,13 +11,13 @@ using Cysharp.Threading.Tasks;
 using Depra.Assets.Runtime.Files.Bundles.Files;
 using Depra.Assets.Runtime.Files.Bundles.Idents;
 using Depra.Assets.Runtime.Files.Bundles.Sources;
-using Depra.Assets.Unity.Tests.PlayMode.Stubs;
+using Depra.Assets.Tests.PlayMode.Stubs;
 using Depra.Assets.ValueObjects;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
 
-namespace Depra.Assets.Unity.Tests.PlayMode.Files
+namespace Depra.Assets.Tests.PlayMode.Files
 {
 	[TestFixture(TestOf = typeof(AssetBundleFile))]
 	internal sealed class LocalAssetBundleFileTests

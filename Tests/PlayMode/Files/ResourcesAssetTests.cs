@@ -11,14 +11,14 @@ using Cysharp.Threading.Tasks;
 using Depra.Assets.Runtime.Common;
 using Depra.Assets.Runtime.Extensions;
 using Depra.Assets.Runtime.Files.Resource;
-using Depra.Assets.Unity.Tests.PlayMode.Stubs;
-using Depra.Assets.Unity.Tests.PlayMode.Utils;
+using Depra.Assets.Tests.PlayMode.Stubs;
+using Depra.Assets.Tests.PlayMode.Utils;
 using Depra.Assets.ValueObjects;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.TestTools;
 
-namespace Depra.Assets.Unity.Tests.PlayMode.Files
+namespace Depra.Assets.Tests.PlayMode.Files
 {
 	[TestFixture(TestOf = typeof(ResourcesAsset<>))]
 	internal sealed class ResourcesAssetTests

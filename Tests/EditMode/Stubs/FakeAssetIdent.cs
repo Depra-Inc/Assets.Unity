@@ -3,7 +3,7 @@
 
 using Depra.Assets.Idents;
 
-namespace Depra.Assets.Unity.Tests.EditMode.Stubs
+namespace Depra.Assets.Tests.EditMode.Stubs
 {
 	internal sealed record FakeAssetIdent : IAssetIdent
 	{

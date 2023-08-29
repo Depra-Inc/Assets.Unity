@@ -10,7 +10,7 @@ using Depra.Assets.Idents;
 using Depra.Assets.Runtime.Files.Adapter;
 using Depra.Assets.ValueObjects;
 
-namespace Depra.Assets.Unity.Tests.EditMode.Stubs
+namespace Depra.Assets.Tests.EditMode.Stubs
 {
 	internal sealed class FakeAssetFile : IUnityLoadableAsset<EditModeTestScriptableAsset>
 	{

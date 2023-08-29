@@ -1,5 +1,5 @@
 {
-    "name": "Depra.Assets.Unity.Tests.PlayMode",
+    "name": "Depra.Assets.Tests.PlayMode",
     "rootNamespace": "",
     "references": [
         "GUID:ce2ab5ef472b35f498b9d47a89be9396",

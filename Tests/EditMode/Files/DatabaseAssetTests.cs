@@ -5,13 +5,13 @@ using System.IO;
 using Depra.Assets.Runtime.Common;
 using Depra.Assets.Runtime.Extensions;
 using Depra.Assets.Runtime.Files.Database;
-using Depra.Assets.Unity.Tests.EditMode.Stubs;
-using Depra.Assets.Unity.Tests.EditMode.Utils;
+using Depra.Assets.Tests.EditMode.Stubs;
+using Depra.Assets.Tests.EditMode.Utils;
 using Depra.Assets.ValueObjects;
 using NUnit.Framework;
 using static Depra.Assets.Runtime.Common.Paths;
 
-namespace Depra.Assets.Unity.Tests.EditMode.Files
+namespace Depra.Assets.Tests.EditMode.Files
 {
 	[TestFixture(TestOf = typeof(DatabaseAsset<>))]
 	internal sealed class DatabaseAssetTests

@@ -5,13 +5,13 @@ using System.Threading;
 using Cysharp.Threading.Tasks;
 using Depra.Assets.Unity.Editor.Files;
 using Depra.Assets.Runtime.Files.Adapter;
-using Depra.Assets.Unity.Tests.EditMode.Stubs;
+using Depra.Assets.Tests.EditMode.Stubs;
 using Depra.Assets.ValueObjects;
 using NUnit.Framework;
 using UnityEditor;
 using UnityEngine;
 
-namespace Depra.Assets.Unity.Tests.EditMode.Files
+namespace Depra.Assets.Tests.EditMode.Files
 {
 	[TestFixture(TestOf = typeof(PreloadedAsset<>))]
 	internal sealed class PreloadedAssetTests

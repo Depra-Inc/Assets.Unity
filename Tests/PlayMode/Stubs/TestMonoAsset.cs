@@ -3,7 +3,7 @@
 
 using UnityEngine;
 
-namespace Depra.Assets.Unity.Tests.PlayMode.Stubs
+namespace Depra.Assets.Tests.PlayMode.Stubs
 {
 	internal sealed class TestMonoAsset : MonoBehaviour { }
 }

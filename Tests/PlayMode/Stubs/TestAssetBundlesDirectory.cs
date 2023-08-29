@@ -5,7 +5,7 @@ using System.IO;
 using static Depra.Assets.Runtime.Common.Module;
 using static Depra.Assets.Runtime.Common.Paths;
 
-namespace Depra.Assets.Unity.Tests.PlayMode.Stubs
+namespace Depra.Assets.Tests.PlayMode.Stubs
 {
 	internal sealed class TestAssetBundlesDirectory
 	{

@@ -8,7 +8,7 @@ using Depra.Assets.Runtime.Files.Database;
 using NUnit.Framework;
 using UnityEngine;
 
-namespace Depra.Assets.Unity.Tests.PlayMode.Files
+namespace Depra.Assets.Tests.PlayMode.Files
 {
 	[TestFixture(TestOf = typeof(DatabaseAsset<>))]
 	internal sealed class DatabaseAssetTests

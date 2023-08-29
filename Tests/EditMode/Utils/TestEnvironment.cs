@@ -4,7 +4,7 @@
 using UnityEditor;
 using UnityEngine;
 
-namespace Depra.Assets.Unity.Tests.EditMode.Utils
+namespace Depra.Assets.Tests.EditMode.Utils
 {
 	internal static class TestEnvironment
 	{

@@ -4,7 +4,7 @@
 using UnityEditor;
 using UnityEngine;
 
-namespace Depra.Assets.Unity.Tests.PlayMode.Utils
+namespace Depra.Assets.Tests.PlayMode.Utils
 {
 	internal static class TestEnvironment
 	{
