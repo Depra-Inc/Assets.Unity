@@ -7,7 +7,7 @@ using Cysharp.Threading.Tasks;
 using Depra.Assets.Delegates;
 using Depra.Assets.Files;
 using Depra.Assets.Idents;
-using Depra.Assets.Unity.Runtime.Files.Adapter;
+using Depra.Assets.Runtime.Files.Adapter;
 using Depra.Assets.ValueObjects;
 
 namespace Depra.Assets.Unity.Tests.EditMode.Stubs

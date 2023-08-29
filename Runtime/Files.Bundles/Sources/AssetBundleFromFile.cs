@@ -4,12 +4,12 @@
 using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
-using Depra.Assets.Unity.Runtime.Exceptions;
-using Depra.Assets.Unity.Runtime.Files.Bundles.Extensions;
+using Depra.Assets.Runtime.Exceptions;
+using Depra.Assets.Runtime.Files.Bundles.Extensions;
 using Depra.Assets.ValueObjects;
 using UnityEngine;
 
-namespace Depra.Assets.Unity.Runtime.Files.Bundles.Sources
+namespace Depra.Assets.Runtime.Files.Bundles.Sources
 {
 	public readonly struct AssetBundleFromFile : IAssetBundleSource
 	{

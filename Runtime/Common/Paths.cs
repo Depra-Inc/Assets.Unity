@@ -3,7 +3,7 @@
 
 using UnityEngine;
 
-namespace Depra.Assets.Unity.Runtime.Common
+namespace Depra.Assets.Runtime.Common
 {
 	public static class Paths
 	{

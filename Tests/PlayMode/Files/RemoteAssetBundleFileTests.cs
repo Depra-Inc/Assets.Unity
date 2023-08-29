@@ -2,9 +2,9 @@
 using System.Diagnostics;
 using System.Threading;
 using Cysharp.Threading.Tasks;
-using Depra.Assets.Unity.Runtime.Files.Bundles.Files;
-using Depra.Assets.Unity.Runtime.Files.Bundles.Idents;
-using Depra.Assets.Unity.Runtime.Files.Bundles.Sources;
+using Depra.Assets.Runtime.Files.Bundles.Files;
+using Depra.Assets.Runtime.Files.Bundles.Idents;
+using Depra.Assets.Runtime.Files.Bundles.Sources;
 using Depra.Assets.Unity.Tests.PlayMode.Stubs;
 using NUnit.Framework;
 using UnityEngine;

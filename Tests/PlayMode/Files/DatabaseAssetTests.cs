@@ -3,8 +3,8 @@
 
 using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
-using Depra.Assets.Unity.Runtime.Exceptions;
-using Depra.Assets.Unity.Runtime.Files.Database;
+using Depra.Assets.Runtime.Exceptions;
+using Depra.Assets.Runtime.Files.Database;
 using NUnit.Framework;
 using UnityEngine;
 

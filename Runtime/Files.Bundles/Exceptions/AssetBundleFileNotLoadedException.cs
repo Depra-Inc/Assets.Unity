@@ -3,7 +3,7 @@
 
 using System;
 
-namespace Depra.Assets.Unity.Runtime.Files.Bundles.Exceptions
+namespace Depra.Assets.Runtime.Files.Bundles.Exceptions
 {
 	internal sealed class AssetBundleFileNotLoadedException : Exception
 	{

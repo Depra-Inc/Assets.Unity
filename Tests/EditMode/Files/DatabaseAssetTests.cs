@@ -2,14 +2,14 @@
 // SPDX-License-Identifier: Apache-2.0
 
 using System.IO;
-using Depra.Assets.Unity.Runtime.Common;
-using Depra.Assets.Unity.Runtime.Extensions;
-using Depra.Assets.Unity.Runtime.Files.Database;
+using Depra.Assets.Runtime.Common;
+using Depra.Assets.Runtime.Extensions;
+using Depra.Assets.Runtime.Files.Database;
 using Depra.Assets.Unity.Tests.EditMode.Stubs;
 using Depra.Assets.Unity.Tests.EditMode.Utils;
 using Depra.Assets.ValueObjects;
 using NUnit.Framework;
-using static Depra.Assets.Unity.Runtime.Common.Paths;
+using static Depra.Assets.Runtime.Common.Paths;
 
 namespace Depra.Assets.Unity.Tests.EditMode.Files
 {

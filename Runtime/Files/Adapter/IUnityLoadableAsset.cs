@@ -6,7 +6,7 @@ using Cysharp.Threading.Tasks;
 using Depra.Assets.Delegates;
 using Depra.Assets.Files;
 
-namespace Depra.Assets.Unity.Runtime.Files.Adapter
+namespace Depra.Assets.Runtime.Files.Adapter
 {
 	/// <summary>
 	/// Represents an interface for a loadable asset.

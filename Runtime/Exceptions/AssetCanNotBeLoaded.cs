@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Depra.Assets.Unity.Runtime.Exceptions
+namespace Depra.Assets.Runtime.Exceptions
 {
 	internal sealed class AssetCanNotBeLoaded : Exception
 	{

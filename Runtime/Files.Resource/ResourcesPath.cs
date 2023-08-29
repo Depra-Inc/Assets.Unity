@@ -5,12 +5,12 @@ using System;
 using System.IO;
 using System.Runtime.CompilerServices;
 using Depra.Assets.Idents;
-using Depra.Assets.Unity.Runtime.Exceptions;
-using Depra.Assets.Unity.Runtime.Files.Resource.Exceptions;
+using Depra.Assets.Runtime.Exceptions;
+using Depra.Assets.Runtime.Files.Resource.Exceptions;
 using JetBrains.Annotations;
-using static Depra.Assets.Unity.Runtime.Common.Paths;
+using static Depra.Assets.Runtime.Common.Paths;
 
-namespace Depra.Assets.Unity.Runtime.Files.Resource
+namespace Depra.Assets.Runtime.Files.Resource
 {
 	public sealed class ResourcesPath : IAssetIdent
 	{

@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: Apache-2.0
 
 using UnityEngine;
-using static Depra.Assets.Unity.Runtime.Common.Module;
-using static Depra.Assets.Unity.Runtime.Common.Paths;
+using static Depra.Assets.Runtime.Common.Module;
+using static Depra.Assets.Runtime.Common.Paths;
 
 namespace Depra.Assets.Unity.Tests.EditMode.Stubs
 {

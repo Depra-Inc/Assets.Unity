@@ -1,7 +1,7 @@
 ﻿// Copyright © 2023 Nikolay Melnikov. All rights reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-namespace Depra.Assets.Unity.Runtime.Common
+namespace Depra.Assets.Runtime.Common
 {
 	internal static class Module
 	{
@@ -10,7 +10,7 @@ namespace Depra.Assets.Unity.Runtime.Common
 		public const string ENGINE_NAME = nameof(UnityEngine);
 
 		internal const int DEFAULT_ORDER = 52;
-		
+
 		internal static readonly string FullModuleName = string.Join('.', FRAMEWORK_NAME, MODULE_NAME);
 	}
 }

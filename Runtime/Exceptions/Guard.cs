@@ -4,10 +4,10 @@
 using System;
 using System.IO;
 using System.Runtime.CompilerServices;
-using Depra.Assets.Unity.Runtime.Files.Bundles.Sources;
+using Depra.Assets.Runtime.Files.Bundles.Sources;
 using UnityEngine.Networking;
 
-namespace Depra.Assets.Unity.Runtime.Exceptions
+namespace Depra.Assets.Runtime.Exceptions
 {
 	internal static class Guard
 	{

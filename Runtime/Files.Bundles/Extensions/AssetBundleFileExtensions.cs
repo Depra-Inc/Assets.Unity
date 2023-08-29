@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using Depra.Assets.Files;
 using UnityEngine;
 
-namespace Depra.Assets.Unity.Runtime.Files.Bundles.Extensions
+namespace Depra.Assets.Runtime.Files.Bundles.Extensions
 {
 	public static class AssetBundleFileExtensions
 	{

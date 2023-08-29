@@ -4,7 +4,7 @@
 using System;
 using System.Reflection;
 
-namespace Depra.Assets.Unity.Runtime.Files.Database
+namespace Depra.Assets.Runtime.Files.Database
 {
 	internal sealed class AssetCreationException : Exception
 	{

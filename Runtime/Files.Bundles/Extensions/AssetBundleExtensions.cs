@@ -14,7 +14,7 @@ using UnityEngine.Profiling;
 using UnityEditor;
 #endif
 
-namespace Depra.Assets.Unity.Runtime.Files.Bundles.Extensions
+namespace Depra.Assets.Runtime.Files.Bundles.Extensions
 {
 	public static class AssetBundleExtensions
 	{

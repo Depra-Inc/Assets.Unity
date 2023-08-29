@@ -9,7 +9,7 @@ using Depra.Assets.Files;
 using Depra.Assets.Idents;
 using Depra.Assets.ValueObjects;
 
-namespace Depra.Assets.Unity.Runtime.Files.Adapter
+namespace Depra.Assets.Runtime.Files.Adapter
 {
 	public abstract class UnityAssetFile<TAsset> : ILoadableAsset<TAsset>, IUnityLoadableAsset<TAsset>
 	{

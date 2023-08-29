@@ -6,14 +6,14 @@ using System.Threading;
 using Cysharp.Threading.Tasks;
 using Depra.Assets.Delegates;
 using Depra.Assets.Idents;
-using Depra.Assets.Unity.Runtime.Exceptions;
-using Depra.Assets.Unity.Runtime.Files.Adapter;
-using Depra.Assets.Unity.Runtime.Files.Bundles.Exceptions;
+using Depra.Assets.Runtime.Exceptions;
+using Depra.Assets.Runtime.Files.Adapter;
+using Depra.Assets.Runtime.Files.Bundles.Exceptions;
 using Depra.Assets.ValueObjects;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace Depra.Assets.Unity.Runtime.Files.Bundles.Files
+namespace Depra.Assets.Runtime.Files.Bundles.Files
 {
 	public sealed class AssetBundleAssetFile<TAsset> : UnityAssetFile<TAsset>, IDisposable where TAsset : Object
 	{

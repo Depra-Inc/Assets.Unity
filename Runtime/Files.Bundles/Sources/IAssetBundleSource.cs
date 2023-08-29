@@ -7,7 +7,7 @@ using Cysharp.Threading.Tasks;
 using Depra.Assets.ValueObjects;
 using UnityEngine;
 
-namespace Depra.Assets.Unity.Runtime.Files.Bundles.Sources
+namespace Depra.Assets.Runtime.Files.Bundles.Sources
 {
 	public interface IAssetBundleSource
 	{

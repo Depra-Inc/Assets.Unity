@@ -6,15 +6,15 @@ using System.Threading;
 using Cysharp.Threading.Tasks;
 using Depra.Assets.Delegates;
 using Depra.Assets.Idents;
-using Depra.Assets.Unity.Runtime.Exceptions;
-using Depra.Assets.Unity.Runtime.Extensions;
-using Depra.Assets.Unity.Runtime.Files.Adapter;
+using Depra.Assets.Runtime.Exceptions;
+using Depra.Assets.Runtime.Files.Adapter;
+using Depra.Assets.Runtime.Extensions;
 using Depra.Assets.ValueObjects;
 using UnityEditor;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace Depra.Assets.Unity.Runtime.Files.Database
+namespace Depra.Assets.Runtime.Files.Database
 {
 	public sealed class DatabaseAsset<TAsset> : UnityAssetFile<TAsset>, IDisposable where TAsset : ScriptableObject
 	{

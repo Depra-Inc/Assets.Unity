@@ -1,7 +1,7 @@
 ﻿// Copyright © 2023 Nikolay Melnikov. All rights reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-namespace Depra.Assets.Unity.Runtime.Common
+namespace Depra.Assets.Runtime.Common
 {
 	public static class AssetTypes
 	{

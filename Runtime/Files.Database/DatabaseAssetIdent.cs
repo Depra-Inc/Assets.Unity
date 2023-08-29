@@ -5,7 +5,7 @@ using System.IO;
 using Depra.Assets.Idents;
 using JetBrains.Annotations;
 
-namespace Depra.Assets.Unity.Runtime.Files.Database
+namespace Depra.Assets.Runtime.Files.Database
 {
 	public readonly struct DatabaseAssetIdent : IAssetIdent
 	{
