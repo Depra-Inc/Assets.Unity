@@ -12,10 +12,10 @@ namespace Depra.Assets.Unity.Tests.PlayMode.Stubs
 	{
 		private const string TESTS_FOLDER = nameof(Tests);
 
-		private const string MENU_PATH = FRAMEWORK_NAME + SEPARATOR +
-		                                 MODULE_NAME + SEPARATOR +
-		                                 TESTS_FOLDER + SEPARATOR +
-		                                 nameof(PlayMode) + SEPARATOR +
+		private const string MENU_PATH = FRAMEWORK_NAME + SLASH +
+		                                 MODULE_NAME + SLASH +
+		                                 TESTS_FOLDER + SLASH +
+		                                 nameof(PlayMode) + SLASH +
 		                                 nameof(PlayModeTestScriptableAsset);
 	}
 }

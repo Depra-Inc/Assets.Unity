@@ -24,7 +24,8 @@ namespace Depra.Assets.Unity.Tests.EditMode.Files
 
 		[OneTimeSetUp]
 		public void OneTimeSetup() =>
-			_childAsset = new FakeAssetFile(new FakeAssetIdent(nameof(EditModeTestScriptableAsset)));
+			_childAsset = new FakeAssetFile(
+				new FakeAssetIdent(nameof(EditModeTestScriptableAsset)));
 
 		[SetUp]
 		public void Setup()

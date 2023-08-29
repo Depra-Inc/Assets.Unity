@@ -48,5 +48,7 @@ namespace Depra.Assets.Unity.Runtime.Files.Database
 
 		string IAssetIdent.Uri => AbsolutePath;
 		string IAssetIdent.RelativeUri => RelativePath;
+
+		public bool Exists() => File.Exists(AbsolutePath);
 	}
 }

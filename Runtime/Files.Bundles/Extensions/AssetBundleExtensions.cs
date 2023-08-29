@@ -36,15 +36,17 @@ namespace Depra.Assets.Unity.Runtime.Files.Bundles.Extensions
 		private static FileSize SizeOnDisk(this AssetBundle assetBundle)
 		{
 			var allScenePaths = assetBundle.GetAllScenePaths();
-			var bytes = (from scenePath in allScenePaths
+			var sizes = from scenePath in allScenePaths
 				select Path.Combine(Application.streamingAssetsPath, scenePath)
 				into absolutePath
 				select new FileInfo(absolutePath)
 				into fileInfo
 				where fileInfo.Exists
-				select fileInfo.Length).Sum();
+				select fileInfo.Length;
 
-			return new FileSize(bytes);
+			var sizeInBytes = sizes.Sum();
+
+			return new FileSize(sizeInBytes);
 		}
 
 #if UNITY_EDITOR

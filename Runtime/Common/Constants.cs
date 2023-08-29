@@ -6,8 +6,9 @@ namespace Depra.Assets.Unity.Runtime.Common
 	internal static class Constants
 	{
 		public const string FRAMEWORK_NAME = "Depra";
-		public const string MODULE_NAME = "Assets.Unity";
+		public const string ENGINE_NAME = "Unity";
+		public const string MODULE_NAME = "Assets";
 
-		public static readonly string FullModuleName = string.Join('.', FRAMEWORK_NAME, MODULE_NAME);
+		internal static readonly string FullModuleName = string.Join('.', FRAMEWORK_NAME, MODULE_NAME);
 	}
 }

@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace Depra.Assets.Unity.Runtime.Common
 {
-	internal static class Paths
+	public static class Paths
 	{
 		public const string ASSETS_FOLDER_NAME = "Assets";
 		public const string PACKAGES_FOLDER_NAME = "Packages";
@@ -14,9 +14,9 @@ namespace Depra.Assets.Unity.Runtime.Common
 		public const string ASSET_BUNDLES_FOLDER_NAME = "AssetBundles";
 		public const string STREAMING_ASSETS_FOLDER_NAME = "StreamingAssets";
 
-		internal const string SEPARATOR = "/";
-		
-		public static string DataPathByPlatform
+		internal const string SLASH = "/";
+
+		internal static string DataPathByPlatform
 		{
 			get
 			{

@@ -3,7 +3,7 @@
 
 namespace Depra.Assets.Unity.Runtime.Common
 {
-	internal static class AssetTypes
+	public static class AssetTypes
 	{
 		public const string META = ".meta";
 		public const string BASE = ".asset";

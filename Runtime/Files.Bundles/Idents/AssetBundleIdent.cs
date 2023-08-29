@@ -17,16 +17,16 @@ namespace Depra.Assets.Unity.Runtime.Files.Bundles.Idents
 
 		public static implicit operator AssetBundleIdent(string path) => new(path);
 
-		private readonly FileInfo _fileSystemInfo;
+		private readonly FileInfo _fileInfo;
 
 		public AssetBundleIdent(string path)
 		{
-			_fileSystemInfo = new FileInfo(path);
-			_fileSystemInfo.Directory.CreateIfNotExists();
+			_fileInfo = new FileInfo(path);
+			_fileInfo.Directory.CreateIfNotExists();
 
 			Name = string.IsNullOrEmpty(Extension)
-				? _fileSystemInfo.Name
-				: _fileSystemInfo.Name.Replace(Extension, string.Empty);
+				? _fileInfo.Name
+				: _fileInfo.Name.Replace(Extension, string.Empty);
 
 			AbsolutePathWithoutExtension = AbsolutePath.Replace(EXTENSION, string.Empty);
 		}
@@ -46,10 +46,10 @@ namespace Depra.Assets.Unity.Runtime.Files.Bundles.Idents
 		public string NameWithExtension => Name + Extension;
 
 		[UsedImplicitly]
-		public string AbsolutePath => _fileSystemInfo.FullName;
+		public string AbsolutePath => _fileInfo.FullName;
 
 		[UsedImplicitly]
-		public string AbsoluteDirectoryPath => _fileSystemInfo.DirectoryName;
+		public string AbsoluteDirectoryPath => _fileInfo.DirectoryName;
 
 		public string AbsolutePathWithoutExtension { get; }
 

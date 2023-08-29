@@ -16,11 +16,11 @@ namespace Depra.Assets.Unity.Tests.PlayMode.Stubs
 
 		public TestAssetBundlesDirectory()
 		{
-			ProjectRelativePath = PACKAGES_FOLDER_NAME + SEPARATOR +
-			                      FullModuleName + SEPARATOR +
-			                      TESTS_FOLDER + SEPARATOR +
-			                      nameof(PlayMode) + SEPARATOR +
-			                      ASSETS_FOLDER_NAME + SEPARATOR +
+			ProjectRelativePath = PACKAGES_FOLDER_NAME + SLASH +
+			                      FullModuleName + SLASH +
+			                      TESTS_FOLDER + SLASH +
+			                      nameof(PlayMode) + SLASH +
+			                      ASSETS_FOLDER_NAME + SLASH +
 			                      ASSET_BUNDLES_FOLDER_NAME;
 
 			AbsolutePath = Path.GetFullPath(ProjectRelativePath);

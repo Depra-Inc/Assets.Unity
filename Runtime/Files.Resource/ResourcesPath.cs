@@ -3,6 +3,7 @@
 
 using System;
 using System.IO;
+using System.Runtime.CompilerServices;
 using Depra.Assets.Idents;
 using Depra.Assets.Unity.Runtime.Exceptions;
 using Depra.Assets.Unity.Runtime.Files.Resource.Exceptions;
@@ -48,12 +49,15 @@ namespace Depra.Assets.Unity.Runtime.Files.Resource
 
 		internal static class Utility
 		{
+			[MethodImpl(MethodImplOptions.AggressiveInlining)]
 			public static string CombineProjectPath(string relativePath) =>
 				Path.Combine(ASSETS_FOLDER_NAME, RESOURCES_FOLDER_NAME, relativePath);
 
+			[MethodImpl(MethodImplOptions.AggressiveInlining)]
 			public static string CombineProjectPath(string directory, string name, string extension = null) =>
 				CombineProjectPath(Path.Combine(directory ?? string.Empty, name + extension));
 
+			[MethodImpl(MethodImplOptions.AggressiveInlining)]
 			public static string FindRelativePath(string projectPath)
 			{
 				Guard.AgainstEmptyString(projectPath, () => new NullReferenceException(nameof(projectPath)));

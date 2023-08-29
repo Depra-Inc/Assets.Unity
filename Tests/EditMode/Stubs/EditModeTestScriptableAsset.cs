@@ -12,10 +12,10 @@ namespace Depra.Assets.Unity.Tests.EditMode.Stubs
 	{
 		private const string TESTS_FOLDER_NAME = nameof(Tests);
 
-		private const string MENU_PATH = FRAMEWORK_NAME + SEPARATOR +
-		                                 MODULE_NAME + SEPARATOR +
-		                                 TESTS_FOLDER_NAME + SEPARATOR +
-		                                 nameof(EditMode) + SEPARATOR +
+		private const string MENU_PATH = FRAMEWORK_NAME + SLASH +
+		                                 MODULE_NAME + SLASH +
+		                                 TESTS_FOLDER_NAME + SLASH +
+		                                 nameof(EditMode) + SLASH +
 		                                 nameof(EditModeTestScriptableAsset);
 	}
 }

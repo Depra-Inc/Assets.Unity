@@ -112,8 +112,7 @@ namespace Depra.Assets.Unity.Tests.EditMode.Files
 			Assert.That(databaseAsset.IsLoaded, Is.False);
 
 			// Debug.
-			TestContext.WriteLine(
-				$"Deleted {nameof(EditModeTestScriptableAsset)} at path: {_existentAssetIdent.AbsolutePath}.");
+			TestContext.WriteLine($"Deleted {nameof(EditModeTestScriptableAsset)} at path: {_existentAssetIdent.AbsolutePath}.");
 		}
 
 		[Test]

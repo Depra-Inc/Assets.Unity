@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 using System;
-using System.IO;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using Depra.Assets.Delegates;
@@ -45,7 +44,7 @@ namespace Depra.Assets.Unity.Runtime.Files.Database
 
 			TAsset loadedAsset = null;
 #if UNITY_EDITOR
-			if (File.Exists(_ident.AbsolutePath))
+			if (_ident.Exists())
 			{
 				loadedAsset = AssetDatabase.LoadAssetAtPath<TAsset>(_ident.RelativePath);
 			}

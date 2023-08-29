@@ -44,7 +44,7 @@ namespace Depra.Assets.Unity.Runtime.Exceptions
 		{
 			if (File.Exists(filePath) == false)
 			{
-				throw new FileNotFoundException($"File {filePath} not found");
+				throw new FileNotFoundException(filePath);
 			}
 		}
 
