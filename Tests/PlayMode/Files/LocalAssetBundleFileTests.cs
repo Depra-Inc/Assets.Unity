@@ -20,7 +20,7 @@ using UnityEngine.TestTools;
 namespace Depra.Assets.Unity.Tests.PlayMode.Files
 {
 	[TestFixture(TestOf = typeof(AssetBundleFile))]
-	internal sealed class AssetBundleFileTests
+	internal sealed class LocalAssetBundleFileTests
 	{
 		private const string TEST_BUNDLE_NAME = "test";
 
@@ -32,7 +32,6 @@ namespace Depra.Assets.Unity.Tests.PlayMode.Files
 			yield return new AssetBundleFile(bundleIdent, new AssetBundleFromFile());
 			yield return new AssetBundleFile(bundleIdent, new AssetBundleFromMemory());
 			yield return new AssetBundleFile(bundleIdent, new AssetBundleFromStream());
-			//yield return new AssetBundleFile(bundleIdent, new AssetBundleFromWeb());
 		}
 
 		private static IEnumerable<AssetBundleFile> InvalidBundles()
@@ -41,7 +40,6 @@ namespace Depra.Assets.Unity.Tests.PlayMode.Files
 			yield return new AssetBundleFile(invalidIdent, new AssetBundleFromFile());
 			yield return new AssetBundleFile(invalidIdent, new AssetBundleFromMemory());
 			yield return new AssetBundleFile(invalidIdent, new AssetBundleFromStream());
-			//yield return new AssetBundleFile(invalidIdent, new AssetBundleFromWeb());
 		}
 
 		private Stopwatch _stopwatch;

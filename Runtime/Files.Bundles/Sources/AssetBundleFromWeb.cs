@@ -5,6 +5,7 @@ using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using Depra.Assets.Unity.Runtime.Exceptions;
+using Depra.Assets.Unity.Runtime.Files.Bundles.Extensions;
 using Depra.Assets.ValueObjects;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -15,7 +16,8 @@ namespace Depra.Assets.Unity.Runtime.Files.Bundles.Sources
 	{
 		private long _contentSize;
 
-		FileSize IAssetBundleSource.Size(AssetBundle of) => new(_contentSize);
+		FileSize IAssetBundleSource.Size(AssetBundle of) =>
+			_contentSize == -1 ? of.Size() : new FileSize(_contentSize);
 
 		AssetBundle IAssetBundleSource.Load(string by)
 		{
