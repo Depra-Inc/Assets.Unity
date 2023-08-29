@@ -3,12 +3,14 @@
 
 namespace Depra.Assets.Unity.Runtime.Common
 {
-	internal static class Constants
+	internal static class Module
 	{
 		public const string MODULE_NAME = nameof(Assets);
 		public const string FRAMEWORK_NAME = nameof(Depra);
 		public const string ENGINE_NAME = nameof(UnityEngine);
 
+		internal const int DEFAULT_ORDER = 52;
+		
 		internal static readonly string FullModuleName = string.Join('.', FRAMEWORK_NAME, MODULE_NAME);
 	}
 }

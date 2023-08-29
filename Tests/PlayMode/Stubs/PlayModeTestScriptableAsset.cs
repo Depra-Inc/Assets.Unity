@@ -2,20 +2,18 @@
 // SPDX-License-Identifier: Apache-2.0
 
 using UnityEngine;
-using static Depra.Assets.Unity.Runtime.Common.Constants;
+using static Depra.Assets.Unity.Runtime.Common.Module;
 using static Depra.Assets.Unity.Runtime.Common.Paths;
 
 namespace Depra.Assets.Unity.Tests.PlayMode.Stubs
 {
-	[CreateAssetMenu(fileName = nameof(PlayModeTestScriptableAsset), menuName = MENU_PATH, order = 52)]
+	[CreateAssetMenu(fileName = FILE_NAME, menuName = MENU_PATH, order = DEFAULT_ORDER)]
 	internal sealed class PlayModeTestScriptableAsset : ScriptableObject
 	{
-		private const string TESTS_FOLDER = nameof(Tests);
-
+		private const string FILE_NAME = nameof(PlayModeTestScriptableAsset);
 		private const string MENU_PATH = FRAMEWORK_NAME + SLASH +
 		                                 MODULE_NAME + SLASH +
-		                                 TESTS_FOLDER + SLASH +
-		                                 nameof(PlayMode) + SLASH +
-		                                 nameof(PlayModeTestScriptableAsset);
+		                                 nameof(Tests) + SLASH +
+		                                 nameof(PlayMode) + SLASH + FILE_NAME;
 	}
 }
