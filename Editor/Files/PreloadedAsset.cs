@@ -12,13 +12,13 @@ using Depra.Assets.ValueObjects;
 using UnityEditor;
 using Object = UnityEngine.Object;
 
-namespace Depra.Assets.Unity.Editor.Files
+namespace Depra.Assets.Editor.Files
 {
 	public sealed class PreloadedAsset<TAsset> : UnityAssetFile<TAsset>, IDisposable where TAsset : Object
 	{
 		public static implicit operator TAsset(PreloadedAsset<TAsset> from) => from.Load();
 
-		private Type _assetType;
+		private readonly Type _assetType;
 		private readonly IUnityLoadableAsset<TAsset> _asset;
 
 		private TAsset _loadedAsset;

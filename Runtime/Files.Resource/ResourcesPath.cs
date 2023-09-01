@@ -14,7 +14,7 @@ namespace Depra.Assets.Runtime.Files.Resource
 {
 	public sealed class ResourcesPath : IAssetIdent
 	{
-		private static readonly string RESOURCES_FOLDER_PATH = RESOURCES_FOLDER_NAME + Path.DirectorySeparatorChar;
+		private static readonly string RESOURCES_FOLDER_PATH = RESOURCES_FOLDER_NAME + Path.AltDirectorySeparatorChar;
 
 		public static ResourcesPath Empty => new(string.Empty);
 		public static ResourcesPath Invalid => new(nameof(Invalid));
@@ -61,7 +61,10 @@ namespace Depra.Assets.Runtime.Files.Resource
 			public static string FindRelativePath(string projectPath)
 			{
 				Guard.AgainstEmptyString(projectPath, () => new NullReferenceException(nameof(projectPath)));
-				var folderIndex = projectPath.IndexOf(RESOURCES_FOLDER_PATH, StringComparison.Ordinal);
+
+				projectPath = ToUnixPath(projectPath);
+				var folderIndex = projectPath.IndexOf(RESOURCES_FOLDER_PATH, StringComparison.OrdinalIgnoreCase);
+
 				Guard.AgainstEqual(folderIndex, -1, () => new PathDoesNotContainResourcesFolder(projectPath));
 
 				folderIndex += RESOURCES_FOLDER_PATH.Length;
@@ -70,6 +73,9 @@ namespace Depra.Assets.Runtime.Files.Resource
 
 				return projectPath.Substring(folderIndex, length);
 			}
+
+			[MethodImpl(MethodImplOptions.AggressiveInlining)]
+			internal static string ToUnixPath(string path) => path.Replace('\\', '/');
 		}
 	}
 }

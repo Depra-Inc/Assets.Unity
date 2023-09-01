@@ -18,11 +18,11 @@ namespace Depra.Assets.Runtime.Files.Resource
 	public class ResourcesReference : ISerializationCallbackReceiver
 	{
 #if UNITY_EDITOR
-		[SerializeField] private Object _objectAsset;
+		[SerializeField] internal Object _objectAsset;
 #endif
-		[SerializeField] private string _projectPath;
+		[SerializeField] internal string _projectPath;
 
-		protected ResourcesReference() { }
+		internal protected ResourcesReference() { }
 
 		public bool IsNull => string.IsNullOrEmpty(_projectPath);
 

@@ -3,7 +3,7 @@
 
 using System.Threading;
 using Cysharp.Threading.Tasks;
-using Depra.Assets.Unity.Editor.Files;
+using Depra.Assets.Editor.Files;
 using Depra.Assets.Runtime.Files.Adapter;
 using Depra.Assets.Tests.EditMode.Stubs;
 using Depra.Assets.ValueObjects;

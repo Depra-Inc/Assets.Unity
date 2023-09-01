@@ -5,7 +5,7 @@ using Depra.Assets.Runtime.Files.Resource;
 using UnityEditor;
 using UnityEngine;
 
-namespace Depra.Assets.Unity.Editor.Ident
+namespace Depra.Assets.Editor.Ident
 {
 	[CustomPropertyDrawer(typeof(ResourcesReference), true)]
 	internal sealed class ResourcesReferenceDrawer : PropertyDrawer
