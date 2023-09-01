@@ -28,8 +28,8 @@
 
 ## 🧾 Introduction
 
-This library provides classes and interfaces for convenient and efficient loading of various types of resources in *
-*Unity** projects.
+This library provides classes and interfaces for convenient and efficient loading of various types of resources in 
+**Unity** projects.
 
 It contains common methods and functionality for working with assets, as well as implementations of specific loading
 strategies for different sources.
