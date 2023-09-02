@@ -1,26 +1,39 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
-using Depra.Assets.Delegates;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace Depra.Assets.Runtime.Files.Resource
 {
 	internal static class ResourceRequestExtensions
 	{
-		public async static Task<Object> ToTask(this ResourceRequest self, DownloadProgressDelegate progress = null,
+		public static Task<Object> ToTask(this ResourceRequest self, Action<float> onProgress = null,
 			CancellationToken cancellationToken = default)
 		{
 			if (cancellationToken.IsCancellationRequested)
 			{
-				return await Task.FromCanceled<Object>(cancellationToken);
+				return Task.FromCanceled<Object>(cancellationToken);
 			}
 
-			if (self.isDone)
+			return self.isDone ? Task.FromResult(self.asset) : LoadWithProgress(self, onProgress, cancellationToken);
+		}
+
+		private async static Task<Object> LoadWithProgress(this ResourceRequest self, Action<float> onProgress,
+			CancellationToken cancellationToken = default)
+		{
+			while (self.isDone == false)
 			{
-				return await Task.FromResult(self.asset);
+				if (cancellationToken.IsCancellationRequested)
+				{
+					return await Task.FromCanceled<Object>(cancellationToken);
+				}
+
+				onProgress?.Invoke(self.progress);
+				await Task.Yield();
 			}
 
-			return await ResourceRequestConfiguredSource.Create(self, progress, cancellationToken, out _);
+			return self.asset;
 		}
 	}
 }

@@ -66,7 +66,8 @@ namespace Depra.Assets.Runtime.Files.Resource
 			}
 
 			var loadedAsset = await Resources.LoadAsync(_ident.RelativePath)
-				.ToTask(onProgress, cancellationToken);
+				.ToTask(progress => onProgress?.Invoke(new DownloadProgress(progress)),
+					cancellationToken: cancellationToken);
 
 			Guard.AgainstNull(loadedAsset, () => new ResourceNotLoaded(_ident.RelativePath));
 
