@@ -8,7 +8,7 @@ using JetBrains.Annotations;
 
 namespace Depra.Assets.Runtime.Files.Bundles.Idents
 {
-	public sealed class AssetBundleIdent : IAssetIdent
+	public sealed record AssetBundleIdent : IAssetIdent
 	{
 		private const string EXTENSION = ".assetbundle";
 

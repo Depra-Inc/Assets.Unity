@@ -18,7 +18,7 @@ namespace Depra.Assets.Runtime.Files.Database
 {
 	public sealed class DatabaseAsset<TAsset> : ILoadableAsset<TAsset>, IDisposable where TAsset : ScriptableObject
 	{
-		public static implicit operator TAsset(DatabaseAsset<TAsset> from) => from.Load();
+		public static implicit operator TAsset(DatabaseAsset<TAsset> self) => self.Load();
 
 		private readonly Type _assetType;
 		private readonly DatabaseAssetIdent _ident;

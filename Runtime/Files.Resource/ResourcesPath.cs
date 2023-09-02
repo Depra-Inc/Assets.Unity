@@ -12,7 +12,7 @@ using static Depra.Assets.Runtime.Common.Paths;
 
 namespace Depra.Assets.Runtime.Files.Resource
 {
-	public sealed class ResourcesPath : IAssetIdent
+	public sealed record ResourcesPath : IAssetIdent
 	{
 		private static readonly string RESOURCES_FOLDER_PATH = RESOURCES_FOLDER_NAME + Path.AltDirectorySeparatorChar;
 

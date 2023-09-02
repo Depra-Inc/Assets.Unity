@@ -19,7 +19,7 @@ namespace Depra.Assets.Runtime.Files.Bundles.Files
 {
 	public sealed class AssetBundleFile : ILoadableAsset<AssetBundle>, IDisposable
 	{
-		public static implicit operator AssetBundle(AssetBundleFile from) => from.Load();
+		public static implicit operator AssetBundle(AssetBundleFile self) => self.Load();
 
 		private readonly AssetBundleIdent _ident;
 		private readonly IAssetBundleSource _source;

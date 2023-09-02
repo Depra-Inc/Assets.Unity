@@ -17,7 +17,7 @@ namespace Depra.Assets.Editor.Files
 {
 	public sealed class PreloadedAsset<TAsset> : ILoadableAsset<TAsset>, IDisposable where TAsset : Object
 	{
-		public static implicit operator TAsset(PreloadedAsset<TAsset> from) => from.Load();
+		public static implicit operator TAsset(PreloadedAsset<TAsset> self) => self.Load();
 
 		private readonly Type _assetType;
 		private readonly ILoadableAsset<TAsset> _asset;

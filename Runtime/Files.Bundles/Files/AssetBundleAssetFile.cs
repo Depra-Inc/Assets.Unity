@@ -17,7 +17,7 @@ namespace Depra.Assets.Runtime.Files.Bundles.Files
 {
 	public sealed class AssetBundleAssetFile<TAsset> : ILoadableAsset<TAsset>, IDisposable where TAsset : Object
 	{
-		public static implicit operator TAsset(AssetBundleAssetFile<TAsset> from) => from.Load();
+		public static implicit operator TAsset(AssetBundleAssetFile<TAsset> self) => self.Load();
 
 		private readonly AssetName _ident;
 		private readonly AssetBundle _assetBundle;
