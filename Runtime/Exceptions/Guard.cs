@@ -12,30 +12,30 @@ namespace Depra.Assets.Runtime.Exceptions
 	internal static class Guard
 	{
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static void AgainstNull<TObject>(TObject asset, Func<Exception> exceptionFunc)
+		public static void AgainstNull<TObject>(TObject asset, Func<Exception> exceptionFactory)
 		{
 			if (asset == null)
 			{
-				throw exceptionFunc();
+				throw exceptionFactory();
 			}
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static void AgainstInvalidRequestResult(UnityWebRequest request,
-			Func<string, string, Exception> exceptionFunc)
+			Func<string, string, Exception> exceptionFactory)
 		{
 			if (request.CanGetResult() == false)
 			{
-				throw exceptionFunc(request.error, request.url);
+				throw exceptionFactory(request.error, request.url);
 			}
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static void AgainstEqual<T>(IEquatable<T> value, IEquatable<T> other, Func<Exception> exceptionFunc)
+		public static void AgainstEqual<T>(IEquatable<T> value, IEquatable<T> other, Func<Exception> exceptionFactory)
 		{
 			if (value.Equals(other))
 			{
-				throw exceptionFunc();
+				throw exceptionFactory();
 			}
 		}
 
@@ -49,11 +49,11 @@ namespace Depra.Assets.Runtime.Exceptions
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static void AgainstEmptyString(string value, Func<Exception> exceptionFunc)
+		public static void AgainstEmptyString(string value, Func<Exception> exceptionFactory)
 		{
 			if (string.IsNullOrEmpty(value))
 			{
-				throw exceptionFunc();
+				throw exceptionFactory();
 			}
 		}
 	}
