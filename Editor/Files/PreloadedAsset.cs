@@ -4,36 +4,37 @@
 using System;
 using System.Linq;
 using System.Threading;
-using Cysharp.Threading.Tasks;
+using System.Threading.Tasks;
 using Depra.Assets.Delegates;
+using Depra.Assets.Files;
 using Depra.Assets.Idents;
-using Depra.Assets.Runtime.Files.Adapter;
+using Depra.Assets.Runtime.Files;
 using Depra.Assets.ValueObjects;
 using UnityEditor;
 using Object = UnityEngine.Object;
 
 namespace Depra.Assets.Editor.Files
 {
-	public sealed class PreloadedAsset<TAsset> : UnityAssetFile<TAsset>, IDisposable where TAsset : Object
+	public sealed class PreloadedAsset<TAsset> : ILoadableAsset<TAsset>, IDisposable where TAsset : Object
 	{
 		public static implicit operator TAsset(PreloadedAsset<TAsset> from) => from.Load();
 
 		private readonly Type _assetType;
-		private readonly IUnityLoadableAsset<TAsset> _asset;
+		private readonly ILoadableAsset<TAsset> _asset;
 
 		private TAsset _loadedAsset;
 
-		public PreloadedAsset(IUnityLoadableAsset<TAsset> asset)
+		public PreloadedAsset(ILoadableAsset<TAsset> asset)
 		{
 			_asset = asset ?? throw new ArgumentNullException(nameof(asset));
 			_assetType = typeof(TAsset);
 		}
 
-		public override IAssetIdent Ident => _asset.Ident;
-		public override bool IsLoaded => _loadedAsset != null;
-		public override FileSize Size { get; protected set; } = FileSize.Unknown;
+		public IAssetIdent Ident => _asset.Ident;
+		public bool IsLoaded => _loadedAsset != null;
+		public FileSize Size { get; private set; } = FileSize.Unknown;
 
-		public override TAsset Load()
+		public TAsset Load()
 		{
 			if (IsLoaded)
 			{
@@ -52,7 +53,7 @@ namespace Depra.Assets.Editor.Files
 			return _loadedAsset;
 		}
 
-		public override void Unload()
+		public void Unload()
 		{
 			if (IsLoaded == false)
 			{
@@ -63,7 +64,7 @@ namespace Depra.Assets.Editor.Files
 			_loadedAsset = null;
 		}
 
-		public override async UniTask<TAsset> LoadAsync(DownloadProgressDelegate onProgress = null,
+		public async Task<TAsset> LoadAsync(DownloadProgressDelegate onProgress = null,
 			CancellationToken cancellationToken = default)
 		{
 			if (IsLoaded)

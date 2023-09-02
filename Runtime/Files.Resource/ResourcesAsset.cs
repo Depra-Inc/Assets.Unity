@@ -3,11 +3,12 @@
 
 using System;
 using System.Threading;
+using System.Threading.Tasks;
 using Cysharp.Threading.Tasks;
 using Depra.Assets.Delegates;
+using Depra.Assets.Files;
 using Depra.Assets.Idents;
 using Depra.Assets.Runtime.Exceptions;
-using Depra.Assets.Runtime.Files.Adapter;
 using Depra.Assets.Runtime.Files.Resource.Exceptions;
 using Depra.Assets.ValueObjects;
 using UnityEngine;
@@ -15,9 +16,9 @@ using Object = UnityEngine.Object;
 
 namespace Depra.Assets.Runtime.Files.Resource
 {
-	public sealed class ResourcesAsset<TAsset> : UnityAssetFile<TAsset>, IDisposable where TAsset : Object
+	public sealed class ResourcesAsset<TAsset> : ILoadableAsset<TAsset>, IDisposable where TAsset : Object
 	{
-		public static implicit operator TAsset(ResourcesAsset<TAsset> from) => from.Load();
+		public static implicit operator TAsset(ResourcesAsset<TAsset> self) => self.Load();
 
 		private readonly ResourcesPath _ident;
 		private TAsset _loadedAsset;
@@ -25,11 +26,11 @@ namespace Depra.Assets.Runtime.Files.Resource
 		public ResourcesAsset(ResourcesPath ident) =>
 			_ident = ident ?? throw new ArgumentNullException(nameof(ident));
 
-		public override IAssetIdent Ident => _ident;
-		public override bool IsLoaded => _loadedAsset != null;
-		public override FileSize Size { get; protected set; } = FileSize.Unknown;
+		public IAssetIdent Ident => _ident;
+		public bool IsLoaded => _loadedAsset != null;
+		public FileSize Size { get; private set; } = FileSize.Unknown;
 
-		public override TAsset Load()
+		public TAsset Load()
 		{
 			if (IsLoaded)
 			{
@@ -45,7 +46,7 @@ namespace Depra.Assets.Runtime.Files.Resource
 			return _loadedAsset;
 		}
 
-		public override void Unload()
+		public void Unload()
 		{
 			if (IsLoaded == false)
 			{
@@ -56,7 +57,7 @@ namespace Depra.Assets.Runtime.Files.Resource
 			_loadedAsset = null;
 		}
 
-		public override async UniTask<TAsset> LoadAsync(DownloadProgressDelegate onProgress = null,
+		public async Task<TAsset> LoadAsync(DownloadProgressDelegate onProgress = null,
 			CancellationToken cancellationToken = default)
 		{
 			if (IsLoaded)
@@ -66,8 +67,12 @@ namespace Depra.Assets.Runtime.Files.Resource
 			}
 
 			var progress = Progress.Create<float>(value => onProgress?.Invoke(new DownloadProgress(value)));
-			var loadedAsset = await Resources.LoadAsync<TAsset>(_ident.RelativePath)
-				.ToUniTask(progress, cancellationToken: cancellationToken);
+			var loadedAsset = await Resources.LoadAsync(_ident.RelativePath);
+
+			if (cancellationToken.IsCancellationRequested)
+			{
+				return await Task.FromCanceled<TAsset>(cancellationToken);
+			}
 
 			Guard.AgainstNull(loadedAsset, () => new ResourceNotLoaded(_ident.RelativePath));
 

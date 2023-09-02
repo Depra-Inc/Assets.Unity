@@ -5,11 +5,11 @@ using System;
 
 namespace Depra.Assets.Runtime.Files.Bundles.Exceptions
 {
-	internal sealed class AssetBundleNotLoadedException : Exception
+	internal sealed class AssetBundleNotLoaded : Exception
 	{
 		private const string MESSAGE_FORMAT = "Asset bundle at path [{0}] was not loaded.";
 
-		public AssetBundleNotLoadedException(string path) :
+		public AssetBundleNotLoaded(string path) :
 			base(string.Format(MESSAGE_FORMAT, path)) { }
 	}
 }

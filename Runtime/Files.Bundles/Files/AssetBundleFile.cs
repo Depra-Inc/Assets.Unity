@@ -3,11 +3,12 @@
 
 using System;
 using System.Threading;
+using System.Threading.Tasks;
 using Cysharp.Threading.Tasks;
 using Depra.Assets.Delegates;
+using Depra.Assets.Files;
 using Depra.Assets.Idents;
 using Depra.Assets.Runtime.Exceptions;
-using Depra.Assets.Runtime.Files.Adapter;
 using Depra.Assets.Runtime.Files.Bundles.Exceptions;
 using Depra.Assets.Runtime.Files.Bundles.Idents;
 using Depra.Assets.Runtime.Files.Bundles.Sources;
@@ -16,7 +17,7 @@ using UnityEngine;
 
 namespace Depra.Assets.Runtime.Files.Bundles.Files
 {
-	public sealed class AssetBundleFile : UnityAssetFile<AssetBundle>, IDisposable
+	public sealed class AssetBundleFile : ILoadableAsset<AssetBundle>, IDisposable
 	{
 		public static implicit operator AssetBundle(AssetBundleFile from) => from.Load();
 
@@ -31,11 +32,11 @@ namespace Depra.Assets.Runtime.Files.Bundles.Files
 			_source = source ?? throw new ArgumentNullException(nameof(source));
 		}
 
-		public override IAssetIdent Ident => _ident;
-		public override bool IsLoaded => _loadedAssetBundle != null;
-		public override FileSize Size { get; protected set; } = FileSize.Unknown;
+		public IAssetIdent Ident => _ident;
+		public bool IsLoaded => _loadedAssetBundle != null;
+		public FileSize Size { get; private set; } = FileSize.Unknown;
 
-		public override AssetBundle Load()
+		public AssetBundle Load()
 		{
 			if (IsLoaded)
 			{
@@ -43,7 +44,7 @@ namespace Depra.Assets.Runtime.Files.Bundles.Files
 			}
 
 			var loadedAssetBundle = _source.Load(by: _ident.AbsolutePathWithoutExtension);
-			Guard.AgainstNull(loadedAssetBundle, () => new AssetBundleNotLoadedException(Ident.Uri));
+			Guard.AgainstNull(loadedAssetBundle, () => new AssetBundleNotLoaded(Ident.Uri));
 
 			_loadedAssetBundle = loadedAssetBundle;
 			Size = _source.Size(of: _loadedAssetBundle);
@@ -51,7 +52,7 @@ namespace Depra.Assets.Runtime.Files.Bundles.Files
 			return _loadedAssetBundle;
 		}
 
-		public override async UniTask<AssetBundle> LoadAsync(DownloadProgressDelegate onProgress = null,
+		public async Task<AssetBundle> LoadAsync(DownloadProgressDelegate onProgress = null,
 			CancellationToken cancellationToken = default)
 		{
 			if (IsLoaded)
@@ -64,7 +65,7 @@ namespace Depra.Assets.Runtime.Files.Bundles.Files
 				with: Progress.Create<float>(value => onProgress?.Invoke(new DownloadProgress(value))),
 				cancellationToken);
 
-			Guard.AgainstNull(loadedAssetBundle, () => new AssetBundleNotLoadedException(Ident.Uri));
+			Guard.AgainstNull(loadedAssetBundle, () => new AssetBundleNotLoaded(Ident.Uri));
 
 			_loadedAssetBundle = loadedAssetBundle;
 			onProgress?.Invoke(DownloadProgress.Full);
@@ -73,7 +74,7 @@ namespace Depra.Assets.Runtime.Files.Bundles.Files
 			return _loadedAssetBundle;
 		}
 
-		public override void Unload()
+		public void Unload()
 		{
 			if (IsLoaded == false)
 			{
