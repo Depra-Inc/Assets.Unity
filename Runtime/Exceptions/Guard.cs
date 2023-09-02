@@ -4,8 +4,6 @@
 using System;
 using System.IO;
 using System.Runtime.CompilerServices;
-using Depra.Assets.Runtime.Files.Bundles.Sources;
-using UnityEngine.Networking;
 
 namespace Depra.Assets.Runtime.Exceptions
 {
@@ -17,16 +15,6 @@ namespace Depra.Assets.Runtime.Exceptions
 			if (asset == null)
 			{
 				throw exceptionFactory();
-			}
-		}
-
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static void AgainstInvalidRequestResult(UnityWebRequest request,
-			Func<string, string, Exception> exceptionFactory)
-		{
-			if (request.CanGetResult() == false)
-			{
-				throw exceptionFactory(request.error, request.url);
 			}
 		}
 

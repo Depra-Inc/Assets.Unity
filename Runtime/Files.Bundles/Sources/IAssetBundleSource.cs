@@ -3,7 +3,7 @@
 
 using System;
 using System.Threading;
-using Cysharp.Threading.Tasks;
+using System.Threading.Tasks;
 using Depra.Assets.ValueObjects;
 using UnityEngine;
 
@@ -15,7 +15,7 @@ namespace Depra.Assets.Runtime.Files.Bundles.Sources
 
 		AssetBundle Load(string by);
 
-		UniTask<AssetBundle> LoadAsync(string by, IProgress<float> with,
+		Task<AssetBundle> LoadAsync(string by, Action<float> with,
 			CancellationToken cancellationToken = default);
 	}
 }

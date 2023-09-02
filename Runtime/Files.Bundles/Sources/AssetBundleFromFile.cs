@@ -3,7 +3,7 @@
 
 using System;
 using System.Threading;
-using Cysharp.Threading.Tasks;
+using System.Threading.Tasks;
 using Depra.Assets.Runtime.Exceptions;
 using Depra.Assets.Runtime.Files.Bundles.Extensions;
 using Depra.Assets.ValueObjects;
@@ -23,16 +23,14 @@ namespace Depra.Assets.Runtime.Files.Bundles.Sources
 			return loadedBundle;
 		}
 
-		UniTask<AssetBundle> IAssetBundleSource.LoadAsync(string by, IProgress<float> with,
+		Task<AssetBundle> IAssetBundleSource.LoadAsync(string by, Action<float> with,
 			CancellationToken cancellationToken)
 		{
 			Guard.AgainstFileNotFound(by);
 
-			var asyncRequest = AssetBundle
+			return AssetBundle
 				.LoadFromFileAsync(by)
-				.ToUniTask(with, cancellationToken: cancellationToken);
-
-			return asyncRequest;
+				.ToTask(with, cancellationToken);
 		}
 	}
 }

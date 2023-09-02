@@ -2,8 +2,7 @@
     "name": "Depra.Assets.Editor",
     "rootNamespace": "",
     "references": [
-        "GUID:ce2ab5ef472b35f498b9d47a89be9396",
-        "GUID:f51ebe6a0ceec4240a699833d6309b23"
+        "GUID:ce2ab5ef472b35f498b9d47a89be9396"
     ],
     "includePlatforms": [
         "Editor"

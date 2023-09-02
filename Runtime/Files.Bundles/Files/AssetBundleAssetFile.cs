@@ -9,6 +9,7 @@ using Depra.Assets.Files;
 using Depra.Assets.Idents;
 using Depra.Assets.Runtime.Exceptions;
 using Depra.Assets.Runtime.Files.Bundles.Exceptions;
+using Depra.Assets.Runtime.Files.Bundles.Extensions;
 using Depra.Assets.ValueObjects;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -68,19 +69,13 @@ namespace Depra.Assets.Runtime.Files.Bundles.Files
 				return _loadedAsset;
 			}
 
-			var request = _assetBundle.LoadAssetAsync<TAsset>(_ident.Name);
-			while (request.isDone == false)
-			{
-				var progress = new DownloadProgress(request.progress);
-				onProgress?.Invoke(progress);
+			var loadedAsset = await _assetBundle
+				.LoadAssetAsync<TAsset>(_ident.Name)
+				.ToTask(progress => onProgress?.Invoke(new DownloadProgress(progress)), cancellationToken);
 
-				await Task.Yield();
-			}
+			Guard.AgainstNull(loadedAsset, () => new AssetBundleFileNotLoaded(_ident.Name, _assetBundle.name));
 
-			Guard.AgainstNull(request.asset,
-				() => new AssetBundleFileNotLoaded(_ident.Name, _assetBundle.name));
-
-			_loadedAsset = (TAsset) request.asset;
+			_loadedAsset = (TAsset) loadedAsset;
 			onProgress?.Invoke(DownloadProgress.Full);
 			Size = UnityFileSize.FromProfiler(_loadedAsset);
 

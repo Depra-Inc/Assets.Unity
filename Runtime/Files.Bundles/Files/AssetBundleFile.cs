@@ -4,7 +4,6 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Cysharp.Threading.Tasks;
 using Depra.Assets.Delegates;
 using Depra.Assets.Files;
 using Depra.Assets.Idents;
@@ -62,7 +61,7 @@ namespace Depra.Assets.Runtime.Files.Bundles.Files
 			}
 
 			var loadedAssetBundle = await _source.LoadAsync(by: _ident.AbsolutePathWithoutExtension,
-				with: Progress.Create<float>(value => onProgress?.Invoke(new DownloadProgress(value))),
+				with: progress => onProgress?.Invoke(new DownloadProgress(progress)),
 				cancellationToken);
 
 			Guard.AgainstNull(loadedAssetBundle, () => new AssetBundleNotLoaded(Ident.Uri));
