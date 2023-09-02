@@ -4,7 +4,6 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Cysharp.Threading.Tasks;
 using Depra.Assets.Delegates;
 using Depra.Assets.Files;
 using Depra.Assets.Idents;
@@ -66,13 +65,8 @@ namespace Depra.Assets.Runtime.Files.Resource
 				return _loadedAsset;
 			}
 
-			var progress = Progress.Create<float>(value => onProgress?.Invoke(new DownloadProgress(value)));
-			var loadedAsset = await Resources.LoadAsync(_ident.RelativePath);
-
-			if (cancellationToken.IsCancellationRequested)
-			{
-				return await Task.FromCanceled<TAsset>(cancellationToken);
-			}
+			var loadedAsset = await Resources.LoadAsync(_ident.RelativePath)
+				.ToTask(onProgress, cancellationToken);
 
 			Guard.AgainstNull(loadedAsset, () => new ResourceNotLoaded(_ident.RelativePath));
 
