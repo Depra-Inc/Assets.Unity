@@ -18,10 +18,10 @@ namespace Depra.Assets.Runtime.Files.Bundles.Extensions
 
 			return self.isDone
 				? Task.FromResult(self.asset)
-				: LoadWithProgress(self, onProgress, cancellationToken);
+				: AwaitWithProgress(self, onProgress, cancellationToken);
 		}
 
-		private async static Task<Object> LoadWithProgress(this AssetBundleRequest self,
+		private async static Task<Object> AwaitWithProgress(this AssetBundleRequest self,
 			Action<float> onProgress, CancellationToken cancellationToken = default)
 		{
 			while (self.isDone == false)

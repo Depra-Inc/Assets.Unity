@@ -16,10 +16,12 @@ namespace Depra.Assets.Runtime.Files.Resource
 				return Task.FromCanceled<Object>(cancellationToken);
 			}
 
-			return self.isDone ? Task.FromResult(self.asset) : LoadWithProgress(self, onProgress, cancellationToken);
+			return self.isDone
+				? Task.FromResult(self.asset)
+				: AwaitWithProgress(self, onProgress, cancellationToken);
 		}
 
-		private async static Task<Object> LoadWithProgress(this ResourceRequest self, Action<float> onProgress,
+		private async static Task<Object> AwaitWithProgress(this ResourceRequest self, Action<float> onProgress,
 			CancellationToken cancellationToken = default)
 		{
 			while (self.isDone == false)

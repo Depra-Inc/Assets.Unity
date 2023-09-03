@@ -24,10 +24,10 @@ namespace Depra.Assets.Runtime.Files.Bundles.Extensions
 					: Task.FromException<UnityWebRequest>(new UnityWebRequestFailed(self.webRequest));
 			}
 
-			return LoadWithProgress(self, onProgress, cancellationToken);
+			return AwaitWithProgress(self, onProgress, cancellationToken);
 		}
 
-		private async static Task<UnityWebRequest> LoadWithProgress(this UnityWebRequestAsyncOperation self,
+		private async static Task<UnityWebRequest> AwaitWithProgress(this UnityWebRequestAsyncOperation self,
 			Action<float> onProgress, CancellationToken cancellationToken = default)
 		{
 			while (self.isDone == false)
