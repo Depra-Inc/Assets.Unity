@@ -1,5 +1,5 @@
-﻿// Copyright © 2023 Nikolay Melnikov. All rights reserved.
-// SPDX-License-Identifier: Apache-2.0
+﻿// SPDX-License-Identifier: Apache-2.0
+// © 2023 Nikolay Melnikov <n.melnikov@depra.org>
 
 using System;
 using System.Threading;
@@ -61,7 +61,7 @@ namespace Depra.Assets.Runtime.Files.Bundles.Files
 			}
 
 			var loadedAssetBundle = await _source.LoadAsync(by: _ident.AbsolutePathWithoutExtension,
-				with: progress => onProgress?.Invoke(new DownloadProgress(progress)),
+				withProgress: progress => onProgress?.Invoke(new DownloadProgress(progress)),
 				cancellationToken);
 
 			Guard.AgainstNull(loadedAssetBundle, () => new AssetBundleNotLoaded(Ident.Uri));

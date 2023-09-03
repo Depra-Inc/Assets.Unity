@@ -1,4 +1,7 @@
-﻿using System;
+﻿// SPDX-License-Identifier: Apache-2.0
+// © 2023 Nikolay Melnikov <n.melnikov@depra.org>
+
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Depra.Assets.Runtime.Files.Bundles.Exceptions;

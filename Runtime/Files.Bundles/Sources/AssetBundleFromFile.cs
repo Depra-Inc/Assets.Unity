@@ -1,5 +1,5 @@
-﻿// Copyright © 2023 Nikolay Melnikov. All rights reserved.
-// SPDX-License-Identifier: Apache-2.0
+﻿// SPDX-License-Identifier: Apache-2.0
+// © 2023 Nikolay Melnikov <n.melnikov@depra.org>
 
 using System;
 using System.Threading;
@@ -18,19 +18,18 @@ namespace Depra.Assets.Runtime.Files.Bundles.Sources
 		AssetBundle IAssetBundleSource.Load(string by)
 		{
 			Guard.AgainstFileNotFound(by);
-			var loadedBundle = AssetBundle.LoadFromFile(by);
 
-			return loadedBundle;
+			return AssetBundle.LoadFromFile(by);
 		}
 
-		Task<AssetBundle> IAssetBundleSource.LoadAsync(string by, Action<float> with,
+		Task<AssetBundle> IAssetBundleSource.LoadAsync(string by, Action<float> withProgress,
 			CancellationToken cancellationToken)
 		{
 			Guard.AgainstFileNotFound(by);
 
 			return AssetBundle
 				.LoadFromFileAsync(by)
-				.ToTask(with, cancellationToken);
+				.ToTask(withProgress, cancellationToken);
 		}
 	}
 }

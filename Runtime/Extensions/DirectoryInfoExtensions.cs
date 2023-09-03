@@ -1,5 +1,5 @@
-﻿// Copyright © 2023 Nikolay Melnikov. All rights reserved.
-// SPDX-License-Identifier: Apache-2.0
+﻿// SPDX-License-Identifier: Apache-2.0
+// © 2023 Nikolay Melnikov <n.melnikov@depra.org>
 
 using System.IO;
 using System.Linq;
@@ -10,9 +10,11 @@ namespace Depra.Assets.Runtime.Extensions
 {
 	public static class DirectoryInfoExtensions
 	{
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static bool IsEmpty(this DirectoryInfo directoryInfo) =>
 			directoryInfo.EnumerateFileSystemInfos().Any() == false;
 
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static void DeleteIfEmpty(this DirectoryInfo directoryInfo)
 		{
 			if (directoryInfo.Exists == false || directoryInfo.IsEmpty() == false)

@@ -1,5 +1,5 @@
-﻿// Copyright © 2023 Nikolay Melnikov. All rights reserved.
-// SPDX-License-Identifier: Apache-2.0
+﻿// SPDX-License-Identifier: Apache-2.0
+// © 2023 Nikolay Melnikov <n.melnikov@depra.org>
 
 using System;
 using System.Collections.Generic;
@@ -18,10 +18,11 @@ namespace Depra.Assets.Runtime.Files.Bundles.Extensions
 {
 	public static class AssetBundleExtensions
 	{
-		[SuppressMessage("ReSharper", "JoinDeclarationAndInitializer")]
 		public static FileSize Size(this AssetBundle assetBundle)
 		{
+			// ReSharper disable JoinDeclarationAndInitializer
 			FileSize fileSize;
+			// ReSharper restore JoinDeclarationAndInitializer
 #if UNITY_EDITOR
 			fileSize = SizeInRAM(assetBundle);
 			if (fileSize.SizeInBytes == 0)

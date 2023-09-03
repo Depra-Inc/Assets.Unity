@@ -1,5 +1,5 @@
-﻿// Copyright © 2023 Nikolay Melnikov. All rights reserved.
-// SPDX-License-Identifier: Apache-2.0
+﻿// SPDX-License-Identifier: Apache-2.0
+// © 2023 Nikolay Melnikov <n.melnikov@depra.org>
 
 using System;
 using System.Threading;
@@ -37,13 +37,13 @@ namespace Depra.Assets.Runtime.Files.Bundles.Sources
 			return DownloadHandlerAssetBundle.GetContent(unityWebRequest);
 		}
 
-		async Task<AssetBundle> IAssetBundleSource.LoadAsync(string by, Action<float> with,
+		async Task<AssetBundle> IAssetBundleSource.LoadAsync(string by, Action<float> withProgress,
 			CancellationToken cancellationToken)
 		{
 			var webRequest = UnityWebRequestAssetBundle.GetAssetBundle(by);
 			await webRequest
 				.SendWebRequest()
-				.ToTask(with, cancellationToken);
+				.ToTask(withProgress, cancellationToken);
 
 			var downloadedBundle = DownloadHandlerAssetBundle.GetContent(webRequest);
 			_contentSize = webRequest.ParseSize();

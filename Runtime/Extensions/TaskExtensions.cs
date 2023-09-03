@@ -1,4 +1,7 @@
-﻿using System;
+﻿// SPDX-License-Identifier: Apache-2.0
+// © 2023 Nikolay Melnikov <n.melnikov@depra.org>
+
+using System;
 using System.Collections;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.ExceptionServices;
@@ -19,8 +22,7 @@ namespace Depra.Assets.Runtime.Extensions
 		public static IEnumerator ToCoroutine(this Task self, Action<Exception> exceptionHandler = null) =>
 			new ToCoroutineEnumerator(self, exceptionHandler);
 
-		[SuppressMessage("ReSharper", "UnusedParameter.Local")]
-		public static void Forget(this Task self) { }
+		public static void Forget([SuppressMessage("ReSharper", "UnusedParameter.Global")] this Task self) { }
 
 		private sealed record ToCoroutineEnumerator : IEnumerator
 		{
@@ -65,7 +67,7 @@ namespace Depra.Assets.Runtime.Extensions
 
 			bool IEnumerator.MoveNext()
 			{
-				if (!_isStarted)
+				if (_isStarted == false)
 				{
 					_isStarted = true;
 					RunTask(_task).Forget();
