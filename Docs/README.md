@@ -10,7 +10,6 @@
 - [Introduction](#-introduction)
     - [Features](#-features)
     - [Capabilities](#-capabilities)
-- [Getting_Started](#-getting-started)
 - [Installation](#-installation)
 - [Contents](#-contents)
 - [Usage Examples](#-usage-examples)
@@ -28,7 +27,7 @@
 
 ## 🧾 Introduction
 
-This library provides classes and interfaces for convenient and efficient loading of various types of resources in 
+This library provides classes and interfaces for convenient and efficient loading of various types of assets in
 **Unity** projects.
 
 It contains common methods and functionality for working with assets, as well as implementations of specific loading
@@ -36,10 +35,12 @@ strategies for different sources.
 
 ### 💡 Features:
 
-- A uniform **API** for loading assets from different sources.
-- Support for canceling loading operations.
-- Providing information about the loading progress.
-- Extensibility.
+- **Standardization**: A unified **API** for asset loading from various sources.
+- **Cancellation Support**: The ability to cancel loading operations at any point.
+- **Progress Tracking**: Providing information on the current loading progress.
+- **Extensibility**: A flexible architecture for extending functionality according to your needs.
+
+These features make the library even more powerful and convenient for your tasks.
 
 ### 🦾 Capabilities:
 
@@ -51,16 +52,6 @@ strategies for different sources.
 | Loading assets from **UnityEditor.PlayerSettings** | ❌       | ✅      |
 | Loading assets from **UnityEngine.AssetDatabase**  | ❌       | ✅      |
 
-## 🚀 Getting Started
-
-Before you begin using the **Depra.Assets** library in your **Unity** project,
-make sure your project meets the following conditions:
-
-### Install UniTask
-
-**Depra.Assets** uses the **UniTask** library for asynchronous operations.
-You can install it by following [these instructions](https://github.com/Cysharp/UniTask#getting-started).
-
 ## 📥 Installation
 
 ### 📦 Using **UPM**:
@@ -68,55 +59,46 @@ You can install it by following [these instructions](https://github.com/Cysharp/
 1. Open the **Unity Package Manager** window.
 2. Click the **+** button in the upper right corner of the window.
 3. Select **Add package from git URL...**.
-4. Enter the [repository link](https://github.com/Depression-aggression/Assets.Unity.git).
+4. Enter the [repository link](https://github.com/Depra-Inc/Assets.Unity.git).
 5. Click **Add**.
 
 ### ⚙️ Manual:
 
 Add the following line to `Packages/manifest.json` in the `dependencies` section:
 
-```json
-"com.depra.assets.unity": "https://github.com/Depression-aggression/Assets.Unity.git"
+```
+"com.depra.assets.unity": "https://github.com/Depra-Inc/Assets.Unity.git"
 ```
 
 ## 📖 Contents
 
-- `IUnityLoadableAsset<TAsset>` - defines basic methods and properties for loading and unloading assets. It extends
-  the `IAssetFile` interface from [Depra.Assets](https://github.com/Depression-aggression/Assets) and provides
-  capabilities for synchronous and asynchronous loading, as well as checking the loading state.
+**Key Concepts** used in this library are described in the following interfaces:
 
-```csharp
-public interface IUnityLoadableAsset<TAsset> : IAssetFile
-{
-    bool IsLoaded { get; }
-    
-    TAsset Load();
-    
-    void Unload();
-    
-    UniTask<TAsset> LoadAsync(DownloadProgressDelegate onProgress = null,
-        CancellationToken cancellationToken = default);
-}
-```
+- `IAssetIdent`: Designed to facilitate resource management in **Unity** projects.
+  It provides a simple and standardized way of identifying and managing assets using **URI**
+  *(Uniform Resource Identifier)*.
 
-- `ResourceAsset<TAsset>` - provides an implementation for loading and unloading assets from **Unity** resources.
+- `ILoadableAsset<TAsset>`: Defines the fundamental methods and properties required for loading and unloading assets.
+  It extends the functionality of the `IAssetFile` interface presented
+  in [Depra.Assets](https://github.com/Depra-Inc/Assets) and offers the ability to perform both synchronous and
+  asynchronous asset loading, as well as checking the loading state.
 
-- `AssetBundleFile` - provides methods for loading and unloading `UnityEngine.AssetBundle`.
+You can create your own implementations of these interfaces or use ready-made ones presented in the table:
 
-- `AssetBundleAssetFile<TAsset>` - ensures loading and unloading of assets from `UnityEngine.AssetBundle`.
+| Asset class type               | Ident                | Description                                                                                                                                 |
+|--------------------------------|----------------------|---------------------------------------------------------------------------------------------------------------------------------------------|
+| `ResourceAsset<TAsset>`        | `ResourcesPath`      | Loading and unloading assets from `UnityEngine.Resources`.                                                                                  |
+| `AssetBundleFile`              | `AssetBundleIdent`   | Loading and unloading `UnityEngine.AssetBundle`.                                                                                            |
+| `AssetBundleAssetFile<TAsset>` | `AssetName`          | Loading and unloading assets from `UnityEngine.AssetBundle`.                                                                                |
+| `DatabaseAsset<TAsset>`        | `DatabaseAssetIdent` | Loading and unloading assets from the editor's asset database `UnityEditor.AssetDatabase`. ⚠️**Asynchronous loading is not yet supported.** |
+| `PreloadedAsset<TAsset>`       | `IAssetIdent`        | Loading and unloading assets from project settings `UnityEditor.ProjectSettings`.                                                           |
 
-- `DatabaseAsset<TAsset>` - allows loading and unloading assets from the editor's asset database
-  `UnityEditor.AssetDatabase`.
-
-- `PreloadedAsset<TAsset>` - provides loading and unloading of assets from project
-  settings `UnityEditor.ProjectSettings`.
-
-All classes implementing the `IUnityLoadableAsset` interface also implement the `System.IDisposable` interface for
+All classes implementing the `ILoadableAsset` interface also implement the `System.IDisposable` interface for
 convenient usage in `using` blocks.
 
 ## 📋 Usage Examples
 
-### Loading an Asset from Resources
+#### Loading an Asset from Resources
 
 ```csharp
 var resourceTexture = new ResourceAsset<Texture2D>("Textures/myTexture");
@@ -125,7 +107,7 @@ Texture2D loadedTexture = resourceTexture.Load();
 resourceTexture.Unload();
 ```
 
-### Loading an AssetBundle
+#### Loading an AssetBundle
 
 ```csharp
 var assetBundleFile = new AssetBundleFile("Path/To/MyBundle");
@@ -134,7 +116,7 @@ AssetBundle loadedBundle = assetBundleFile.Load();
 assetBundleFile.Unload();
 ```
 
-### Loading an Asset from an AssetBundle
+#### Loading an Asset from an AssetBundle
 
 ```csharp
 var assetBundle = AssetBundle.LoadFromFile("Path/To/MyBundle");
@@ -144,7 +126,7 @@ GameObject loadedAsset = assetBundleAsset.Load();
 assetBundleAsset.Dispose();
 ```
 
-### Loading an Asset from the Editor Database
+#### Loading an Asset from the Editor Database
 
 ```csharp
 var databaseAsset = new DatabaseAsset<MyScriptableObject>("Path/To/MyAsset");
@@ -153,7 +135,7 @@ MyScriptableObject loadedObject = databaseAsset.Load();
 databaseAsset.Dispose();
 ```
 
-### Loading an Asset from Project Settings
+#### Loading an Asset from Project Settings
 
 ```csharp
 var preloadedAsset = new PreloadedAsset<GameObject>("Path/To/MyAsset");
@@ -164,26 +146,25 @@ preloadedAsset.Dispose();
 
 ## 🖇 Dependencies
 
-- [Depra.Assets](https://github.com/Depression-aggression/Assets) - the base library for working with assets (provided
-  with this UPM package).
-- [UniTask](https://github.com/Cysharp/UniTask) - a library for asynchronous operations.
+- [Depra.Assets](https://github.com/Depra-Inc/Assets.git) - the base library for working with assets (provided
+  with this **UPM** package).
 
 ## 🤝 Collaboration
 
 I welcome feature requests and bug reports in
-the [issues section](https://github.com/Depression-aggression/Assets.Unity/issues), and I also
-accept [pull requests](https://github.com/Depression-aggression/Assets.Unity/pulls).
+the [issues section](https://github.com/Depra-Inc/Assets.Unity/issues), and I also
+accept [pull requests](https://github.com/Depra-Inc/Assets.Unity/pulls).
 
 ## 🫂 Support
 
 I am an independent developer, and most of the development of this project is done in my free time. If you are
 interested in collaborating or hiring me for a project, please check out
-my [portfolio](https://github.com/Depression-aggression) and [contact me](mailto:g0dzZz1lla@yandex.ru)!
+my [portfolio](https://github.com/Depra-Inc) and [contact me](mailto:g0dzZz1lla@yandex.ru)!
 
 ## 🔐 License
 
 This project is distributed under the
-**[Apache-2.0 license](https://github.com/Depression-aggression/Assets.Unity/blob/main/LICENSE.md)**
+**[Apache-2.0 license](https://github.com/Depra-Inc/Assets.Unity/blob/main/LICENSE.md)**
 
 Copyright (c) 2023 Nikolay Melnikov
-[g0dzZz1lla@yandex.ru](mailto:g0dzZz1lla@yandex.ru)
+[n.melnikov@depra.org](mailto:n.melnikov@depra.org)

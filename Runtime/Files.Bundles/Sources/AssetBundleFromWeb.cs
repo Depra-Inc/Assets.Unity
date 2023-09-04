@@ -1,10 +1,10 @@
-﻿// Copyright © 2023 Nikolay Melnikov. All rights reserved.
-// SPDX-License-Identifier: Apache-2.0
+﻿// SPDX-License-Identifier: Apache-2.0
+// © 2023 Nikolay Melnikov <n.melnikov@depra.org>
 
 using System;
 using System.Threading;
-using Cysharp.Threading.Tasks;
-using Depra.Assets.Runtime.Exceptions;
+using System.Threading.Tasks;
+using Depra.Assets.Runtime.Files.Bundles.Exceptions;
 using Depra.Assets.Runtime.Files.Bundles.Extensions;
 using Depra.Assets.ValueObjects;
 using UnityEngine;
@@ -21,62 +21,35 @@ namespace Depra.Assets.Runtime.Files.Bundles.Sources
 
 		AssetBundle IAssetBundleSource.Load(string by)
 		{
-			using var request = UnityWebRequestAssetBundle.GetAssetBundle(by);
-			request.SendWebRequest();
+			using var unityWebRequest = UnityWebRequestAssetBundle.GetAssetBundle(by);
+			unityWebRequest.SendWebRequest();
 
-			while (request.isDone == false)
+			while (unityWebRequest.isDone == false)
 			{
 				// Spinning for Synchronous Behavior (blocking).
 			}
 
-			Guard.AgainstInvalidRequestResult(request,
-				(error, url) => new RemoteAssetBundleNotLoadedException(url, error));
+			if (unityWebRequest.CanGetResult() == false)
+			{
+				throw new UnityWebRequestFailed(unityWebRequest);
+			}
 
-			return DownloadHandlerAssetBundle.GetContent(request);
+			return DownloadHandlerAssetBundle.GetContent(unityWebRequest);
 		}
 
-		async UniTask<AssetBundle> IAssetBundleSource.LoadAsync(string by, IProgress<float> with,
+		async Task<AssetBundle> IAssetBundleSource.LoadAsync(string by, Action<float> withProgress,
 			CancellationToken cancellationToken)
 		{
 			var webRequest = UnityWebRequestAssetBundle.GetAssetBundle(by);
 			await webRequest
 				.SendWebRequest()
-				.ToUniTask(with, cancellationToken: cancellationToken);
-
-			Guard.AgainstInvalidRequestResult(webRequest,
-				(error, url) => new RemoteAssetBundleNotLoadedException(url, error));
+				.ToTask(withProgress, cancellationToken);
 
 			var downloadedBundle = DownloadHandlerAssetBundle.GetContent(webRequest);
 			_contentSize = webRequest.ParseSize();
 			webRequest.Dispose();
 
 			return downloadedBundle;
-		}
-
-		private sealed class RemoteAssetBundleNotLoadedException : Exception
-		{
-			private const string MESSAGE_FORMAT = "Error request [{0}, {1}]";
-
-			public RemoteAssetBundleNotLoadedException(string url, string error) :
-				base(string.Format(MESSAGE_FORMAT, url, error)) { }
-		}
-	}
-
-	internal static class UnityWebRequestExtensions
-	{
-		public static bool CanGetResult(this UnityWebRequest request) =>
-			request.result != UnityWebRequest.Result.ProtocolError &&
-			request.result != UnityWebRequest.Result.ConnectionError;
-
-		public static int ParseSize(this UnityWebRequest request)
-		{
-			var contentLength = request.GetResponseHeader("Content-Length");
-			if (int.TryParse(contentLength, out var returnValue))
-			{
-				return returnValue;
-			}
-
-			return -1;
 		}
 	}
 }

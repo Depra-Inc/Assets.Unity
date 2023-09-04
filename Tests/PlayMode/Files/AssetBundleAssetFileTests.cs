@@ -1,12 +1,12 @@
-﻿// Copyright © 2023 Nikolay Melnikov. All rights reserved.
-// SPDX-License-Identifier: Apache-2.0
+﻿// SPDX-License-Identifier: Apache-2.0
+// © 2023 Nikolay Melnikov <n.melnikov@depra.org>
 
 using System.Collections;
 using System.Diagnostics;
 using System.IO;
 using System.Threading;
-using Cysharp.Threading.Tasks;
 using Depra.Assets.Idents;
+using Depra.Assets.Runtime.Extensions;
 using Depra.Assets.Runtime.Files.Bundles.Exceptions;
 using Depra.Assets.Runtime.Files.Bundles.Files;
 using Depra.Assets.Tests.PlayMode.Stubs;
@@ -80,7 +80,7 @@ namespace Depra.Assets.Tests.PlayMode.Files
 		}
 
 		[UnityTest]
-		public IEnumerator LoadAsync_ShouldSucceed() => UniTask.ToCoroutine(async () =>
+		public IEnumerator LoadAsync_ShouldSucceed() => ATask.ToCoroutine(async () =>
 		{
 			// Arrange.
 			var cancellationToken = new CancellationTokenSource(1000).Token;
@@ -101,7 +101,7 @@ namespace Depra.Assets.Tests.PlayMode.Files
 		});
 
 		[UnityTest]
-		public IEnumerator LoadAsync_WithProgress_ShouldSucceed() => UniTask.ToCoroutine(async () =>
+		public IEnumerator LoadAsync_WithProgress_ShouldSucceed() => ATask.ToCoroutine(async () =>
 		{
 			// Arrange.
 			var callbackCalls = 0;
@@ -144,7 +144,7 @@ namespace Depra.Assets.Tests.PlayMode.Files
 			void Act() => invalidAssetFromBundle.Load();
 
 			// Assert.
-			Assert.That(Act, Throws.TypeOf<AssetBundleFileNotLoadedException>());
+			Assert.That(Act, Throws.TypeOf<AssetBundleFileNotLoaded>());
 		}
 
 		[Test]

@@ -1,9 +1,9 @@
-﻿// Copyright © 2023 Nikolay Melnikov. All rights reserved.
-// SPDX-License-Identifier: Apache-2.0
+﻿// SPDX-License-Identifier: Apache-2.0
+// © 2023 Nikolay Melnikov <n.melnikov@depra.org>
 
 using System;
 using System.Threading;
-using Cysharp.Threading.Tasks;
+using System.Threading.Tasks;
 using Depra.Assets.ValueObjects;
 using UnityEngine;
 
@@ -15,7 +15,7 @@ namespace Depra.Assets.Runtime.Files.Bundles.Sources
 
 		AssetBundle Load(string by);
 
-		UniTask<AssetBundle> LoadAsync(string by, IProgress<float> with,
+		Task<AssetBundle> LoadAsync(string by, Action<float> withProgress,
 			CancellationToken cancellationToken = default);
 	}
 }

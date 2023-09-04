@@ -1,13 +1,13 @@
-﻿// Copyright © 2023 Nikolay Melnikov. All rights reserved.
-// SPDX-License-Identifier: Apache-2.0
+﻿// SPDX-License-Identifier: Apache-2.0
+// © 2023 Nikolay Melnikov <n.melnikov@depra.org>
 
 using System;
 using System.Threading;
-using Cysharp.Threading.Tasks;
+using System.Threading.Tasks;
 using Depra.Assets.Delegates;
+using Depra.Assets.Files;
 using Depra.Assets.Idents;
 using Depra.Assets.Runtime.Exceptions;
-using Depra.Assets.Runtime.Files.Adapter;
 using Depra.Assets.Runtime.Extensions;
 using Depra.Assets.ValueObjects;
 using UnityEditor;
@@ -16,9 +16,9 @@ using Object = UnityEngine.Object;
 
 namespace Depra.Assets.Runtime.Files.Database
 {
-	public sealed class DatabaseAsset<TAsset> : UnityAssetFile<TAsset>, IDisposable where TAsset : ScriptableObject
+	public sealed class DatabaseAsset<TAsset> : ILoadableAsset<TAsset>, IDisposable where TAsset : ScriptableObject
 	{
-		public static implicit operator TAsset(DatabaseAsset<TAsset> from) => from.Load();
+		public static implicit operator TAsset(DatabaseAsset<TAsset> self) => self.Load();
 
 		private readonly Type _assetType;
 		private readonly DatabaseAssetIdent _ident;
@@ -31,11 +31,11 @@ namespace Depra.Assets.Runtime.Files.Database
 			_assetType = typeof(TAsset);
 		}
 
-		public override IAssetIdent Ident => _ident;
-		public override bool IsLoaded => _loadedAsset != null;
-		public override FileSize Size { get; protected set; } = FileSize.Unknown;
+		public IAssetIdent Ident => _ident;
+		public bool IsLoaded => _loadedAsset != null;
+		public FileSize Size { get; private set; } = FileSize.Unknown;
 
-		public override TAsset Load()
+		public TAsset Load()
 		{
 			if (IsLoaded)
 			{
@@ -54,7 +54,7 @@ namespace Depra.Assets.Runtime.Files.Database
 				loadedAsset = CreateAsset();
 			}
 
-			Guard.AgainstNull(loadedAsset, () => new AssetCreationException(_assetType, _assetType.Name));
+			Guard.AgainstNull(loadedAsset, () => new AssetCatNotBeCreated(_assetType, _assetType.Name));
 
 			_loadedAsset = loadedAsset;
 			Size = UnityFileSize.FromProfiler(_loadedAsset);
@@ -62,7 +62,7 @@ namespace Depra.Assets.Runtime.Files.Database
 			return _loadedAsset;
 		}
 
-		public override void Unload()
+		public void Unload()
 		{
 			if (IsLoaded == false)
 			{
@@ -76,13 +76,13 @@ namespace Depra.Assets.Runtime.Files.Database
 		}
 
 		[Obsolete("Not yet supported in Unity. Use DatabaseAsset<TAsset>.Load() instead")]
-		public override UniTask<TAsset> LoadAsync(DownloadProgressDelegate onProgress = null,
+		public Task<TAsset> LoadAsync(DownloadProgressDelegate onProgress = null,
 			CancellationToken cancellationToken = default)
 		{
 			if (IsLoaded)
 			{
 				onProgress?.Invoke(DownloadProgress.Full);
-				return UniTask.FromResult(_loadedAsset);
+				return Task.FromResult(_loadedAsset);
 			}
 
 			throw new AssetCanNotBeLoaded("Asynchronous loading is not supported by Unity");

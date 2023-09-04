@@ -1,23 +1,24 @@
-﻿// Copyright © 2023 Nikolay Melnikov. All rights reserved.
-// SPDX-License-Identifier: Apache-2.0
+﻿// SPDX-License-Identifier: Apache-2.0
+// © 2023 Nikolay Melnikov <n.melnikov@depra.org>
 
 using System;
 using System.Threading;
-using Cysharp.Threading.Tasks;
+using System.Threading.Tasks;
 using Depra.Assets.Delegates;
+using Depra.Assets.Files;
 using Depra.Assets.Idents;
 using Depra.Assets.Runtime.Exceptions;
-using Depra.Assets.Runtime.Files.Adapter;
 using Depra.Assets.Runtime.Files.Bundles.Exceptions;
+using Depra.Assets.Runtime.Files.Bundles.Extensions;
 using Depra.Assets.ValueObjects;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
 namespace Depra.Assets.Runtime.Files.Bundles.Files
 {
-	public sealed class AssetBundleAssetFile<TAsset> : UnityAssetFile<TAsset>, IDisposable where TAsset : Object
+	public sealed class AssetBundleAssetFile<TAsset> : ILoadableAsset<TAsset>, IDisposable where TAsset : Object
 	{
-		public static implicit operator TAsset(AssetBundleAssetFile<TAsset> from) => from.Load();
+		public static implicit operator TAsset(AssetBundleAssetFile<TAsset> self) => self.Load();
 
 		private readonly AssetName _ident;
 		private readonly AssetBundle _assetBundle;
@@ -30,11 +31,11 @@ namespace Depra.Assets.Runtime.Files.Bundles.Files
 			_assetBundle = assetBundle ? assetBundle : throw new ArgumentNullException(nameof(assetBundle));
 		}
 
-		public override IAssetIdent Ident => _ident;
-		public override bool IsLoaded => _loadedAsset != null;
-		public override FileSize Size { get; protected set; } = FileSize.Unknown;
+		public IAssetIdent Ident => _ident;
+		public bool IsLoaded => _loadedAsset != null;
+		public FileSize Size { get; private set; } = FileSize.Unknown;
 
-		public override TAsset Load()
+		public TAsset Load()
 		{
 			if (IsLoaded)
 			{
@@ -43,7 +44,7 @@ namespace Depra.Assets.Runtime.Files.Bundles.Files
 
 			var loadedAsset = _assetBundle.LoadAsset<TAsset>(_ident.Name);
 			Guard.AgainstNull(loadedAsset,
-				() => new AssetBundleFileNotLoadedException(_ident.Name, _assetBundle.name));
+				() => new AssetBundleFileNotLoaded(_ident.Name, _assetBundle.name));
 
 			_loadedAsset = loadedAsset;
 			Size = UnityFileSize.FromProfiler(_loadedAsset);
@@ -51,7 +52,7 @@ namespace Depra.Assets.Runtime.Files.Bundles.Files
 			return _loadedAsset;
 		}
 
-		public override void Unload()
+		public void Unload()
 		{
 			if (IsLoaded)
 			{
@@ -59,7 +60,7 @@ namespace Depra.Assets.Runtime.Files.Bundles.Files
 			}
 		}
 
-		public override async UniTask<TAsset> LoadAsync(DownloadProgressDelegate onProgress = null,
+		public async Task<TAsset> LoadAsync(DownloadProgressDelegate onProgress = null,
 			CancellationToken cancellationToken = default)
 		{
 			if (IsLoaded)
@@ -68,19 +69,13 @@ namespace Depra.Assets.Runtime.Files.Bundles.Files
 				return _loadedAsset;
 			}
 
-			var request = _assetBundle.LoadAssetAsync<TAsset>(_ident.Name);
-			while (request.isDone == false)
-			{
-				var progress = new DownloadProgress(request.progress);
-				onProgress?.Invoke(progress);
+			var loadedAsset = await _assetBundle
+				.LoadAssetAsync<TAsset>(_ident.Name)
+				.ToTask(progress => onProgress?.Invoke(new DownloadProgress(progress)), cancellationToken);
 
-				await UniTask.Yield();
-			}
+			Guard.AgainstNull(loadedAsset, () => new AssetBundleFileNotLoaded(_ident.Name, _assetBundle.name));
 
-			Guard.AgainstNull(request.asset,
-				() => new AssetBundleFileNotLoadedException(_ident.Name, _assetBundle.name));
-
-			_loadedAsset = (TAsset) request.asset;
+			_loadedAsset = (TAsset) loadedAsset;
 			onProgress?.Invoke(DownloadProgress.Full);
 			Size = UnityFileSize.FromProfiler(_loadedAsset);
 

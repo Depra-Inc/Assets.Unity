@@ -1,10 +1,10 @@
-﻿// Copyright © 2023 Nikolay Melnikov. All rights reserved.
-// SPDX-License-Identifier: Apache-2.0
+﻿// SPDX-License-Identifier: Apache-2.0
+// © 2023 Nikolay Melnikov <n.melnikov@depra.org>
 
 using System.Threading;
-using Cysharp.Threading.Tasks;
 using Depra.Assets.Editor.Files;
-using Depra.Assets.Runtime.Files.Adapter;
+using Depra.Assets.Files;
+using Depra.Assets.Runtime.Extensions;
 using Depra.Assets.Tests.EditMode.Stubs;
 using Depra.Assets.ValueObjects;
 using NUnit.Framework;
@@ -20,7 +20,7 @@ namespace Depra.Assets.Tests.EditMode.Files
 
 		private Object _testInstance;
 		private Object[] _initialPreloadedAssets;
-		private IUnityLoadableAsset<EditModeTestScriptableAsset> _childAsset;
+		private ILoadableAsset<EditModeTestScriptableAsset> _childAsset;
 
 		[OneTimeSetUp]
 		public void OneTimeSetup() =>
@@ -79,7 +79,7 @@ namespace Depra.Assets.Tests.EditMode.Files
 		}
 
 		[Test]
-		public void LoadAsync_ShouldSucceed() => UniTask.Void(async () =>
+		public void LoadAsync_ShouldSucceed() => ATask.Void(async () =>
 		{
 			// Arrange.
 			var preloadedAsset = new PreloadedAsset<EditModeTestScriptableAsset>(_childAsset);

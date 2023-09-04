@@ -1,5 +1,5 @@
-﻿// Copyright © 2023 Nikolay Melnikov. All rights reserved.
-// SPDX-License-Identifier: Apache-2.0
+﻿// SPDX-License-Identifier: Apache-2.0
+// © 2023 Nikolay Melnikov <n.melnikov@depra.org>
 
 using System.IO;
 using Depra.Assets.Idents;
@@ -8,7 +8,7 @@ using JetBrains.Annotations;
 
 namespace Depra.Assets.Runtime.Files.Bundles.Idents
 {
-	public sealed class AssetBundleIdent : IAssetIdent
+	public sealed record AssetBundleIdent : IAssetIdent
 	{
 		private const string EXTENSION = ".assetbundle";
 

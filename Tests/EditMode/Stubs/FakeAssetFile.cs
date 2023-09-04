@@ -1,18 +1,17 @@
-﻿// Copyright © 2023 Nikolay Melnikov. All rights reserved.
-// SPDX-License-Identifier: Apache-2.0
+﻿// SPDX-License-Identifier: Apache-2.0
+// © 2023 Nikolay Melnikov <n.melnikov@depra.org>
 
 using System;
 using System.Threading;
-using Cysharp.Threading.Tasks;
+using System.Threading.Tasks;
 using Depra.Assets.Delegates;
 using Depra.Assets.Files;
 using Depra.Assets.Idents;
-using Depra.Assets.Runtime.Files.Adapter;
 using Depra.Assets.ValueObjects;
 
 namespace Depra.Assets.Tests.EditMode.Stubs
 {
-	internal sealed class FakeAssetFile : IUnityLoadableAsset<EditModeTestScriptableAsset>
+	internal sealed class FakeAssetFile : ILoadableAsset<EditModeTestScriptableAsset>
 	{
 		public FakeAssetFile(IAssetIdent ident) => Ident = ident;
 
@@ -22,12 +21,12 @@ namespace Depra.Assets.Tests.EditMode.Stubs
 
 		FileSize IAssetFile.Size => FileSize.Zero;
 
-		EditModeTestScriptableAsset IUnityLoadableAsset<EditModeTestScriptableAsset>.Load() =>
+		EditModeTestScriptableAsset ILoadableAsset<EditModeTestScriptableAsset>.Load() =>
 			throw new NotImplementedException();
 
-		void IUnityLoadableAsset<EditModeTestScriptableAsset>.Unload() => IsLoaded = false;
+		void ILoadableAsset<EditModeTestScriptableAsset>.Unload() => IsLoaded = false;
 
-		UniTask<EditModeTestScriptableAsset> IUnityLoadableAsset<EditModeTestScriptableAsset>.LoadAsync(
+		Task<EditModeTestScriptableAsset> ILoadableAsset<EditModeTestScriptableAsset>.LoadAsync(
 			DownloadProgressDelegate onProgress,
 			CancellationToken cancellationToken) =>
 			throw new NotImplementedException();

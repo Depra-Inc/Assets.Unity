@@ -1,13 +1,11 @@
-﻿// Copyright © 2023 Nikolay Melnikov. All rights reserved.
-// SPDX-License-Identifier: Apache-2.0
+﻿// SPDX-License-Identifier: Apache-2.0
+// © 2023 Nikolay Melnikov <n.melnikov@depra.org>
 
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
-using Cysharp.Threading.Tasks;
 using Depra.Assets.Runtime.Common;
 using Depra.Assets.Runtime.Extensions;
 using Depra.Assets.Runtime.Files.Resource;
@@ -107,7 +105,7 @@ namespace Depra.Assets.Tests.PlayMode.Files
 		}
 
 		[UnityTest]
-		public IEnumerator LoadAsync_ShouldSucceed() => UniTask.ToCoroutine(async () =>
+		public IEnumerator LoadAsync_ShouldSucceed() => ATask.ToCoroutine(async () =>
 		{
 			// Arrange.
 			var resourceAsset = new ResourcesAsset<PlayModeTestScriptableAsset>(_resourcesIdent);
@@ -133,7 +131,7 @@ namespace Depra.Assets.Tests.PlayMode.Files
 		});
 
 		[UnityTest]
-		public IEnumerator LoadAsync_WithProgress_ShouldSucceed() => UniTask.ToCoroutine(async () =>
+		public IEnumerator LoadAsync_WithProgress_ShouldSucceed() => ATask.ToCoroutine(async () =>
 		{
 			// Arrange.
 			var callbackCalls = 0;
@@ -191,7 +189,7 @@ namespace Depra.Assets.Tests.PlayMode.Files
 			var resourceAsset = new ResourcesAsset<PlayModeTestScriptableAsset>(_resourcesIdent);
 
 			// Act.
-			cts.CancelAfterSlim(TimeSpan.MinValue);
+			cts.CancelAfter(1);
 			var loadTask = resourceAsset.LoadAsync(cancellationToken: cts.Token);
 			async Task Act() => await loadTask;
 
@@ -239,7 +237,7 @@ namespace Depra.Assets.Tests.PlayMode.Files
 		}
 
 		[UnityTest]
-		public IEnumerator SizeOfAsyncLoadedAsset_ShouldNotBeZeroOrUnknown() => UniTask.ToCoroutine(async () =>
+		public IEnumerator SizeOfAsyncLoadedAsset_ShouldNotBeZeroOrUnknown() => ATask.ToCoroutine(async () =>
 		{
 			// Arrange.
 			var resourceAsset = new ResourcesAsset<PlayModeTestScriptableAsset>(_resourcesIdent);

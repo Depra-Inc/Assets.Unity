@@ -1,9 +1,9 @@
-﻿// Copyright © 2023 Nikolay Melnikov. All rights reserved.
-// SPDX-License-Identifier: Apache-2.0
+﻿// SPDX-License-Identifier: Apache-2.0
+// © 2023 Nikolay Melnikov <n.melnikov@depra.org>
 
 using System;
 using System.Threading;
-using Cysharp.Threading.Tasks;
+using System.Threading.Tasks;
 using Depra.Assets.Runtime.Exceptions;
 using Depra.Assets.Runtime.Files.Bundles.Extensions;
 using Depra.Assets.ValueObjects;
@@ -18,21 +18,18 @@ namespace Depra.Assets.Runtime.Files.Bundles.Sources
 		AssetBundle IAssetBundleSource.Load(string by)
 		{
 			Guard.AgainstFileNotFound(by);
-			var loadedBundle = AssetBundle.LoadFromFile(by);
 
-			return loadedBundle;
+			return AssetBundle.LoadFromFile(by);
 		}
 
-		UniTask<AssetBundle> IAssetBundleSource.LoadAsync(string by, IProgress<float> with,
+		Task<AssetBundle> IAssetBundleSource.LoadAsync(string by, Action<float> withProgress,
 			CancellationToken cancellationToken)
 		{
 			Guard.AgainstFileNotFound(by);
 
-			var asyncRequest = AssetBundle
+			return AssetBundle
 				.LoadFromFileAsync(by)
-				.ToUniTask(with, cancellationToken: cancellationToken);
-
-			return asyncRequest;
+				.ToTask(withProgress, cancellationToken);
 		}
 	}
 }

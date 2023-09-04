@@ -1,7 +1,11 @@
-﻿using System.Collections;
+﻿// SPDX-License-Identifier: Apache-2.0
+// © 2023 Nikolay Melnikov <n.melnikov@depra.org>
+
+using System.Collections;
 using System.Diagnostics;
 using System.Threading;
-using Cysharp.Threading.Tasks;
+using System.Threading.Tasks;
+using Depra.Assets.Runtime.Extensions;
 using Depra.Assets.Runtime.Files.Bundles.Files;
 using Depra.Assets.Runtime.Files.Bundles.Idents;
 using Depra.Assets.Runtime.Files.Bundles.Sources;
@@ -53,7 +57,7 @@ namespace Depra.Assets.Tests.PlayMode.Files
 		}
 
 		[UnityTest]
-		public IEnumerator LoadAsync_ShouldSucceed() => UniTask.ToCoroutine(async () =>
+		public IEnumerator LoadAsync_ShouldSucceed() => ATask.ToCoroutine(async () =>
 		{
 			// Arrange.
 			var bundleIdent = new AssetBundleIdent(TEST_BUNDLE_NAME, _assetBundlesDirectory.ProjectRelativePath);
@@ -74,7 +78,7 @@ namespace Depra.Assets.Tests.PlayMode.Files
 			                      $"by path: {bundleFile.Ident.Uri} " +
 			                      $"in {_stopwatch.ElapsedMilliseconds} ms.");
 
-			await UniTask.Yield();
+			await Task.Yield();
 		});
 
 		private void WaitForServerToBeReady() => Thread.Sleep(2000);

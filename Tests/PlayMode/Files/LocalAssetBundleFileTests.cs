@@ -1,5 +1,5 @@
-﻿// Copyright © 2023 Nikolay Melnikov. All rights reserved.
-// SPDX-License-Identifier: Apache-2.0
+﻿// SPDX-License-Identifier: Apache-2.0
+// © 2023 Nikolay Melnikov <n.melnikov@depra.org>
 
 using System;
 using System.Collections;
@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
-using Cysharp.Threading.Tasks;
+using Depra.Assets.Runtime.Extensions;
 using Depra.Assets.Runtime.Files.Bundles.Files;
 using Depra.Assets.Runtime.Files.Bundles.Idents;
 using Depra.Assets.Runtime.Files.Bundles.Sources;
@@ -68,7 +68,7 @@ namespace Depra.Assets.Tests.PlayMode.Files
 		}
 
 		[Test]
-		public void InvalidBundleShouldThrowExceptionOnLoad(
+		public void InvalidBundle_ShouldThrowException_OnLoad(
 			[ValueSource(nameof(InvalidBundles))] AssetBundleFile invalidBundleFile)
 		{
 			// Arrange.
@@ -82,7 +82,7 @@ namespace Depra.Assets.Tests.PlayMode.Files
 
 		[UnityTest]
 		public IEnumerator LoadAsync_ShouldSucceed([ValueSource(nameof(AllBundles))] AssetBundleFile bundleFile) =>
-			UniTask.ToCoroutine(async () =>
+			ATask.ToCoroutine(async () =>
 			{
 				// Arrange.
 
@@ -101,13 +101,13 @@ namespace Depra.Assets.Tests.PlayMode.Files
 				                      $"by path: {bundleFile.Ident.Uri} " +
 				                      $"in {_stopwatch.ElapsedMilliseconds} ms.");
 
-				await UniTask.Yield();
+				await Task.Yield();
 			});
 
 		[UnityTest]
 		public IEnumerator LoadAsync_WithProgress_ShouldSucceed(
 			[ValueSource(nameof(AllBundles))] AssetBundleFile bundleFile) =>
-			UniTask.ToCoroutine(async () =>
+			ATask.ToCoroutine(async () =>
 			{
 				// Arrange.
 				var callbackCalls = 0;
@@ -136,7 +136,7 @@ namespace Depra.Assets.Tests.PlayMode.Files
 				                      $"in {_stopwatch.ElapsedMilliseconds} ms. " +
 				                      $"Last value is {lastProgress.NormalizedValue}.");
 
-				await UniTask.Yield();
+				await Task.Yield();
 			});
 
 		[UnityTest]
@@ -173,7 +173,7 @@ namespace Depra.Assets.Tests.PlayMode.Files
 			var cts = new CancellationTokenSource();
 
 			// Act.
-			cts.CancelAfterSlim(1);
+			cts.CancelAfter(1);
 			var loadTask = bundleFile.LoadAsync(cancellationToken: cts.Token);
 			async Task Act() => await loadTask;
 

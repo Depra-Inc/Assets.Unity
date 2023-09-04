@@ -1,16 +1,16 @@
-﻿// Copyright © 2023 Nikolay Melnikov. All rights reserved.
-// SPDX-License-Identifier: Apache-2.0
+﻿// SPDX-License-Identifier: Apache-2.0
+// © 2023 Nikolay Melnikov <n.melnikov@depra.org>
 
 using System;
 using System.Reflection;
 
 namespace Depra.Assets.Runtime.Files.Database
 {
-	internal sealed class AssetCreationException : Exception
+	internal sealed class AssetCatNotBeCreated : Exception
 	{
 		private const string MESSAGE_FORMAT = "Asset {0} with type {1} can not be created!";
 
-		public AssetCreationException(MemberInfo assetType, string assetName) :
+		public AssetCatNotBeCreated(MemberInfo assetType, string assetName) :
 			base(string.Format(MESSAGE_FORMAT, assetName, assetType.Name)) { }
 	}
 }

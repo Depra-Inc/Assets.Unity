@@ -1,5 +1,5 @@
-﻿// Copyright © 2023 Nikolay Melnikov. All rights reserved.
-// SPDX-License-Identifier: Apache-2.0
+﻿// SPDX-License-Identifier: Apache-2.0
+// © 2023 Nikolay Melnikov <n.melnikov@depra.org>
 
 using System;
 using System.IO;
@@ -12,7 +12,7 @@ using static Depra.Assets.Runtime.Common.Paths;
 
 namespace Depra.Assets.Runtime.Files.Resource
 {
-	public sealed class ResourcesPath : IAssetIdent
+	public sealed record ResourcesPath : IAssetIdent
 	{
 		private static readonly string RESOURCES_FOLDER_PATH = RESOURCES_FOLDER_NAME + Path.AltDirectorySeparatorChar;
 

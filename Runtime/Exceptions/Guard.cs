@@ -1,41 +1,29 @@
-﻿// Copyright © 2023 Nikolay Melnikov. All rights reserved.
-// SPDX-License-Identifier: Apache-2.0
+﻿// SPDX-License-Identifier: Apache-2.0
+// © 2023 Nikolay Melnikov <n.melnikov@depra.org>
 
 using System;
 using System.IO;
 using System.Runtime.CompilerServices;
-using Depra.Assets.Runtime.Files.Bundles.Sources;
-using UnityEngine.Networking;
 
 namespace Depra.Assets.Runtime.Exceptions
 {
 	internal static class Guard
 	{
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static void AgainstNull<TObject>(TObject asset, Func<Exception> exceptionFunc)
+		public static void AgainstNull<TObject>(TObject asset, Func<Exception> exceptionFactory)
 		{
 			if (asset == null)
 			{
-				throw exceptionFunc();
+				throw exceptionFactory();
 			}
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static void AgainstInvalidRequestResult(UnityWebRequest request,
-			Func<string, string, Exception> exceptionFunc)
-		{
-			if (request.CanGetResult() == false)
-			{
-				throw exceptionFunc(request.error, request.url);
-			}
-		}
-
-		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static void AgainstEqual<T>(IEquatable<T> value, IEquatable<T> other, Func<Exception> exceptionFunc)
+		public static void AgainstEqual<T>(IEquatable<T> value, IEquatable<T> other, Func<Exception> exceptionFactory)
 		{
 			if (value.Equals(other))
 			{
-				throw exceptionFunc();
+				throw exceptionFactory();
 			}
 		}
 
@@ -49,11 +37,11 @@ namespace Depra.Assets.Runtime.Exceptions
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static void AgainstEmptyString(string value, Func<Exception> exceptionFunc)
+		public static void AgainstEmptyString(string value, Func<Exception> exceptionFactory)
 		{
 			if (string.IsNullOrEmpty(value))
 			{
-				throw exceptionFunc();
+				throw exceptionFactory();
 			}
 		}
 	}
