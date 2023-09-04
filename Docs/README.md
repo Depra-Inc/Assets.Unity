@@ -27,7 +27,7 @@
 
 ## 🧾 Introduction
 
-This library provides classes and interfaces for convenient and efficient loading of various types of resources in
+This library provides classes and interfaces for convenient and efficient loading of various types of assets in
 **Unity** projects.
 
 It contains common methods and functionality for working with assets, as well as implementations of specific loading
@@ -35,10 +35,12 @@ strategies for different sources.
 
 ### 💡 Features:
 
-- A uniform **API** for loading assets from different sources.
-- Support for canceling loading operations.
-- Providing information about the loading progress.
-- Extensibility.
+- **Standardization**: A unified **API** for asset loading from various sources.
+- **Cancellation Support**: The ability to cancel loading operations at any point.
+- **Progress Tracking**: Providing information on the current loading progress.
+- **Extensibility**: A flexible architecture for extending functionality according to your needs.
+
+These features make the library even more powerful and convenient for your tasks.
 
 ### 🦾 Capabilities:
 
@@ -64,43 +66,39 @@ strategies for different sources.
 
 Add the following line to `Packages/manifest.json` in the `dependencies` section:
 
-```json
+```
 "com.depra.assets.unity": "https://github.com/Depra-Inc/Assets.Unity.git"
 ```
 
 ## 📖 Contents
 
-`ILoadableAsset<TAsset>` defines basic methods and properties for loading and unloading assets. It extends
-the `IAssetFile` interface from [Depra.Assets](https://github.com/Depra-Inc/Assets) and provides
-capabilities for synchronous and asynchronous loading, as well as checking the loading state.
+**Key Concepts** used in this library are described in the following interfaces:
 
-```csharp
-public interface ILoadableAsset<TAsset> : IAssetFile
-{
-    bool IsLoaded { get; }
-    
-    TAsset Load();
-    
-    void Unload();
-    
-    Task<TAsset> LoadAsync(DownloadProgressDelegate onProgress = null, CancellationToken cancellationToken = default);
-}
-```
+- `IAssetIdent`: Designed to facilitate resource management in **Unity** projects.
+  It provides a simple and standardized way of identifying and managing assets using **URI**
+  *(Uniform Resource Identifier)*.
 
-| Asset class type               | Description                                                                                                                                 |
-|--------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------|
-| `ResourceAsset<TAsset>`        | Loading and unloading assets from `UnityEngine.Resources`.                                                                                  |
-| `AssetBundleFile`              | Loading and unloading `UnityEngine.AssetBundle`.                                                                                            |
-| `AssetBundleAssetFile<TAsset>` | Loading and unloading assets from `UnityEngine.AssetBundle`.                                                                                |
-| `DatabaseAsset<TAsset>`        | Loading and unloading assets from the editor's asset database `UnityEditor.AssetDatabase`. ⚠️**Asynchronous loading is not yet supported.** |
-| `PreloadedAsset<TAsset>`       | Loading and unloading assets from project settings `UnityEditor.ProjectSettings`.                                                           |
+- `ILoadableAsset<TAsset>`: Defines the fundamental methods and properties required for loading and unloading assets.
+  It extends the functionality of the `IAssetFile` interface presented
+  in [Depra.Assets](https://github.com/Depra-Inc/Assets) and offers the ability to perform both synchronous and
+  asynchronous asset loading, as well as checking the loading state.
+
+You can create your own implementations of these interfaces or use ready-made ones presented in the table:
+
+| Asset class type               | Ident                | Description                                                                                                                                 |
+|--------------------------------|----------------------|---------------------------------------------------------------------------------------------------------------------------------------------|
+| `ResourceAsset<TAsset>`        | `ResourcesPath`      | Loading and unloading assets from `UnityEngine.Resources`.                                                                                  |
+| `AssetBundleFile`              | `AssetBundleIdent`   | Loading and unloading `UnityEngine.AssetBundle`.                                                                                            |
+| `AssetBundleAssetFile<TAsset>` | `AssetName`          | Loading and unloading assets from `UnityEngine.AssetBundle`.                                                                                |
+| `DatabaseAsset<TAsset>`        | `DatabaseAssetIdent` | Loading and unloading assets from the editor's asset database `UnityEditor.AssetDatabase`. ⚠️**Asynchronous loading is not yet supported.** |
+| `PreloadedAsset<TAsset>`       | `IAssetIdent`        | Loading and unloading assets from project settings `UnityEditor.ProjectSettings`.                                                           |
 
 All classes implementing the `ILoadableAsset` interface also implement the `System.IDisposable` interface for
 convenient usage in `using` blocks.
 
 ## 📋 Usage Examples
 
-### Loading an Asset from Resources
+#### Loading an Asset from Resources
 
 ```csharp
 var resourceTexture = new ResourceAsset<Texture2D>("Textures/myTexture");
@@ -109,7 +107,7 @@ Texture2D loadedTexture = resourceTexture.Load();
 resourceTexture.Unload();
 ```
 
-### Loading an AssetBundle
+#### Loading an AssetBundle
 
 ```csharp
 var assetBundleFile = new AssetBundleFile("Path/To/MyBundle");
@@ -118,7 +116,7 @@ AssetBundle loadedBundle = assetBundleFile.Load();
 assetBundleFile.Unload();
 ```
 
-### Loading an Asset from an AssetBundle
+#### Loading an Asset from an AssetBundle
 
 ```csharp
 var assetBundle = AssetBundle.LoadFromFile("Path/To/MyBundle");
@@ -128,7 +126,7 @@ GameObject loadedAsset = assetBundleAsset.Load();
 assetBundleAsset.Dispose();
 ```
 
-### Loading an Asset from the Editor Database
+#### Loading an Asset from the Editor Database
 
 ```csharp
 var databaseAsset = new DatabaseAsset<MyScriptableObject>("Path/To/MyAsset");
@@ -137,7 +135,7 @@ MyScriptableObject loadedObject = databaseAsset.Load();
 databaseAsset.Dispose();
 ```
 
-### Loading an Asset from Project Settings
+#### Loading an Asset from Project Settings
 
 ```csharp
 var preloadedAsset = new PreloadedAsset<GameObject>("Path/To/MyAsset");
