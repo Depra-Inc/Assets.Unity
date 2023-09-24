@@ -1,5 +1,9 @@
 # Depra.Assets
 
+![License](https://img.shields.io/github/license/Depra-Inc/Assets.Unity?style=flat-square)
+![Last Commit](https://img.shields.io/github/last-commit/Depra-Inc/Assets.Unity?style=flat-square)
+![Code Size](https://img.shields.io/github/languages/code-size/Depra-Inc/Assets.Unity?style=flat-square)
+
 <div>
     <strong><a href="README.md">English</a> | <a href="README.RU.md">Русский</a></strong>
 </div>
