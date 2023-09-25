@@ -11,30 +11,30 @@ namespace Depra.Assets.Runtime.Extensions
 	public static class DirectoryInfoExtensions
 	{
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static bool IsEmpty(this DirectoryInfo directoryInfo) =>
-			directoryInfo.EnumerateFileSystemInfos().Any() == false;
+		public static bool IsEmpty(this DirectoryInfo self) =>
+			self.EnumerateFileSystemInfos().Any() == false;
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static void DeleteIfEmpty(this DirectoryInfo directoryInfo)
+		public static void DeleteIfEmpty(this DirectoryInfo self)
 		{
-			if (directoryInfo.Exists == false || directoryInfo.IsEmpty() == false)
+			if (self.Exists == false || self.IsEmpty() == false)
 			{
 				return;
 			}
 
-			directoryInfo.Delete(true);
-			File.Delete(directoryInfo.FullName + AssetTypes.META);
+			self.Delete(true);
+			File.Delete(self.FullName + AssetTypes.META);
 		}
 
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static DirectoryInfo CreateIfNotExists(this DirectoryInfo directoryInfo)
+		public static DirectoryInfo CreateIfNotExists(this DirectoryInfo self)
 		{
-			if (directoryInfo.Exists == false)
+			if (self.Exists == false)
 			{
-				directoryInfo.Create();
+				self.Create();
 			}
 
-			return directoryInfo;
+			return self;
 		}
 	}
 }
