@@ -24,39 +24,35 @@ namespace Depra.Assets.Tests.PlayMode.Files
 	{
 		private const string TEST_BUNDLE_NAME = "test";
 
-		private static IEnumerable<AssetBundleFile> AllBundles()
+		private static IEnumerable<IAssetBundleSource> BundleSources()
 		{
-			var assetBundlesDirectory = new TestAssetBundlesDirectory();
-			var bundleIdent = new AssetBundleIdent(TEST_BUNDLE_NAME, assetBundlesDirectory.ProjectRelativePath);
-
-			yield return new AssetBundleFile(bundleIdent, new AssetBundleFromFile());
-			yield return new AssetBundleFile(bundleIdent, new AssetBundleFromMemory());
-			yield return new AssetBundleFile(bundleIdent, new AssetBundleFromStream());
-		}
-
-		private static IEnumerable<AssetBundleFile> InvalidBundles()
-		{
-			var invalidIdent = AssetBundleIdent.Invalid;
-			yield return new AssetBundleFile(invalidIdent, new AssetBundleFromFile());
-			yield return new AssetBundleFile(invalidIdent, new AssetBundleFromMemory());
-			yield return new AssetBundleFile(invalidIdent, new AssetBundleFromStream());
+			yield return new AssetBundleFromFile();
+			yield return new AssetBundleFromMemory();
+			yield return new AssetBundleFromStream();
 		}
 
 		private Stopwatch _stopwatch;
 		private AssetBundle _loadedBundle;
+		private AssetBundleIdent _validIdent;
 
 		[OneTimeSetUp]
-		public void OneTimeSetup() =>
+		public void OneTimeSetup()
+		{
 			_stopwatch = new Stopwatch();
+			_validIdent = new AssetBundleIdent(TEST_BUNDLE_NAME,
+				new TestAssetBundlesDirectory().ProjectRelativePath);
+		}
 
 		[TearDown]
-		public void TearDown() =>
-			AssetBundle.UnloadAllAssetBundles(true);
+		public void TearDown() => AssetBundle.UnloadAllAssetBundles(true);
 
 		[Test]
-		public void Load_ShouldSucceed([ValueSource(nameof(AllBundles))] AssetBundleFile bundleFile)
+		public void Load_ShouldSucceed([ValueSource(nameof(BundleSources))] IAssetBundleSource source)
 		{
-			// Arrange & Act.
+			// Arrange.
+			var bundleFile = new AssetBundleFile(_validIdent, source);
+
+			//Act.
 			_loadedBundle = bundleFile.Load();
 
 			// Assert.
@@ -69,9 +65,10 @@ namespace Depra.Assets.Tests.PlayMode.Files
 
 		[Test]
 		public void InvalidBundle_ShouldThrowException_OnLoad(
-			[ValueSource(nameof(InvalidBundles))] AssetBundleFile invalidBundleFile)
+			[ValueSource(nameof(BundleSources))] IAssetBundleSource source)
 		{
 			// Arrange.
+			var invalidBundleFile = new AssetBundleFile(AssetBundleIdent.Invalid, source);
 
 			// Act.
 			void Act() => invalidBundleFile.Load();
@@ -81,10 +78,11 @@ namespace Depra.Assets.Tests.PlayMode.Files
 		}
 
 		[UnityTest]
-		public IEnumerator LoadAsync_ShouldSucceed([ValueSource(nameof(AllBundles))] AssetBundleFile bundleFile) =>
+		public IEnumerator LoadAsync_ShouldSucceed([ValueSource(nameof(BundleSources))] IAssetBundleSource source) =>
 			ATask.ToCoroutine(async () =>
 			{
 				// Arrange.
+				var bundleFile = new AssetBundleFile(_validIdent, source);
 
 				// Act.
 				_stopwatch.Restart();
@@ -106,13 +104,14 @@ namespace Depra.Assets.Tests.PlayMode.Files
 
 		[UnityTest]
 		public IEnumerator LoadAsync_WithProgress_ShouldSucceed(
-			[ValueSource(nameof(AllBundles))] AssetBundleFile bundleFile) =>
+			[ValueSource(nameof(BundleSources))] IAssetBundleSource source) =>
 			ATask.ToCoroutine(async () =>
 			{
 				// Arrange.
 				var callbackCalls = 0;
 				var callbacksCalled = false;
 				DownloadProgress lastProgress = default;
+				var bundleFile = new AssetBundleFile(_validIdent, source);
 
 				// Act.
 				_stopwatch.Restart();
@@ -141,7 +140,7 @@ namespace Depra.Assets.Tests.PlayMode.Files
 
 		[UnityTest]
 		public IEnumerator LoadAsync_CancelBeforeStart_ShouldThrowTaskCanceledException(
-			[ValueSource(nameof(AllBundles))] AssetBundleFile bundleFile)
+			[ValueSource(nameof(BundleSources))] IAssetBundleSource source)
 		{
 			// Prepare.
 			// I do not understand why the bundle does not have time to unload in TearDown.
@@ -150,19 +149,19 @@ namespace Depra.Assets.Tests.PlayMode.Files
 
 			// Arrange.
 			var cts = new CancellationTokenSource();
+			var bundleFile = new AssetBundleFile(_validIdent, source);
 
 			// Act.
 			cts.Cancel();
 			var loadTask = bundleFile.LoadAsync(cancellationToken: cts.Token);
-			async Task Act() => await loadTask;
 
 			// Assert.
-			Assert.ThrowsAsync<TaskCanceledException>(Act);
+			Assert.ThrowsAsync<TaskCanceledException>(async () => await loadTask);
 		}
 
 		[UnityTest]
 		public IEnumerator LoadAsync_CancelDuringExecution_ShouldThrowTaskCanceledException(
-			[ValueSource(nameof(AllBundles))] AssetBundleFile bundleFile)
+			[ValueSource(nameof(BundleSources))] IAssetBundleSource source)
 		{
 			// Prepare.
 			// I do not understand why the bundle does not have time to unload in TearDown.
@@ -171,23 +170,27 @@ namespace Depra.Assets.Tests.PlayMode.Files
 
 			// Arrange.
 			var cts = new CancellationTokenSource();
+			var bundleFile = new AssetBundleFile(_validIdent, source);
 
 			// Act.
 			cts.CancelAfter(1);
 			var loadTask = bundleFile.LoadAsync(cancellationToken: cts.Token);
-			async Task Act() => await loadTask;
-
-			yield return new WaitUntil(() => cts.Token.IsCancellationRequested);
+			while (!loadTask.IsCompleted && !loadTask.IsCanceled)
+			{
+				yield return null;
+			}
 
 			// Assert.
-			Assert.ThrowsAsync<TaskCanceledException>(Act);
+			Assert.IsTrue(loadTask.IsCanceled, "Task should be canceled");
+			Assert.Throws<TaskCanceledException>(() => loadTask.GetAwaiter().GetResult());
 		}
 
 		[UnityTest]
 		public IEnumerator SizeOfLoadedAsset_ShouldNotBeZeroOrUnknown(
-			[ValueSource(nameof(AllBundles))] AssetBundleFile bundleFile)
+			[ValueSource(nameof(BundleSources))] IAssetBundleSource source)
 		{
 			// Arrange.
+			var bundleFile = new AssetBundleFile(_validIdent, source);
 			_loadedBundle = bundleFile.Load();
 			yield return null;
 
@@ -205,9 +208,10 @@ namespace Depra.Assets.Tests.PlayMode.Files
 		}
 
 		[UnityTest]
-		public IEnumerator Unload_ShouldSucceed([ValueSource(nameof(AllBundles))] AssetBundleFile bundleFile)
+		public IEnumerator Unload_ShouldSucceed([ValueSource(nameof(BundleSources))] IAssetBundleSource source)
 		{
 			// Arrange.
+			var bundleFile = new AssetBundleFile(_validIdent, source);
 			bundleFile.Load();
 			yield return null;
 

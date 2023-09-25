@@ -191,12 +191,10 @@ namespace Depra.Assets.Tests.PlayMode.Files
 			// Act.
 			cts.CancelAfter(1);
 			var loadTask = resourceAsset.LoadAsync(cancellationToken: cts.Token);
-			async Task Act() => await loadTask;
-
 			yield return new WaitUntil(() => cts.Token.IsCancellationRequested);
 
 			// Assert.
-			Assert.ThrowsAsync<TaskCanceledException>(Act);
+			Assert.ThrowsAsync<TaskCanceledException>(async () => await loadTask);
 		}
 
 		[UnityTest]

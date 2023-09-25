@@ -26,8 +26,7 @@ namespace Depra.Assets.Tests.PlayMode.Files
 		private TestAssetBundlesDirectory _assetBundlesDirectory;
 
 		[OneTimeSetUp]
-		public void OneTimeSetup() =>
-			_stopwatch = new Stopwatch();
+		public void OneTimeSetup() => _stopwatch = new Stopwatch();
 
 		[SetUp]
 		public void Setup()

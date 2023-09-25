@@ -27,6 +27,9 @@ namespace Depra.Assets.Tests.PlayMode.Files
 		private AssetBundle _assetBundle;
 		private AssetBundleAssetFile<PlayModeTestScriptableAsset> _assetFromBundle;
 
+		[OneTimeSetUp]
+		public void OneTimeSetup() => _stopwatch = new Stopwatch();
+
 		[SetUp]
 		public void Setup()
 		{
@@ -43,9 +46,6 @@ namespace Depra.Assets.Tests.PlayMode.Files
 			_assetFromBundle.Unload();
 			_assetBundle.Unload(true);
 		}
-
-		[OneTimeSetUp]
-		public void OneTimeSetup() => _stopwatch = new Stopwatch();
 
 		[Test]
 		public void Load_ShouldSucceed()
