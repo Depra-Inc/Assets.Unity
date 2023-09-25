@@ -2,6 +2,7 @@
 // © 2023 Nikolay Melnikov <n.melnikov@depra.org>
 
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Runtime.CompilerServices;
 
@@ -9,6 +10,9 @@ namespace Depra.Assets.Runtime.Exceptions
 {
 	internal static class Guard
 	{
+		private const string DEBUG = "DEBUG";
+
+		[Conditional(DEBUG)]
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static void AgainstNull<TObject>(TObject asset, Func<Exception> exceptionFactory)
 		{
@@ -18,6 +22,7 @@ namespace Depra.Assets.Runtime.Exceptions
 			}
 		}
 
+		[Conditional(DEBUG)]
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static void AgainstEqual<T>(IEquatable<T> value, IEquatable<T> other, Func<Exception> exceptionFactory)
 		{
@@ -27,6 +32,7 @@ namespace Depra.Assets.Runtime.Exceptions
 			}
 		}
 
+		[Conditional(DEBUG)]
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static void AgainstFileNotFound(string filePath)
 		{
@@ -36,6 +42,7 @@ namespace Depra.Assets.Runtime.Exceptions
 			}
 		}
 
+		[Conditional(DEBUG)]
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static void AgainstEmptyString(string value, Func<Exception> exceptionFactory)
 		{
