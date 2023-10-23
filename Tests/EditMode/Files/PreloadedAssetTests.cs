@@ -4,7 +4,7 @@
 using System.Threading;
 using Depra.Assets.Editor.Files;
 using Depra.Assets.Files;
-using Depra.Assets.Runtime.Extensions;
+using Depra.Assets.Extensions;
 using Depra.Assets.Tests.EditMode.Stubs;
 using Depra.Assets.ValueObjects;
 using NUnit.Framework;

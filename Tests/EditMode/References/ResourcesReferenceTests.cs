@@ -2,9 +2,9 @@
 // © 2023 Nikolay Melnikov <n.melnikov@depra.org>
 
 using System.IO;
-using Depra.Assets.Runtime.Common;
-using Depra.Assets.Runtime.Extensions;
-using Depra.Assets.Runtime.Files.Resource;
+using Depra.Assets.Common;
+using Depra.Assets.Extensions;
+using Depra.Assets.Files.Resource;
 using Depra.Assets.Tests.EditMode.Stubs;
 using Depra.Assets.Tests.EditMode.Utils;
 using NUnit.Framework;

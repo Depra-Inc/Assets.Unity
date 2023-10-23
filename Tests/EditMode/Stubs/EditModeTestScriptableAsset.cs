@@ -2,8 +2,8 @@
 // © 2023 Nikolay Melnikov <n.melnikov@depra.org>
 
 using UnityEngine;
-using static Depra.Assets.Runtime.Common.Module;
-using static Depra.Assets.Runtime.Common.Paths;
+using static Depra.Assets.Common.Module;
+using static Depra.Assets.Common.UnityProject;
 
 namespace Depra.Assets.Tests.EditMode.Stubs
 {
