@@ -49,17 +49,17 @@ namespace Depra.Assets.Tests.PlayMode.Files
 		[Test]
 		public void Load_ShouldSucceed([ValueSource(nameof(BundleSources))] IAssetBundleSource source)
 		{
-			// Arrange.
+			// Arrange:
 			var bundleFile = new AssetBundleFile(_validIdent, source);
 
-			//Act.
+			//Act:
 			_loadedBundle = bundleFile.Load();
 
-			// Assert.
+			// Assert:
 			Assert.That(_loadedBundle, Is.Not.Null);
 			Assert.That(bundleFile.IsLoaded);
 
-			// Debug.
+			// Debug:
 			TestContext.WriteLine($"The bundle was loaded by path: {bundleFile.Ident.Uri}.");
 		}
 
@@ -67,13 +67,13 @@ namespace Depra.Assets.Tests.PlayMode.Files
 		public void InvalidBundle_ShouldThrowException_OnLoad(
 			[ValueSource(nameof(BundleSources))] IAssetBundleSource source)
 		{
-			// Arrange.
+			// Arrange:
 			var invalidBundleFile = new AssetBundleFile(AssetBundleIdent.Invalid, source);
 
-			// Act.
+			// Act:
 			void Act() => invalidBundleFile.Load();
 
-			// Assert.
+			// Assert:
 			Assert.That(Act, Throws.InstanceOf<Exception>());
 		}
 
@@ -81,20 +81,20 @@ namespace Depra.Assets.Tests.PlayMode.Files
 		public IEnumerator LoadAsync_ShouldSucceed([ValueSource(nameof(BundleSources))] IAssetBundleSource source) =>
 			ATask.ToCoroutine(async () =>
 			{
-				// Arrange.
+				// Arrange:
 				var bundleFile = new AssetBundleFile(_validIdent, source);
 
-				// Act.
+				// Act:
 				_stopwatch.Restart();
 				_loadedBundle = await bundleFile.LoadAsync();
 				_stopwatch.Stop();
 
-				// Assert.
+				// Assert:
 				Assert.That(bundleFile.IsLoaded);
 				Assert.That(_loadedBundle, Is.Not.Null);
 				Assert.IsInstanceOf<AssetBundle>(_loadedBundle);
 
-				// Debug.
+				// Debug:
 				TestContext.WriteLine($"Loaded bundle {_loadedBundle.name} " +
 				                      $"by path: {bundleFile.Ident.Uri} " +
 				                      $"in {_stopwatch.ElapsedMilliseconds} ms.");
@@ -107,13 +107,13 @@ namespace Depra.Assets.Tests.PlayMode.Files
 			[ValueSource(nameof(BundleSources))] IAssetBundleSource source) =>
 			ATask.ToCoroutine(async () =>
 			{
-				// Arrange.
+				// Arrange:
 				var callbackCalls = 0;
 				var callbacksCalled = false;
 				DownloadProgress lastProgress = default;
 				var bundleFile = new AssetBundleFile(_validIdent, source);
 
-				// Act.
+				// Act:
 				_stopwatch.Restart();
 				_loadedBundle = await bundleFile.LoadAsync(
 					onProgress: progress =>
@@ -124,12 +124,12 @@ namespace Depra.Assets.Tests.PlayMode.Files
 					});
 				_stopwatch.Stop();
 
-				// Assert.
+				// Assert:
 				Assert.That(callbacksCalled);
 				Assert.That(callbackCalls, Is.GreaterThan(0));
 				Assert.That(lastProgress, Is.EqualTo(DownloadProgress.Full));
 
-				// Debug.
+				// Debug:
 				TestContext.WriteLine("Progress event was called " +
 				                      $"{callbackCalls} times " +
 				                      $"in {_stopwatch.ElapsedMilliseconds} ms. " +
@@ -147,15 +147,15 @@ namespace Depra.Assets.Tests.PlayMode.Files
 			AssetBundle.UnloadAllAssetBundles(true);
 			yield return null;
 
-			// Arrange.
+			// Arrange:
 			var cts = new CancellationTokenSource();
 			var bundleFile = new AssetBundleFile(_validIdent, source);
 
-			// Act.
+			// Act:
 			cts.Cancel();
 			var loadTask = bundleFile.LoadAsync(cancellationToken: cts.Token);
 
-			// Assert.
+			// Assert:
 			Assert.ThrowsAsync<TaskCanceledException>(async () => await loadTask);
 		}
 
@@ -168,11 +168,11 @@ namespace Depra.Assets.Tests.PlayMode.Files
 			AssetBundle.UnloadAllAssetBundles(true);
 			yield return null;
 
-			// Arrange.
+			// Arrange:
 			var cts = new CancellationTokenSource();
 			var bundleFile = new AssetBundleFile(_validIdent, source);
 
-			// Act.
+			// Act:
 			cts.CancelAfter(1);
 			var loadTask = bundleFile.LoadAsync(cancellationToken: cts.Token);
 			while (!loadTask.IsCompleted && !loadTask.IsCanceled)
@@ -180,7 +180,7 @@ namespace Depra.Assets.Tests.PlayMode.Files
 				yield return null;
 			}
 
-			// Assert.
+			// Assert:
 			Assert.IsTrue(loadTask.IsCanceled, "Task should be canceled");
 			Assert.Throws<TaskCanceledException>(() => loadTask.GetAwaiter().GetResult());
 		}
@@ -189,19 +189,19 @@ namespace Depra.Assets.Tests.PlayMode.Files
 		public IEnumerator SizeOfLoadedAsset_ShouldNotBeZeroOrUnknown(
 			[ValueSource(nameof(BundleSources))] IAssetBundleSource source)
 		{
-			// Arrange.
+			// Arrange:
 			var bundleFile = new AssetBundleFile(_validIdent, source);
 			_loadedBundle = bundleFile.Load();
 			yield return null;
 
-			// Act.
+			// Act:
 			var bundleSize = bundleFile.Size;
 
-			// Assert.
+			// Assert:
 			Assert.That(bundleSize, Is.Not.EqualTo(FileSize.Zero));
 			Assert.That(bundleSize, Is.Not.EqualTo(FileSize.Unknown));
 
-			// Debug.
+			// Debug:
 			TestContext.WriteLine($"Size of {bundleFile.Ident.RelativeUri} is {bundleSize.ToHumanReadableString()}.");
 
 			yield return null;
@@ -210,19 +210,19 @@ namespace Depra.Assets.Tests.PlayMode.Files
 		[UnityTest]
 		public IEnumerator Unload_ShouldSucceed([ValueSource(nameof(BundleSources))] IAssetBundleSource source)
 		{
-			// Arrange.
+			// Arrange:
 			var bundleFile = new AssetBundleFile(_validIdent, source);
 			bundleFile.Load();
 			yield return null;
 
-			// Act.
+			// Act:
 			bundleFile.Unload();
 			yield return null;
 
-			// Assert.
+			// Assert:
 			Assert.That(bundleFile.IsLoaded, Is.False);
 
-			// Debug.
+			// Debug:
 			TestContext.WriteLine($"The bundle with name {bundleFile.Ident.RelativeUri} was unloaded.");
 		}
 	}

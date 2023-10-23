@@ -44,7 +44,7 @@ namespace Depra.Assets.Tests.EditMode.References
 		[Test]
 		public void IsNull_TrueWhenProjectPathIsEmpty()
 		{
-			// Arrange.
+			// Arrange:
 			var reference = new ResourcesReference { _projectPath = string.Empty };
 
 			// Act & Assert.
@@ -54,7 +54,7 @@ namespace Depra.Assets.Tests.EditMode.References
 		[Test]
 		public void IsNull_FalseWhenProjectPathIsNotEmpty()
 		{
-			// Arrange.
+			// Arrange:
 			var reference = new ResourcesReference { _projectPath = _resourcePath };
 
 			// Act & Assert.
@@ -64,7 +64,7 @@ namespace Depra.Assets.Tests.EditMode.References
 		[Test]
 		public void ResourcesPath_ReturnsRelativePath()
 		{
-			// Arrange.
+			// Arrange:
 			// ReSharper disable InlineTemporaryVariable
 			const string EXPECTED_PATH = ASSET_NAME;
 			// ReSharper restore InlineTemporaryVariable
@@ -81,7 +81,7 @@ namespace Depra.Assets.Tests.EditMode.References
 		[Test]
 		public void ProjectPath_ReturnsAssetPathInEditor()
 		{
-			// Arrange.
+			// Arrange:
 			var expectedPath = _resourcePath;
 			var reference = new ResourcesReference
 			{

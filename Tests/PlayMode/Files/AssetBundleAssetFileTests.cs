@@ -50,51 +50,51 @@ namespace Depra.Assets.Tests.PlayMode.Files
 		[Test]
 		public void Load_ShouldSucceed()
 		{
-			// Arrange & Act.
+			// Arrange & Act:
 			var loadedAsset = _assetFromBundle.Load();
 
-			// Assert.
+			// Assert:
 			Assert.That(loadedAsset, Is.Not.Null);
 			Assert.That(_assetFromBundle.IsLoaded);
 
-			// Debug.
+			// Debug:
 			TestContext.WriteLine($"{loadedAsset.name} loaded from bundle with name: {_assetBundle.name}.");
 		}
 
 		[UnityTest]
 		public IEnumerator Unload_ShouldSucceed()
 		{
-			// Arrange.
+			// Arrange:
 			_assetFromBundle.Load();
 			yield return null;
 
-			// Act.
+			// Act:
 			_assetFromBundle.Unload();
 			yield return null;
 
-			// Assert.
+			// Assert:
 			Assert.That(_assetFromBundle.IsLoaded, Is.False);
 
-			// Debug.
+			// Debug:
 			TestContext.WriteLine($"{_assetFromBundle.Ident.RelativeUri} unloaded from bundle: {_assetBundle.name}.");
 		}
 
 		[UnityTest]
 		public IEnumerator LoadAsync_ShouldSucceed() => ATask.ToCoroutine(async () =>
 		{
-			// Arrange.
+			// Arrange:
 			var cancellationToken = new CancellationTokenSource(1000).Token;
 
-			// Act.
+			// Act:
 			_stopwatch.Restart();
 			var loadedAsset = await _assetFromBundle.LoadAsync(cancellationToken: cancellationToken);
 			_stopwatch.Stop();
 
-			// Assert.
+			// Assert:
 			Assert.That(loadedAsset, Is.Not.Null);
 			Assert.IsInstanceOf<PlayModeTestScriptableAsset>(loadedAsset);
 
-			// Debug.
+			// Debug:
 			TestContext.WriteLine($"{loadedAsset.name} loaded " +
 			                      $"from bundle {_assetBundle.name} " +
 			                      $"in {_stopwatch.ElapsedMilliseconds} ms.");
@@ -103,13 +103,13 @@ namespace Depra.Assets.Tests.PlayMode.Files
 		[UnityTest]
 		public IEnumerator LoadAsync_WithProgress_ShouldSucceed() => ATask.ToCoroutine(async () =>
 		{
-			// Arrange.
+			// Arrange:
 			var callbackCalls = 0;
 			var callbacksCalled = false;
 			var assetFromBundle = _assetFromBundle;
 			DownloadProgress lastProgress = default;
 
-			// Act.
+			// Act:
 			_stopwatch.Restart();
 			await assetFromBundle.LoadAsync(
 				onProgress: progress =>
@@ -121,12 +121,12 @@ namespace Depra.Assets.Tests.PlayMode.Files
 				CancellationToken.None);
 			_stopwatch.Stop();
 
-			// Assert.
+			// Assert:
 			Assert.That(callbacksCalled);
 			Assert.That(callbackCalls, Is.GreaterThan(0));
 			Assert.That(lastProgress, Is.EqualTo(DownloadProgress.Full));
 
-			// Debug.
+			// Debug:
 			TestContext.WriteLine("Progress event was called " +
 			                      $"{callbackCalls} times " +
 			                      $"in {_stopwatch.ElapsedMilliseconds} ms. " +
@@ -136,31 +136,31 @@ namespace Depra.Assets.Tests.PlayMode.Files
 		[Test]
 		public void Load_InvalidAssetFromBundle_ShouldThrowAssetBundleFileNotLoadedException()
 		{
-			// Arrange.
+			// Arrange:
 			var invalidIdent = AssetName.Invalid;
 			var invalidAssetFromBundle = new AssetBundleAssetFile<TestMonoAsset>(invalidIdent, _assetBundle);
 
-			// Act.
+			// Act:
 			void Act() => invalidAssetFromBundle.Load();
 
-			// Assert.
+			// Assert:
 			Assert.That(Act, Throws.TypeOf<AssetBundleFileNotLoaded>());
 		}
 
 		[Test]
 		public void SizeOfLoadedAsset_ShouldNotBeZeroOrUnknown()
 		{
-			// Arrange.
+			// Arrange:
 			_assetFromBundle.Load();
 
-			// Act.
+			// Act:
 			var assetSize = _assetFromBundle.Size;
 
-			// Assert.
+			// Assert:
 			Assert.That(assetSize, Is.Not.EqualTo(FileSize.Zero));
 			Assert.That(assetSize, Is.Not.EqualTo(FileSize.Unknown));
 
-			// Debug.
+			// Debug:
 			TestContext.WriteLine($"Size of {_assetFromBundle.Ident.RelativeUri} " +
 			                      $"is {assetSize.ToHumanReadableString()}.");
 		}

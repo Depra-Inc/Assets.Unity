@@ -16,15 +16,15 @@ namespace Depra.Assets.Tests.PlayMode.Files
 		[Test]
 		public void LoadAsync_ShouldThrowsAssetCanNotBeLoadedException()
 		{
-			// Arrange.
+			// Arrange:
 			var invalidIdent = DatabaseAssetIdent.Empty;
 			var databaseAsset = new DatabaseAsset<NonExistentScriptableAsset>(invalidIdent);
 
-			// Act.
+			// Act:
 			[SuppressMessage("ReSharper", "MoveLocalFunctionAfterJumpStatement")]
 			async Task Act() => await databaseAsset.LoadAsync();
 
-			// Assert.
+			// Assert:
 			Assert.ThrowsAsync<AssetCanNotBeLoaded>(Act);
 		}
 

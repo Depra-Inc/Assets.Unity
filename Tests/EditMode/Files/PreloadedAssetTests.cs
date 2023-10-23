@@ -45,89 +45,89 @@ namespace Depra.Assets.Tests.EditMode.Files
 		[Test]
 		public void Load_ShouldSucceed()
 		{
-			// Arrange.
+			// Arrange:
 			var preloadedAsset = new PreloadedAsset<EditModeTestScriptableAsset>(_childAsset);
 
-			// Act.
+			// Act:
 			var loadedAsset = preloadedAsset.Load();
 
-			// Assert.
+			// Assert:
 			Assert.That(loadedAsset, Is.Not.Null);
 			Assert.That(preloadedAsset.IsLoaded);
 
-			// Debug.
+			// Debug:
 			TestContext.WriteLine($"{nameof(EditModeTestScriptableAsset)} loaded from {nameof(PlayerSettings)}.");
 		}
 
 		[Test]
 		public void LoadMultiple_ShouldSucceed()
 		{
-			// Arrange.
+			// Arrange:
 			var resourceAsset = new PreloadedAsset<EditModeTestScriptableAsset>(_childAsset);
 
-			// Act.
+			// Act:
 			var firstLoadedAsset = resourceAsset.Load();
 			var secondLoadedAsset = resourceAsset.Load();
 
-			// Assert.
+			// Assert:
 			Assert.That(firstLoadedAsset, Is.Not.Null);
 			Assert.That(secondLoadedAsset, Is.Not.Null);
 			Assert.That(firstLoadedAsset, Is.EqualTo(secondLoadedAsset));
 
-			// Debug.
+			// Debug:
 			TestContext.WriteLine($"{firstLoadedAsset.name} loaded from {nameof(PlayerSettings)}.");
 		}
 
 		[Test]
 		public void LoadAsync_ShouldSucceed() => ATask.Void(async () =>
 		{
-			// Arrange.
+			// Arrange:
 			var preloadedAsset = new PreloadedAsset<EditModeTestScriptableAsset>(_childAsset);
 			var cancellationToken = new CancellationTokenSource(CANCEL_DELAY).Token;
 
-			// Act.
+			// Act:
 			var loadedAsset = await preloadedAsset.LoadAsync(cancellationToken: cancellationToken);
 
-			// Assert.
+			// Assert:
 			Assert.That(loadedAsset, Is.Not.Null);
 			Assert.That(preloadedAsset.IsLoaded);
 
-			// Debug.
+			// Debug:
 			TestContext.WriteLine($"{loadedAsset.name} loaded from {nameof(PlayerSettings)}.");
 		});
 
 		[Test]
 		public void Unload_ShouldSucceed()
 		{
-			// Arrange.
+			// Arrange:
 			var preloadedAsset = new PreloadedAsset<EditModeTestScriptableAsset>(_childAsset);
 			preloadedAsset.Load();
 
-			// Act.
+			// Act:
 			preloadedAsset.Unload();
 
-			// Assert.
+			// Assert:
 			Assert.That(preloadedAsset.IsLoaded, Is.False);
 
-			// Debug.
+			// Debug:
 			TestContext.WriteLine($"{preloadedAsset.Ident.RelativeUri} unloaded from {nameof(PlayerSettings)}.");
 		}
 
 		[Test]
 		public void SizeOfLoadedAsset_ShouldNotBeZeroOrUnknown()
 		{
-			// Arrange.
+			// Arrange:
 			var preloadedAsset = new PreloadedAsset<EditModeTestScriptableAsset>(_childAsset);
 			preloadedAsset.Load();
 
-			// Act.
+			// Act:
 			var assetSize = preloadedAsset.Size;
 
-			// Assert.
+			// Assert:
 			Assert.That(assetSize, Is.Not.EqualTo(FileSize.Zero));
 			Assert.That(assetSize, Is.Not.EqualTo(FileSize.Unknown));
 
-			// Debug.
+			// Debug:
 			TestContext.WriteLine($"Size of {preloadedAsset.Ident.RelativeUri} is {assetSize.ToHumanReadableString()}.");
 		}
 	}

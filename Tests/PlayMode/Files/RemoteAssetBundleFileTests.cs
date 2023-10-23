@@ -58,21 +58,21 @@ namespace Depra.Assets.Tests.PlayMode.Files
 		[UnityTest]
 		public IEnumerator LoadAsync_ShouldSucceed() => ATask.ToCoroutine(async () =>
 		{
-			// Arrange.
+			// Arrange:
 			var bundleIdent = new AssetBundleIdent(TEST_BUNDLE_NAME, _assetBundlesDirectory.ProjectRelativePath);
 			var bundleFile = new AssetBundleFile(bundleIdent, new AssetBundleFromWeb());
 
-			// Act.
+			// Act:
 			_stopwatch.Restart();
 			var loadedBundle = await bundleFile.LoadAsync();
 			_stopwatch.Stop();
 
-			// Assert.
+			// Assert:
 			Assert.That(bundleFile.IsLoaded);
 			Assert.That(loadedBundle, Is.Not.Null);
 			Assert.IsInstanceOf<AssetBundle>(loadedBundle);
 
-			// Debug.
+			// Debug:
 			TestContext.WriteLine($"Loaded bundle {loadedBundle.name} " +
 			                      $"by path: {bundleFile.Ident.Uri} " +
 			                      $"in {_stopwatch.ElapsedMilliseconds} ms.");

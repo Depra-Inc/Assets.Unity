@@ -63,43 +63,43 @@ namespace Depra.Assets.Tests.PlayMode.Files
 		[Test]
 		public void Load_ShouldSucceed()
 		{
-			// Arrange.
+			// Arrange:
 			var resourceAsset = new ResourcesAsset<PlayModeTestScriptableAsset>(_resourcesIdent);
 
-			// Act.
+			// Act:
 			var loadedAsset = resourceAsset.Load();
 
-			// Assert.
+			// Assert:
 			Assert.That(loadedAsset, Is.Not.Null);
 			Assert.That(resourceAsset.IsLoaded);
 
-			// Debug.
+			// Debug:
 			TestContext.WriteLine($"{loadedAsset.name} loaded from {nameof(Resources)}.");
 
-			// Cleanup.
+			// Cleanup:
 			_loadedAssets.Push(loadedAsset);
 		}
 
 		[Test]
 		public void LoadMultiple_ShouldSucceed()
 		{
-			// Arrange.
+			// Arrange:
 			var resourceAsset = new ResourcesAsset<PlayModeTestScriptableAsset>(_resourcesIdent);
 
-			// Act.
+			// Act:
 			var firstLoadedAsset = resourceAsset.Load();
 			var secondLoadedAsset = resourceAsset.Load();
 
-			// Assert.
+			// Assert:
 			Assert.That(firstLoadedAsset, Is.Not.Null);
 			Assert.That(secondLoadedAsset, Is.Not.Null);
 			Assert.That(firstLoadedAsset, Is.EqualTo(secondLoadedAsset));
 
-			// Debug.
+			// Debug:
 			TestContext.WriteLine($"{firstLoadedAsset.name} loaded from {nameof(Resources)}.");
 			TestContext.WriteLine($"{secondLoadedAsset.name} loaded from {nameof(Resources)}.");
 
-			// Cleanup.
+			// Cleanup:
 			_loadedAssets.Push(firstLoadedAsset);
 			_loadedAssets.Push(secondLoadedAsset);
 		}
@@ -107,39 +107,39 @@ namespace Depra.Assets.Tests.PlayMode.Files
 		[UnityTest]
 		public IEnumerator LoadAsync_ShouldSucceed() => ATask.ToCoroutine(async () =>
 		{
-			// Arrange.
+			// Arrange:
 			var resourceAsset = new ResourcesAsset<PlayModeTestScriptableAsset>(_resourcesIdent);
 			var cancellationToken = new CancellationTokenSource(CANCEL_DELAY).Token;
 
-			// Act.
+			// Act:
 			_stopwatch.Restart();
 			var loadedAsset = await resourceAsset.LoadAsync(cancellationToken: cancellationToken);
 			_stopwatch.Stop();
 
-			// Assert.
+			// Assert:
 			Assert.That(resourceAsset.IsLoaded);
 			Assert.That(loadedAsset, Is.Not.Null);
 			Assert.IsInstanceOf<PlayModeTestScriptableAsset>(loadedAsset);
 
-			// Debug.
+			// Debug:
 			TestContext.WriteLine($"{loadedAsset.name} loaded " +
 			                      $"from {nameof(Resources)} " +
 			                      $"in {_stopwatch.ElapsedMilliseconds} ms.");
 
-			// Cleanup.
+			// Cleanup:
 			_loadedAssets.Push(loadedAsset);
 		});
 
 		[UnityTest]
 		public IEnumerator LoadAsync_WithProgress_ShouldSucceed() => ATask.ToCoroutine(async () =>
 		{
-			// Arrange.
+			// Arrange:
 			var callbackCalls = 0;
 			var callbacksCalled = false;
 			DownloadProgress lastProgress = default;
 			var resourceAsset = new ResourcesAsset<PlayModeTestScriptableAsset>(_resourcesIdent);
 
-			// Act.
+			// Act:
 			_stopwatch.Restart();
 			var loadedAsset = await resourceAsset.LoadAsync(
 				onProgress: progress =>
@@ -151,104 +151,104 @@ namespace Depra.Assets.Tests.PlayMode.Files
 				CancellationToken.None);
 			_stopwatch.Stop();
 
-			// Assert.
+			// Assert:
 			Assert.That(callbacksCalled);
 			Assert.That(callbackCalls, Is.GreaterThan(0));
 			Assert.That(lastProgress, Is.EqualTo(DownloadProgress.Full));
 
-			// Debug.
+			// Debug:
 			TestContext.WriteLine("Progress event was called " +
 			                      $"{callbackCalls} times " +
 			                      $"in {_stopwatch.ElapsedMilliseconds} ms. " +
 			                      $"Last value is {lastProgress.NormalizedValue}.");
 
-			// Cleanup.
+			// Cleanup:
 			_loadedAssets.Push(loadedAsset);
 		});
 
 		[Test]
 		public void LoadAsync_CancelBeforeStart_ShouldThrowTaskCanceledException()
 		{
-			// Arrange.
+			// Arrange:
 			var cts = new CancellationTokenSource();
 			var resourceAsset = new ResourcesAsset<PlayModeTestScriptableAsset>(_resourcesIdent);
 
-			// Act.
+			// Act:
 			cts.Cancel();
 			var loadTask = resourceAsset.LoadAsync(cancellationToken: cts.Token);
 
-			// Assert.
+			// Assert:
 			Assert.ThrowsAsync<TaskCanceledException>(async () => await loadTask);
 		}
 
 		[UnityTest]
 		public IEnumerator LoadAsync_CancelDuringExecution_ShouldThrowTaskCanceledException()
 		{
-			// Arrange.
+			// Arrange:
 			var cts = new CancellationTokenSource();
 			var resourceAsset = new ResourcesAsset<PlayModeTestScriptableAsset>(_resourcesIdent);
 
-			// Act.
+			// Act:
 			cts.CancelAfter(1);
 			var loadTask = resourceAsset.LoadAsync(cancellationToken: cts.Token);
 			yield return new WaitUntil(() => cts.Token.IsCancellationRequested);
 
-			// Assert.
+			// Assert:
 			Assert.ThrowsAsync<TaskCanceledException>(async () => await loadTask);
 		}
 
 		[UnityTest]
 		public IEnumerator Unload_ShouldSucceed()
 		{
-			// Arrange.
+			// Arrange:
 			var resourceAsset = new ResourcesAsset<PlayModeTestScriptableAsset>(_resourcesIdent);
 			resourceAsset.Load();
 			yield return null;
 
-			// Act.
+			// Act:
 			resourceAsset.Unload();
 			yield return null;
 
-			// Assert.
+			// Assert:
 			Assert.That(resourceAsset.IsLoaded, Is.False);
 
-			// Debug.
+			// Debug:
 			TestContext.WriteLine($"{resourceAsset.Ident.RelativeUri} unloaded from {nameof(Resources)}.");
 		}
 
 		[Test]
 		public void SizeOfLoadedAsset_ShouldNotBeZeroOrUnknown()
 		{
-			// Arrange.
+			// Arrange:
 			var resourceAsset = new ResourcesAsset<PlayModeTestScriptableAsset>(_resourcesIdent);
 			resourceAsset.Load();
 
-			// Act.
+			// Act:
 			var assetSize = resourceAsset.Size;
 
-			// Assert.
+			// Assert:
 			Assert.That(assetSize, Is.Not.EqualTo(FileSize.Zero));
 			Assert.That(assetSize, Is.Not.EqualTo(FileSize.Unknown));
 
-			// Debug.
+			// Debug:
 			TestContext.WriteLine($"Size of {resourceAsset.Ident.RelativeUri} is {assetSize.ToHumanReadableString()}.");
 		}
 
 		[UnityTest]
 		public IEnumerator SizeOfAsyncLoadedAsset_ShouldNotBeZeroOrUnknown() => ATask.ToCoroutine(async () =>
 		{
-			// Arrange.
+			// Arrange:
 			var resourceAsset = new ResourcesAsset<PlayModeTestScriptableAsset>(_resourcesIdent);
 			await resourceAsset.LoadAsync();
 
-			// Act.
+			// Act:
 			var assetSize = resourceAsset.Size;
 
-			// Assert.
+			// Assert:
 			Assert.That(assetSize, Is.Not.EqualTo(FileSize.Zero));
 			Assert.That(assetSize, Is.Not.EqualTo(FileSize.Unknown));
 
-			// Debug.
+			// Debug:
 			TestContext.WriteLine($"Size of {resourceAsset.Ident.RelativeUri} is {assetSize.ToHumanReadableString()}.");
 		});
 	}
