@@ -7,14 +7,14 @@ using System.Threading.Tasks;
 using Depra.Assets.Delegates;
 using Depra.Assets.Files;
 using Depra.Assets.Idents;
-using Depra.Assets.Runtime.Exceptions;
-using Depra.Assets.Runtime.Extensions;
+using Depra.Assets.Exceptions;
+using Depra.Assets.Extensions;
 using Depra.Assets.ValueObjects;
 using UnityEditor;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace Depra.Assets.Runtime.Files.Database
+namespace Depra.Assets.Files.Database
 {
 	public sealed class DatabaseAsset<TAsset> : ILoadableAsset<TAsset>, IDisposable where TAsset : ScriptableObject
 	{

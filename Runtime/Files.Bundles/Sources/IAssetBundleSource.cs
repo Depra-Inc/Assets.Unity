@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using Depra.Assets.ValueObjects;
 using UnityEngine;
 
-namespace Depra.Assets.Runtime.Files.Bundles.Sources
+namespace Depra.Assets.Files.Bundles.Sources
 {
 	public interface IAssetBundleSource
 	{

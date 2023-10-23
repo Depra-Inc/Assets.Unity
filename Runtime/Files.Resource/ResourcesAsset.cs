@@ -7,13 +7,13 @@ using System.Threading.Tasks;
 using Depra.Assets.Delegates;
 using Depra.Assets.Files;
 using Depra.Assets.Idents;
-using Depra.Assets.Runtime.Exceptions;
-using Depra.Assets.Runtime.Files.Resource.Exceptions;
+using Depra.Assets.Exceptions;
+using Depra.Assets.Files.Resource.Exceptions;
 using Depra.Assets.ValueObjects;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace Depra.Assets.Runtime.Files.Resource
+namespace Depra.Assets.Files.Resource
 {
 	public sealed class ResourcesAsset<TAsset> : ILoadableAsset<TAsset>, IDisposable where TAsset : Object
 	{
@@ -22,8 +22,12 @@ namespace Depra.Assets.Runtime.Files.Resource
 		private readonly ResourcesPath _ident;
 		private TAsset _loadedAsset;
 
-		public ResourcesAsset(ResourcesPath ident) =>
-			_ident = ident ?? throw new ArgumentNullException(nameof(ident));
+		public ResourcesAsset(ResourcesPath ident)
+		{
+			Guard.AgainstNull(ident, () => new ArgumentNullException(nameof(ident)));
+
+			_ident = ident;
+		}
 
 		public IAssetIdent Ident => _ident;
 		public bool IsLoaded => _loadedAsset != null;

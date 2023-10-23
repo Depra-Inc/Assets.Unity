@@ -1,7 +1,7 @@
 ﻿// SPDX-License-Identifier: Apache-2.0
 // © 2023 Nikolay Melnikov <n.melnikov@depra.org>
 
-using Depra.Assets.Runtime.Files.Resource;
+using Depra.Assets.Files.Resource;
 using UnityEditor;
 using UnityEngine;
 

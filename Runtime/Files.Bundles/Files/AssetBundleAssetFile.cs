@@ -7,14 +7,14 @@ using System.Threading.Tasks;
 using Depra.Assets.Delegates;
 using Depra.Assets.Files;
 using Depra.Assets.Idents;
-using Depra.Assets.Runtime.Exceptions;
-using Depra.Assets.Runtime.Files.Bundles.Exceptions;
-using Depra.Assets.Runtime.Files.Bundles.Extensions;
+using Depra.Assets.Exceptions;
+using Depra.Assets.Files.Bundles.Exceptions;
+using Depra.Assets.Files.Bundles.Extensions;
 using Depra.Assets.ValueObjects;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace Depra.Assets.Runtime.Files.Bundles.Files
+namespace Depra.Assets.Files.Bundles.Files
 {
 	public sealed class AssetBundleAssetFile<TAsset> : ILoadableAsset<TAsset>, IDisposable where TAsset : Object
 	{
@@ -27,8 +27,11 @@ namespace Depra.Assets.Runtime.Files.Bundles.Files
 
 		public AssetBundleAssetFile(AssetName name, AssetBundle assetBundle)
 		{
-			_ident = name ?? throw new ArgumentNullException(nameof(name));
-			_assetBundle = assetBundle ? assetBundle : throw new ArgumentNullException(nameof(assetBundle));
+			Guard.AgainstNull(name, () => new ArgumentNullException(nameof(name)));
+			Guard.AgainstNull(assetBundle, () => new ArgumentNullException(nameof(assetBundle)));
+
+			_ident = name;
+			_assetBundle = assetBundle;
 		}
 
 		public IAssetIdent Ident => _ident;
@@ -43,8 +46,7 @@ namespace Depra.Assets.Runtime.Files.Bundles.Files
 			}
 
 			var loadedAsset = _assetBundle.LoadAsset<TAsset>(_ident.Name);
-			Guard.AgainstNull(loadedAsset,
-				() => new AssetBundleFileNotLoaded(_ident.Name, _assetBundle.name));
+			Guard.AgainstNull(loadedAsset, () => new AssetBundleFileNotLoaded(_ident.Name, _assetBundle.name));
 
 			_loadedAsset = loadedAsset;
 			Size = UnityFileSize.FromProfiler(_loadedAsset);

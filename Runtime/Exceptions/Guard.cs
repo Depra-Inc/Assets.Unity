@@ -6,50 +6,40 @@ using System.Diagnostics;
 using System.IO;
 using System.Runtime.CompilerServices;
 
-namespace Depra.Assets.Runtime.Exceptions
+namespace Depra.Assets.Exceptions
 {
 	internal static class Guard
 	{
-		private const string DEBUG = "DEBUG";
+		private const string CONDITION = "DEBUG";
 
-		[Conditional(DEBUG)]
+		[Conditional(CONDITION)]
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static void AgainstNull<TObject>(TObject asset, Func<Exception> exceptionFactory)
+		public static void Against(bool condition, Func<Exception> exception)
 		{
-			if (asset == null)
+			if (condition)
 			{
-				throw exceptionFactory();
+				throw exception();
 			}
 		}
 
-		[Conditional(DEBUG)]
+		[Conditional(CONDITION)]
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static void AgainstEqual<T>(IEquatable<T> value, IEquatable<T> other, Func<Exception> exceptionFactory)
-		{
-			if (value.Equals(other))
-			{
-				throw exceptionFactory();
-			}
-		}
+		public static void AgainstNull<TObject>(TObject asset, Func<Exception> exception) =>
+			Against(asset == null, exception);
 
-		[Conditional(DEBUG)]
+		[Conditional(CONDITION)]
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static void AgainstFileNotFound(string filePath)
-		{
-			if (File.Exists(filePath) == false)
-			{
-				throw new FileNotFoundException(filePath);
-			}
-		}
+		public static void AgainstEqual<T>(IEquatable<T> value, IEquatable<T> other, Func<Exception> exception) =>
+			Against(value.Equals(other), exception);
 
-		[Conditional(DEBUG)]
+		[Conditional(CONDITION)]
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
-		public static void AgainstEmptyString(string value, Func<Exception> exceptionFactory)
-		{
-			if (string.IsNullOrEmpty(value))
-			{
-				throw exceptionFactory();
-			}
-		}
+		public static void AgainstFileNotFound(string filePath) =>
+			Against(File.Exists(filePath) == false, () => new FileNotFoundException(filePath));
+
+		[Conditional(CONDITION)]
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
+		public static void AgainstEmptyString(string value, Func<Exception> exception) =>
+			Against(string.IsNullOrEmpty(value), exception);
 	}
 }

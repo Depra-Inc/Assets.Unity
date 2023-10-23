@@ -4,9 +4,9 @@
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using Depra.Assets.Runtime.Common;
+using Depra.Assets.Common;
 
-namespace Depra.Assets.Runtime.Extensions
+namespace Depra.Assets.Extensions
 {
 	public static class DirectoryInfoExtensions
 	{

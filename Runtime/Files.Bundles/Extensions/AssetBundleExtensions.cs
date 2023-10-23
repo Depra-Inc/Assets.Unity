@@ -14,15 +14,14 @@ using UnityEngine.Profiling;
 using UnityEditor;
 #endif
 
-namespace Depra.Assets.Runtime.Files.Bundles.Extensions
+namespace Depra.Assets.Files.Bundles.Extensions
 {
 	public static class AssetBundleExtensions
 	{
 		public static FileSize Size(this AssetBundle assetBundle)
 		{
-			// ReSharper disable JoinDeclarationAndInitializer
+			// ReSharper disable once JoinDeclarationAndInitializer
 			FileSize fileSize;
-			// ReSharper restore JoinDeclarationAndInitializer
 #if UNITY_EDITOR
 			fileSize = SizeInRAM(assetBundle);
 			if (fileSize.SizeInBytes == 0)
@@ -45,9 +44,7 @@ namespace Depra.Assets.Runtime.Files.Bundles.Extensions
 				where fileInfo.Exists
 				select fileInfo.Length;
 
-			var sizeInBytes = sizes.Sum();
-
-			return new FileSize(sizeInBytes);
+			return new FileSize(sizes.Sum());
 		}
 
 #if UNITY_EDITOR
@@ -78,9 +75,7 @@ namespace Depra.Assets.Runtime.Files.Bundles.Extensions
 				}
 			}
 
-			var sizeInBytes = sizes.Sum(x => x.Value);
-
-			return new FileSize(sizeInBytes);
+			return new FileSize(sizes.Sum(x => x.Value));
 		}
 #endif
 	}

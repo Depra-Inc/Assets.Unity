@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace Depra.Assets.Runtime.Files.Resource
+namespace Depra.Assets.Files.Resource
 {
 	internal static class ResourceRequestExtensions
 	{
