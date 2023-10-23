@@ -5,7 +5,7 @@ using Depra.Assets.ValueObjects;
 using UnityEngine;
 using UnityEngine.Profiling;
 
-namespace Depra.Assets.Runtime.Files
+namespace Depra.Assets.Files
 {
 	public static class UnityFileSize
 	{

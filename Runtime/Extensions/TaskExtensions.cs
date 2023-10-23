@@ -7,7 +7,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Runtime.ExceptionServices;
 using System.Threading.Tasks;
 
-namespace Depra.Assets.Runtime.Extensions
+namespace Depra.Assets.Extensions
 {
 	internal static class ATask
 	{

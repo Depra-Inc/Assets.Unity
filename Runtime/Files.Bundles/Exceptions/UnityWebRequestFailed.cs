@@ -4,7 +4,7 @@
 using System;
 using UnityEngine.Networking;
 
-namespace Depra.Assets.Runtime.Files.Bundles.Exceptions
+namespace Depra.Assets.Files.Bundles.Exceptions
 {
 	internal sealed class UnityWebRequestFailed : Exception
 	{
@@ -13,15 +13,15 @@ namespace Depra.Assets.Runtime.Files.Bundles.Exceptions
 
 		private string _message;
 
-		public UnityWebRequestFailed(UnityWebRequest unityWebRequest)
+		public UnityWebRequestFailed(UnityWebRequest webRequest)
 		{
-			_error = unityWebRequest.error;
-			if (unityWebRequest.downloadHandler is DownloadHandlerBuffer buffer)
+			_error = webRequest.error;
+			if (webRequest.downloadHandler is DownloadHandlerBuffer buffer)
 			{
 				_text = buffer.text;
 			}
 
-			unityWebRequest.GetResponseHeaders();
+			webRequest.GetResponseHeaders();
 		}
 
 		public override string Message => _message ??= string.IsNullOrWhiteSpace(_text) == false

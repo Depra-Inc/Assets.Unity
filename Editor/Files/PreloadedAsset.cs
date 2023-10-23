@@ -6,9 +6,9 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Depra.Assets.Delegates;
+using Depra.Assets.Exceptions;
 using Depra.Assets.Files;
 using Depra.Assets.Idents;
-using Depra.Assets.Runtime.Files;
 using Depra.Assets.ValueObjects;
 using UnityEditor;
 using Object = UnityEngine.Object;
@@ -26,7 +26,9 @@ namespace Depra.Assets.Editor.Files
 
 		public PreloadedAsset(ILoadableAsset<TAsset> asset)
 		{
-			_asset = asset ?? throw new ArgumentNullException(nameof(asset));
+			Guard.AgainstNull(asset, () => new ArgumentNullException(nameof(asset)));
+
+			_asset = asset;
 			_assetType = typeof(TAsset);
 		}
 

@@ -4,7 +4,7 @@
 using System;
 using System.Reflection;
 
-namespace Depra.Assets.Runtime.Files.Database
+namespace Depra.Assets.Files.Database
 {
 	internal sealed class AssetCatNotBeCreated : Exception
 	{

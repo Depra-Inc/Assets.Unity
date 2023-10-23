@@ -5,12 +5,11 @@ using System.IO;
 using Depra.Assets.Idents;
 using JetBrains.Annotations;
 
-namespace Depra.Assets.Runtime.Files.Database
+namespace Depra.Assets.Files.Database
 {
 	public readonly struct DatabaseAssetIdent : IAssetIdent
 	{
-		public static DatabaseAssetIdent Empty = new();
-
+		public static DatabaseAssetIdent Empty => new();
 		public static implicit operator DatabaseAssetIdent(string relativePath) => new(relativePath);
 
 		public DatabaseAssetIdent(string relativePath) : this(Path.GetDirectoryName(relativePath),
@@ -22,9 +21,7 @@ namespace Depra.Assets.Runtime.Files.Database
 			Name = name;
 			Extension = extension;
 			NameWithExtension = Name + Extension;
-
 			RelativePath = Path.Combine(relativeDirectory, NameWithExtension).Replace(@"\", "/");
-
 			AbsolutePath = Path.GetFullPath(RelativePath).Replace(@"\", "/");
 			AbsoluteDirectoryPath = Path.GetFullPath(relativeDirectory).Replace(@"\", "/");
 			Directory = new DirectoryInfo(AbsoluteDirectoryPath);

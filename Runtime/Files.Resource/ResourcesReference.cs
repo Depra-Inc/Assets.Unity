@@ -9,7 +9,7 @@ using UnityEditor;
 using UnityEditor.SceneManagement;
 #endif
 
-namespace Depra.Assets.Runtime.Files.Resource
+namespace Depra.Assets.Files.Resource
 {
 	[Serializable]
 	public sealed class ResourcesReference<TAsset> : ResourcesReference where TAsset : Object { }

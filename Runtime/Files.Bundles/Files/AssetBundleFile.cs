@@ -7,14 +7,14 @@ using System.Threading.Tasks;
 using Depra.Assets.Delegates;
 using Depra.Assets.Files;
 using Depra.Assets.Idents;
-using Depra.Assets.Runtime.Exceptions;
-using Depra.Assets.Runtime.Files.Bundles.Exceptions;
-using Depra.Assets.Runtime.Files.Bundles.Idents;
-using Depra.Assets.Runtime.Files.Bundles.Sources;
+using Depra.Assets.Exceptions;
+using Depra.Assets.Files.Bundles.Exceptions;
+using Depra.Assets.Files.Bundles.Idents;
+using Depra.Assets.Files.Bundles.Sources;
 using Depra.Assets.ValueObjects;
 using UnityEngine;
 
-namespace Depra.Assets.Runtime.Files.Bundles.Files
+namespace Depra.Assets.Files.Bundles.Files
 {
 	public sealed class AssetBundleFile : ILoadableAsset<AssetBundle>, IDisposable
 	{
@@ -27,8 +27,11 @@ namespace Depra.Assets.Runtime.Files.Bundles.Files
 
 		public AssetBundleFile(AssetBundleIdent ident, IAssetBundleSource source)
 		{
-			_ident = ident ?? throw new ArgumentNullException(nameof(ident));
-			_source = source ?? throw new ArgumentNullException(nameof(source));
+			Guard.AgainstNull(ident, () => new ArgumentNullException(nameof(ident)));
+			Guard.AgainstNull(source, () => new ArgumentNullException(nameof(source)));
+
+			_ident = ident;
+			_source = source;
 		}
 
 		public IAssetIdent Ident => _ident;

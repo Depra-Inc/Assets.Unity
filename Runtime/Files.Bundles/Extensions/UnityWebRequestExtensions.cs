@@ -3,7 +3,7 @@
 
 using UnityEngine.Networking;
 
-namespace Depra.Assets.Runtime.Files.Bundles.Extensions
+namespace Depra.Assets.Files.Bundles.Extensions
 {
 	internal static class UnityWebRequestExtensions
 	{

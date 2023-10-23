@@ -3,9 +3,9 @@
 
 using UnityEngine;
 
-namespace Depra.Assets.Runtime.Common
+namespace Depra.Assets.Common
 {
-	public static class Paths
+	public static class UnityProject
 	{
 		public const string ASSETS_FOLDER_NAME = "Assets";
 		public const string PACKAGES_FOLDER_NAME = "Packages";

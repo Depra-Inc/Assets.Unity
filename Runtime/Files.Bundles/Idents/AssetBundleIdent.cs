@@ -3,10 +3,10 @@
 
 using System.IO;
 using Depra.Assets.Idents;
-using Depra.Assets.Runtime.Extensions;
+using Depra.Assets.Extensions;
 using JetBrains.Annotations;
 
-namespace Depra.Assets.Runtime.Files.Bundles.Idents
+namespace Depra.Assets.Files.Bundles.Idents
 {
 	public sealed record AssetBundleIdent : IAssetIdent
 	{

@@ -6,12 +6,12 @@ using System.IO;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
-using Depra.Assets.Runtime.Exceptions;
-using Depra.Assets.Runtime.Files.Bundles.Extensions;
+using Depra.Assets.Exceptions;
+using Depra.Assets.Files.Bundles.Extensions;
 using Depra.Assets.ValueObjects;
 using UnityEngine;
 
-namespace Depra.Assets.Runtime.Files.Bundles.Sources
+namespace Depra.Assets.Files.Bundles.Sources
 {
 	public readonly struct AssetBundleFromStream : IAssetBundleSource
 	{
