@@ -1,8 +1,8 @@
 # Depra.Assets
 
-![License](https://img.shields.io/github/license/Depra-Inc/Assets.Unity?style=flat-square)
-![Last Commit](https://img.shields.io/github/last-commit/Depra-Inc/Assets.Unity?style=flat-square)
-![Code Size](https://img.shields.io/github/languages/code-size/Depra-Inc/Assets.Unity?style=flat-square)
+![License](https://img.shields.io/github/license/Depra-Inc/Assets.Unity?style=flat-round)
+![Last Commit](https://img.shields.io/github/last-commit/Depra-Inc/Assets.Unity?style=flat-round)
+![Code Size](https://img.shields.io/github/languages/code-size/Depra-Inc/Assets.Unity?style=flat-round)
 
 <div>
     <strong><a href="README.md">English</a> | <a href="README.RU.md">Русский</a></strong>
@@ -50,7 +50,7 @@ These features make the library even more powerful and convenient for your tasks
 
 | Capability                                         | Runtime | Editor |
 |----------------------------------------------------|---------|--------|
-| Loading assets from **Resources**                  | ✅       | ✅      |
+| Loading assets from **UnityEngine.Resources**      | ✅       | ✅      |
 | Loading **UnityEngine.AssetBundle**                | ✅       | ✅      |
 | Loading assets from **UnityEngine.AssetBundle**    | ✅       | ✅      |
 | Loading assets from **UnityEditor.PlayerSettings** | ❌       | ✅      |
@@ -78,26 +78,26 @@ Add the following line to `Packages/manifest.json` in the `dependencies` section
 
 **Key Concepts** used in this library are described in the following interfaces:
 
-- `IAssetIdent`: Designed to facilitate resource management in **Unity** projects.
+- `IAssetUri`: Designed to facilitate resource management in **Unity** projects.
   It provides a simple and standardized way of identifying and managing assets using **URI**
   *(Uniform Resource Identifier)*.
 
-- `ILoadableAsset<TAsset>`: Defines the fundamental methods and properties required for loading and unloading assets.
+- `IAssetFile<TAsset>`: Defines the fundamental methods and properties required for loading and unloading assets.
   It extends the functionality of the `IAssetFile` interface presented
   in [Depra.Assets](https://github.com/Depra-Inc/Assets) and offers the ability to perform both synchronous and
   asynchronous asset loading, as well as checking the loading state.
 
 You can create your own implementations of these interfaces or use ready-made ones presented in the table:
 
-| Asset class type               | Ident                | Description                                                                                                                                 |
-|--------------------------------|----------------------|---------------------------------------------------------------------------------------------------------------------------------------------|
-| `ResourceAsset<TAsset>`        | `ResourcesPath`      | Loading and unloading assets from `UnityEngine.Resources`.                                                                                  |
-| `AssetBundleFile`              | `AssetBundleIdent`   | Loading and unloading `UnityEngine.AssetBundle`.                                                                                            |
-| `AssetBundleAssetFile<TAsset>` | `AssetName`          | Loading and unloading assets from `UnityEngine.AssetBundle`.                                                                                |
-| `DatabaseAsset<TAsset>`        | `DatabaseAssetIdent` | Loading and unloading assets from the editor's asset database `UnityEditor.AssetDatabase`. ⚠️**Asynchronous loading is not yet supported.** |
-| `PreloadedAsset<TAsset>`       | `IAssetIdent`        | Loading and unloading assets from project settings `UnityEditor.ProjectSettings`.                                                           |
+| Asset class type               | Ident              | Description                                                                                                                                 |
+|--------------------------------|--------------------|---------------------------------------------------------------------------------------------------------------------------------------------|
+| `ResourceAsset<TAsset>`        | `ResourcesPath`    | Loading and unloading assets from `UnityEngine.Resources`.                                                                                  |
+| `AssetBundleFile`              | `AssetBundleUri`   | Loading and unloading `UnityEngine.AssetBundle`.                                                                                            |
+| `AssetBundleAssetFile<TAsset>` | `AssetName`        | Loading and unloading assets from `UnityEngine.AssetBundle`.                                                                                |
+| `DatabaseAsset<TAsset>`        | `DatabaseAssetUri` | Loading and unloading assets from the editor's asset database `UnityEditor.AssetDatabase`. ⚠️**Asynchronous loading is not yet supported.** |
+| `PreloadedAsset<TAsset>`       | `IAssetUri`        | Loading and unloading assets from project settings `UnityEditor.ProjectSettings`.                                                           |
 
-All classes implementing the `ILoadableAsset` interface also implement the `System.IDisposable` interface for
+All classes implementing the `IAssetFile<TAsset>` interface also implement the `System.IDisposable` interface for
 convenient usage in `using` blocks.
 
 ## 📋 Usage Examples
