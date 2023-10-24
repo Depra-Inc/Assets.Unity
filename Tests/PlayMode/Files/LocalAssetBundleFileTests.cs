@@ -8,8 +8,7 @@ using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using Depra.Assets.Extensions;
-using Depra.Assets.Files.Bundles.Files;
-using Depra.Assets.Files.Bundles.Idents;
+using Depra.Assets.Files.Bundles;
 using Depra.Assets.Files.Bundles.Sources;
 using Depra.Assets.Tests.PlayMode.Stubs;
 using Depra.Assets.ValueObjects;
@@ -19,7 +18,6 @@ using UnityEngine.TestTools;
 
 namespace Depra.Assets.Tests.PlayMode.Files
 {
-	[TestFixture(TestOf = typeof(AssetBundleFile))]
 	internal sealed class LocalAssetBundleFileTests
 	{
 		private const string TEST_BUNDLE_NAME = "test";
@@ -32,14 +30,14 @@ namespace Depra.Assets.Tests.PlayMode.Files
 		}
 
 		private Stopwatch _stopwatch;
+		private AssetBundleUri _validUri;
 		private AssetBundle _loadedBundle;
-		private AssetBundleIdent _validIdent;
 
 		[OneTimeSetUp]
 		public void OneTimeSetup()
 		{
 			_stopwatch = new Stopwatch();
-			_validIdent = new AssetBundleIdent(TEST_BUNDLE_NAME,
+			_validUri = new AssetBundleUri(TEST_BUNDLE_NAME,
 				new TestAssetBundlesDirectory().ProjectRelativePath);
 		}
 
@@ -50,7 +48,7 @@ namespace Depra.Assets.Tests.PlayMode.Files
 		public void Load_ShouldSucceed([ValueSource(nameof(BundleSources))] IAssetBundleSource source)
 		{
 			// Arrange:
-			var bundleFile = new AssetBundleFile(_validIdent, source);
+			var bundleFile = new AssetBundleFile(_validUri, source);
 
 			//Act:
 			_loadedBundle = bundleFile.Load();
@@ -60,7 +58,7 @@ namespace Depra.Assets.Tests.PlayMode.Files
 			Assert.That(bundleFile.IsLoaded);
 
 			// Debug:
-			TestContext.WriteLine($"The bundle was loaded by path: {bundleFile.Ident.Uri}.");
+			TestContext.WriteLine($"The bundle was loaded by path: {bundleFile.Metadata.Uri.Absolute}.");
 		}
 
 		[Test]
@@ -68,7 +66,7 @@ namespace Depra.Assets.Tests.PlayMode.Files
 			[ValueSource(nameof(BundleSources))] IAssetBundleSource source)
 		{
 			// Arrange:
-			var invalidBundleFile = new AssetBundleFile(AssetBundleIdent.Invalid, source);
+			var invalidBundleFile = new AssetBundleFile(AssetBundleUri.Invalid, source);
 
 			// Act:
 			void Act() => invalidBundleFile.Load();
@@ -82,7 +80,7 @@ namespace Depra.Assets.Tests.PlayMode.Files
 			ATask.ToCoroutine(async () =>
 			{
 				// Arrange:
-				var bundleFile = new AssetBundleFile(_validIdent, source);
+				var bundleFile = new AssetBundleFile(_validUri, source);
 
 				// Act:
 				_stopwatch.Restart();
@@ -96,7 +94,7 @@ namespace Depra.Assets.Tests.PlayMode.Files
 
 				// Debug:
 				TestContext.WriteLine($"Loaded bundle {_loadedBundle.name} " +
-				                      $"by path: {bundleFile.Ident.Uri} " +
+				                      $"by path: {bundleFile.Metadata.Uri.Absolute} " +
 				                      $"in {_stopwatch.ElapsedMilliseconds} ms.");
 
 				await Task.Yield();
@@ -111,7 +109,7 @@ namespace Depra.Assets.Tests.PlayMode.Files
 				var callbackCalls = 0;
 				var callbacksCalled = false;
 				DownloadProgress lastProgress = default;
-				var bundleFile = new AssetBundleFile(_validIdent, source);
+				var bundleFile = new AssetBundleFile(_validUri, source);
 
 				// Act:
 				_stopwatch.Restart();
@@ -149,7 +147,7 @@ namespace Depra.Assets.Tests.PlayMode.Files
 
 			// Arrange:
 			var cts = new CancellationTokenSource();
-			var bundleFile = new AssetBundleFile(_validIdent, source);
+			var bundleFile = new AssetBundleFile(_validUri, source);
 
 			// Act:
 			cts.Cancel();
@@ -170,7 +168,7 @@ namespace Depra.Assets.Tests.PlayMode.Files
 
 			// Arrange:
 			var cts = new CancellationTokenSource();
-			var bundleFile = new AssetBundleFile(_validIdent, source);
+			var bundleFile = new AssetBundleFile(_validUri, source);
 
 			// Act:
 			cts.CancelAfter(1);
@@ -190,19 +188,19 @@ namespace Depra.Assets.Tests.PlayMode.Files
 			[ValueSource(nameof(BundleSources))] IAssetBundleSource source)
 		{
 			// Arrange:
-			var bundleFile = new AssetBundleFile(_validIdent, source);
+			var bundleFile = new AssetBundleFile(_validUri, source);
 			_loadedBundle = bundleFile.Load();
 			yield return null;
 
 			// Act:
-			var bundleSize = bundleFile.Size;
+			var bundleSize = bundleFile.Metadata.Size;
 
 			// Assert:
 			Assert.That(bundleSize, Is.Not.EqualTo(FileSize.Zero));
 			Assert.That(bundleSize, Is.Not.EqualTo(FileSize.Unknown));
 
 			// Debug:
-			TestContext.WriteLine($"Size of {bundleFile.Ident.RelativeUri} is {bundleSize.ToHumanReadableString()}.");
+			TestContext.WriteLine($"Size of {bundleFile.Metadata.Uri.Relative} is {bundleSize.ToString()}.");
 
 			yield return null;
 		}
@@ -211,7 +209,7 @@ namespace Depra.Assets.Tests.PlayMode.Files
 		public IEnumerator Unload_ShouldSucceed([ValueSource(nameof(BundleSources))] IAssetBundleSource source)
 		{
 			// Arrange:
-			var bundleFile = new AssetBundleFile(_validIdent, source);
+			var bundleFile = new AssetBundleFile(_validUri, source);
 			bundleFile.Load();
 			yield return null;
 
@@ -223,7 +221,7 @@ namespace Depra.Assets.Tests.PlayMode.Files
 			Assert.That(bundleFile.IsLoaded, Is.False);
 
 			// Debug:
-			TestContext.WriteLine($"The bundle with name {bundleFile.Ident.RelativeUri} was unloaded.");
+			TestContext.WriteLine($"The bundle with name {bundleFile.Metadata.Uri.Relative} was unloaded.");
 		}
 	}
 }

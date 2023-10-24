@@ -18,7 +18,6 @@ using UnityEngine.TestTools;
 
 namespace Depra.Assets.Tests.PlayMode.Files
 {
-	[TestFixture(TestOf = typeof(ResourcesAsset<>))]
 	internal sealed class ResourcesAssetTests
 	{
 		private const int CANCEL_DELAY = 1000;
@@ -213,7 +212,7 @@ namespace Depra.Assets.Tests.PlayMode.Files
 			Assert.That(resourceAsset.IsLoaded, Is.False);
 
 			// Debug:
-			TestContext.WriteLine($"{resourceAsset.Ident.RelativeUri} unloaded from {nameof(Resources)}.");
+			TestContext.WriteLine($"{resourceAsset.Metadata.Uri.Relative} unloaded from {nameof(Resources)}.");
 		}
 
 		[Test]
@@ -224,14 +223,14 @@ namespace Depra.Assets.Tests.PlayMode.Files
 			resourceAsset.Load();
 
 			// Act:
-			var assetSize = resourceAsset.Size;
+			var assetSize = resourceAsset.Metadata.Size;
 
 			// Assert:
 			Assert.That(assetSize, Is.Not.EqualTo(FileSize.Zero));
 			Assert.That(assetSize, Is.Not.EqualTo(FileSize.Unknown));
 
 			// Debug:
-			TestContext.WriteLine($"Size of {resourceAsset.Ident.RelativeUri} is {assetSize.ToHumanReadableString()}.");
+			TestContext.WriteLine($"Size of {resourceAsset.Metadata.Uri.Relative} is {assetSize.ToString()}.");
 		}
 
 		[UnityTest]
@@ -242,14 +241,14 @@ namespace Depra.Assets.Tests.PlayMode.Files
 			await resourceAsset.LoadAsync();
 
 			// Act:
-			var assetSize = resourceAsset.Size;
+			var assetSize = resourceAsset.Metadata.Size;
 
 			// Assert:
 			Assert.That(assetSize, Is.Not.EqualTo(FileSize.Zero));
 			Assert.That(assetSize, Is.Not.EqualTo(FileSize.Unknown));
 
 			// Debug:
-			TestContext.WriteLine($"Size of {resourceAsset.Ident.RelativeUri} is {assetSize.ToHumanReadableString()}.");
+			TestContext.WriteLine($"Size of {resourceAsset.Metadata.Uri.Relative} is {assetSize.ToString()}.");
 		});
 	}
 }

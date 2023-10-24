@@ -5,10 +5,9 @@ using System.Collections;
 using System.Diagnostics;
 using System.IO;
 using System.Threading;
-using Depra.Assets.Idents;
 using Depra.Assets.Extensions;
+using Depra.Assets.Files.Bundles;
 using Depra.Assets.Files.Bundles.Exceptions;
-using Depra.Assets.Files.Bundles.Files;
 using Depra.Assets.Tests.PlayMode.Stubs;
 using Depra.Assets.ValueObjects;
 using NUnit.Framework;
@@ -17,7 +16,6 @@ using UnityEngine.TestTools;
 
 namespace Depra.Assets.Tests.PlayMode.Files
 {
-	[TestFixture(TestOf = typeof(AssetBundleAssetFile<>))]
 	internal sealed class AssetBundleAssetFileTests
 	{
 		private const string TEST_BUNDLE_NAME = "test";
@@ -76,7 +74,7 @@ namespace Depra.Assets.Tests.PlayMode.Files
 			Assert.That(_assetFromBundle.IsLoaded, Is.False);
 
 			// Debug:
-			TestContext.WriteLine($"{_assetFromBundle.Ident.RelativeUri} unloaded from bundle: {_assetBundle.name}.");
+			TestContext.WriteLine($"{_assetFromBundle.Metadata.Uri.Relative} unloaded from bundle: {_assetBundle.name}.");
 		}
 
 		[UnityTest]
@@ -137,8 +135,8 @@ namespace Depra.Assets.Tests.PlayMode.Files
 		public void Load_InvalidAssetFromBundle_ShouldThrowAssetBundleFileNotLoadedException()
 		{
 			// Arrange:
-			var invalidIdent = AssetName.Invalid;
-			var invalidAssetFromBundle = new AssetBundleAssetFile<TestMonoAsset>(invalidIdent, _assetBundle);
+			var invalidUri = AssetName.Invalid;
+			var invalidAssetFromBundle = new AssetBundleAssetFile<TestMonoAsset>(invalidUri, _assetBundle);
 
 			// Act:
 			void Act() => invalidAssetFromBundle.Load();
@@ -154,15 +152,14 @@ namespace Depra.Assets.Tests.PlayMode.Files
 			_assetFromBundle.Load();
 
 			// Act:
-			var assetSize = _assetFromBundle.Size;
+			var assetSize = _assetFromBundle.Metadata.Size;
 
 			// Assert:
 			Assert.That(assetSize, Is.Not.EqualTo(FileSize.Zero));
 			Assert.That(assetSize, Is.Not.EqualTo(FileSize.Unknown));
 
 			// Debug:
-			TestContext.WriteLine($"Size of {_assetFromBundle.Ident.RelativeUri} " +
-			                      $"is {assetSize.ToHumanReadableString()}.");
+			TestContext.WriteLine($"Size of {_assetFromBundle.Metadata.Uri.Relative} is {assetSize.ToString()}.");
 		}
 	}
 }

@@ -6,8 +6,7 @@ using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using Depra.Assets.Extensions;
-using Depra.Assets.Files.Bundles.Files;
-using Depra.Assets.Files.Bundles.Idents;
+using Depra.Assets.Files.Bundles;
 using Depra.Assets.Files.Bundles.Sources;
 using Depra.Assets.Tests.PlayMode.Stubs;
 using NUnit.Framework;
@@ -16,7 +15,6 @@ using UnityEngine.TestTools;
 
 namespace Depra.Assets.Tests.PlayMode.Files
 {
-	[TestFixture(TestOf = typeof(AssetBundleFromWeb))]
 	internal sealed class RemoteAssetBundleFileTests
 	{
 		private const string TEST_BUNDLE_NAME = "test";
@@ -59,7 +57,7 @@ namespace Depra.Assets.Tests.PlayMode.Files
 		public IEnumerator LoadAsync_ShouldSucceed() => ATask.ToCoroutine(async () =>
 		{
 			// Arrange:
-			var bundleIdent = new AssetBundleIdent(TEST_BUNDLE_NAME, _assetBundlesDirectory.ProjectRelativePath);
+			var bundleIdent = new AssetBundleUri(TEST_BUNDLE_NAME, _assetBundlesDirectory.ProjectRelativePath);
 			var bundleFile = new AssetBundleFile(bundleIdent, new AssetBundleFromWeb());
 
 			// Act:
@@ -74,7 +72,7 @@ namespace Depra.Assets.Tests.PlayMode.Files
 
 			// Debug:
 			TestContext.WriteLine($"Loaded bundle {loadedBundle.name} " +
-			                      $"by path: {bundleFile.Ident.Uri} " +
+			                      $"by path: {bundleFile.Metadata.Uri.Absolute} " +
 			                      $"in {_stopwatch.ElapsedMilliseconds} ms.");
 
 			await Task.Yield();

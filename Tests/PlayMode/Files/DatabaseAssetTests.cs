@@ -1,7 +1,6 @@
 ﻿// SPDX-License-Identifier: Apache-2.0
 // © 2023 Nikolay Melnikov <n.melnikov@depra.org>
 
-using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using Depra.Assets.Exceptions;
 using Depra.Assets.Files.Database;
@@ -10,19 +9,19 @@ using UnityEngine;
 
 namespace Depra.Assets.Tests.PlayMode.Files
 {
-	[TestFixture(TestOf = typeof(DatabaseAsset<>))]
 	internal sealed class DatabaseAssetTests
 	{
 		[Test]
 		public void LoadAsync_ShouldThrowsAssetCanNotBeLoadedException()
 		{
 			// Arrange:
-			var invalidIdent = DatabaseAssetIdent.Empty;
+			var invalidIdent = DatabaseAssetUri.Empty;
 			var databaseAsset = new DatabaseAsset<NonExistentScriptableAsset>(invalidIdent);
 
 			// Act:
-			[SuppressMessage("ReSharper", "MoveLocalFunctionAfterJumpStatement")]
+#pragma warning disable CS0618 // Type or member is obsolete
 			async Task Act() => await databaseAsset.LoadAsync();
+#pragma warning restore CS0618 // Type or member is obsolete
 
 			// Assert:
 			Assert.ThrowsAsync<AssetCanNotBeLoaded>(Act);

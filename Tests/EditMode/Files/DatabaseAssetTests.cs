@@ -13,17 +13,16 @@ using static Depra.Assets.Common.UnityProject;
 
 namespace Depra.Assets.Tests.EditMode.Files
 {
-	[TestFixture(TestOf = typeof(DatabaseAsset<>))]
 	internal sealed class DatabaseAssetTests
 	{
 		private const string ASSET_TYPE_EXTENSION = AssetTypes.BASE;
 		private const string EXISTENT_ASSET_NAME = nameof(EditModeTestScriptableAsset);
 		private const string NON_EXISTENT_ASSET_NAME = nameof(NonExistentScriptableAsset);
 
-		private DatabaseAssetIdent _existentAssetIdent;
+		private DatabaseAssetUri _existentAssetUri;
 		private EditModeTestScriptableAsset _existentAsset;
 
-		private DatabaseAssetIdent _nonExistentAssetIdent;
+		private DatabaseAssetUri _nonExistentAssetUri;
 		private NonExistentScriptableAsset _nonExistentAsset;
 
 		[OneTimeSetUp]
@@ -31,18 +30,18 @@ namespace Depra.Assets.Tests.EditMode.Files
 		{
 			var projectResourcesPath = Path.Combine(ASSETS_FOLDER_NAME, RESOURCES_FOLDER_NAME);
 
-			_nonExistentAssetIdent = new DatabaseAssetIdent(
+			_nonExistentAssetUri = new DatabaseAssetUri(
 				relativeDirectory: projectResourcesPath,
 				name: NON_EXISTENT_ASSET_NAME,
 				extension: ASSET_TYPE_EXTENSION);
 
-			_existentAssetIdent = new DatabaseAssetIdent(
+			_existentAssetUri = new DatabaseAssetUri(
 				relativeDirectory: projectResourcesPath,
 				name: EXISTENT_ASSET_NAME,
 				extension: ASSET_TYPE_EXTENSION);
 
-			_existentAssetIdent.Directory.CreateIfNotExists();
-			_existentAsset = TestEnvironment.CreateAsset<EditModeTestScriptableAsset>(_existentAssetIdent.RelativePath);
+			_existentAssetUri.Directory.CreateIfNotExists();
+			_existentAsset = TestEnvironment.CreateAsset<EditModeTestScriptableAsset>(_existentAssetUri.RelativePath);
 		}
 
 		[TearDown]
@@ -50,7 +49,7 @@ namespace Depra.Assets.Tests.EditMode.Files
 		{
 			if (TestEnvironment.TryDeleteAsset(_nonExistentAsset))
 			{
-				_nonExistentAssetIdent.Directory.DeleteIfEmpty();
+				_nonExistentAssetUri.Directory.DeleteIfEmpty();
 			}
 		}
 
@@ -59,7 +58,7 @@ namespace Depra.Assets.Tests.EditMode.Files
 		{
 			if (TestEnvironment.TryDeleteAsset(_existentAsset))
 			{
-				_existentAssetIdent.Directory.DeleteIfEmpty();
+				_existentAssetUri.Directory.DeleteIfEmpty();
 			}
 		}
 
@@ -67,7 +66,7 @@ namespace Depra.Assets.Tests.EditMode.Files
 		public void Load_ExistentAsset_ShouldSucceed()
 		{
 			// Arrange:
-			var databaseAsset = new DatabaseAsset<EditModeTestScriptableAsset>(_existentAssetIdent);
+			var databaseAsset = new DatabaseAsset<EditModeTestScriptableAsset>(_existentAssetUri);
 
 			// Act:
 			var loadedAsset = databaseAsset.Load();
@@ -77,14 +76,14 @@ namespace Depra.Assets.Tests.EditMode.Files
 			Assert.That(databaseAsset.IsLoaded);
 
 			// Debug:
-			TestContext.WriteLine($"Created {loadedAsset.name} at path: {_existentAssetIdent.AbsolutePath}.");
+			TestContext.WriteLine($"Created {loadedAsset.name} at path: {_existentAssetUri.AbsolutePath}.");
 		}
 
 		[Test]
 		public void Load_NonExistentAsset_ShouldSucceed()
 		{
 			// Arrange:
-			var databaseAsset = new DatabaseAsset<NonExistentScriptableAsset>(_nonExistentAssetIdent);
+			var databaseAsset = new DatabaseAsset<NonExistentScriptableAsset>(_nonExistentAssetUri);
 
 			// Act:
 			_nonExistentAsset = databaseAsset.Load();
@@ -94,14 +93,14 @@ namespace Depra.Assets.Tests.EditMode.Files
 			Assert.That(databaseAsset.IsLoaded);
 
 			// Debug:
-			TestContext.WriteLine($"Created {_nonExistentAsset.name} at path: {_existentAssetIdent.AbsolutePath}.");
+			TestContext.WriteLine($"Created {_nonExistentAsset.name} at path: {_existentAssetUri.AbsolutePath}.");
 		}
 
 		[Test]
 		public void Unload_ShouldSucceed()
 		{
 			// Arrange:
-			var databaseAsset = new DatabaseAsset<EditModeTestScriptableAsset>(_existentAssetIdent);
+			var databaseAsset = new DatabaseAsset<EditModeTestScriptableAsset>(_existentAssetUri);
 			var createdAsset = databaseAsset.Load();
 
 			// Act:
@@ -112,25 +111,25 @@ namespace Depra.Assets.Tests.EditMode.Files
 			Assert.That(databaseAsset.IsLoaded, Is.False);
 
 			// Debug:
-			TestContext.WriteLine($"Deleted {nameof(EditModeTestScriptableAsset)} at path: {_existentAssetIdent.AbsolutePath}.");
+			TestContext.WriteLine($"Deleted {nameof(EditModeTestScriptableAsset)} at path: {_existentAssetUri.AbsolutePath}.");
 		}
 
 		[Test]
 		public void Size_OfLoadedAsset_ShouldNotBeZeroOrUnknown()
 		{
 			// Arrange:
-			var databaseAsset = new DatabaseAsset<EditModeTestScriptableAsset>(_existentAssetIdent);
+			var databaseAsset = new DatabaseAsset<EditModeTestScriptableAsset>(_existentAssetUri);
 			databaseAsset.Load();
 
 			// Act:
-			var assetSize = databaseAsset.Size;
+			var assetSize = databaseAsset.Metadata.Size;
 
 			// Assert:
 			Assert.That(assetSize, Is.Not.EqualTo(FileSize.Zero));
 			Assert.That(assetSize, Is.Not.EqualTo(FileSize.Unknown));
 
 			// Debug:
-			TestContext.WriteLine($"Size of {databaseAsset.Ident.RelativeUri} is {assetSize.ToHumanReadableString()}.");
+			TestContext.WriteLine($"Size of {databaseAsset.Metadata.Uri.Relative} is {assetSize.ToString()}.");
 		}
 	}
 }

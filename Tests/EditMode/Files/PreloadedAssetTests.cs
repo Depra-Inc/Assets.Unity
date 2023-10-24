@@ -13,19 +13,18 @@ using UnityEngine;
 
 namespace Depra.Assets.Tests.EditMode.Files
 {
-	[TestFixture(TestOf = typeof(PreloadedAsset<>))]
 	internal sealed class PreloadedAssetTests
 	{
 		private const int CANCEL_DELAY = 1000;
 
 		private Object _testInstance;
 		private Object[] _initialPreloadedAssets;
-		private ILoadableAsset<EditModeTestScriptableAsset> _childAsset;
+		private IAssetFile<EditModeTestScriptableAsset> _childAsset;
 
 		[OneTimeSetUp]
 		public void OneTimeSetup() =>
 			_childAsset = new FakeAssetFile(
-				new FakeAssetIdent(nameof(EditModeTestScriptableAsset)));
+				new FakeAssetUri(nameof(EditModeTestScriptableAsset)));
 
 		[SetUp]
 		public void Setup()
@@ -110,7 +109,7 @@ namespace Depra.Assets.Tests.EditMode.Files
 			Assert.That(preloadedAsset.IsLoaded, Is.False);
 
 			// Debug:
-			TestContext.WriteLine($"{preloadedAsset.Ident.RelativeUri} unloaded from {nameof(PlayerSettings)}.");
+			TestContext.WriteLine($"{preloadedAsset.Metadata.Uri.Relative} unloaded from {nameof(PlayerSettings)}.");
 		}
 
 		[Test]
@@ -121,14 +120,14 @@ namespace Depra.Assets.Tests.EditMode.Files
 			preloadedAsset.Load();
 
 			// Act:
-			var assetSize = preloadedAsset.Size;
+			var assetSize = preloadedAsset.Metadata.Size;
 
 			// Assert:
 			Assert.That(assetSize, Is.Not.EqualTo(FileSize.Zero));
 			Assert.That(assetSize, Is.Not.EqualTo(FileSize.Unknown));
 
 			// Debug:
-			TestContext.WriteLine($"Size of {preloadedAsset.Ident.RelativeUri} is {assetSize.ToHumanReadableString()}.");
+			TestContext.WriteLine($"Size of {preloadedAsset.Metadata.Uri.Relative} is {assetSize.ToString()}.");
 		}
 	}
 }

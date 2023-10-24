@@ -6,27 +6,23 @@ using System.Threading;
 using System.Threading.Tasks;
 using Depra.Assets.Delegates;
 using Depra.Assets.Files;
-using Depra.Assets.Idents;
 using Depra.Assets.ValueObjects;
 
 namespace Depra.Assets.Tests.EditMode.Stubs
 {
-	internal sealed class FakeAssetFile : ILoadableAsset<EditModeTestScriptableAsset>
+	internal sealed class FakeAssetFile : IAssetFile<EditModeTestScriptableAsset>
 	{
-		public FakeAssetFile(IAssetIdent ident) => Ident = ident;
+		public FakeAssetFile(IAssetUri ident) => Metadata = new AssetMetadata(ident, FileSize.Zero);
 
-		public IAssetIdent Ident { get; }
-
+		public AssetMetadata Metadata { get; }
 		public bool IsLoaded { get; private set; }
 
-		FileSize IAssetFile.Size => FileSize.Zero;
+		void IAssetFile.Unload() => IsLoaded = false;
 
-		EditModeTestScriptableAsset ILoadableAsset<EditModeTestScriptableAsset>.Load() =>
+		EditModeTestScriptableAsset IAssetFile<EditModeTestScriptableAsset>.Load() =>
 			throw new NotImplementedException();
 
-		void ILoadableAsset<EditModeTestScriptableAsset>.Unload() => IsLoaded = false;
-
-		Task<EditModeTestScriptableAsset> ILoadableAsset<EditModeTestScriptableAsset>.LoadAsync(
+		Task<EditModeTestScriptableAsset> IAssetFile<EditModeTestScriptableAsset>.LoadAsync(
 			DownloadProgressDelegate onProgress,
 			CancellationToken cancellationToken) =>
 			throw new NotImplementedException();

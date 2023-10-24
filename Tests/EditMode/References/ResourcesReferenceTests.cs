@@ -13,7 +13,6 @@ using UnityEngine;
 
 namespace Depra.Assets.Tests.EditMode.References
 {
-	[TestFixture(TestOf = typeof(ResourcesReference))]
 	internal sealed class ResourcesReferenceTests
 	{
 		private const string ASSET_EXTENSION = AssetTypes.BASE;
