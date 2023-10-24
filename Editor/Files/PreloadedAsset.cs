@@ -46,6 +46,10 @@ namespace Depra.Assets.Editor.Files
 			{
 				loadedAsset = _asset.Load();
 			}
+			else
+			{
+				Metadata.Size = UnityFileSize.FromProfiler(loadedAsset);
+			}
 
 			return _loadedAsset = loadedAsset;
 		}
@@ -74,6 +78,10 @@ namespace Depra.Assets.Editor.Files
 			    TryLoadAssetFromDatabase(out loadedAsset) == false)
 			{
 				loadedAsset = await _asset.LoadAsync(onProgress, cancellationToken);
+			}
+			else
+			{
+				Metadata.Size = UnityFileSize.FromProfiler(loadedAsset);
 			}
 
 			return _loadedAsset = loadedAsset;
