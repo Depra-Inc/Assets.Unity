@@ -24,7 +24,7 @@ namespace Depra.Assets.Files.Bundles.Extensions
 			FileSize fileSize;
 #if UNITY_EDITOR
 			fileSize = SizeInRAM(assetBundle);
-			if (fileSize.SizeInBytes == 0)
+			if (fileSize.Bytes == 0)
 #endif
 			{
 				fileSize = SizeOnDisk(assetBundle);

@@ -13,14 +13,14 @@ namespace Depra.Assets.Extensions
 	{
 		public static void Void(Func<Task> taskFactory) => taskFactory().Forget();
 
-		public static IEnumerator ToCoroutine(Func<Task> taskFactory, Action<Exception> exceptionHandler = null) =>
-			taskFactory().ToCoroutine(exceptionHandler);
+		public static IEnumerator ToCoroutine(Func<Task> taskFactory, Action<Exception> exception = null) =>
+			taskFactory().ToCoroutine(exception);
 	}
 
 	internal static class TaskExtensions
 	{
-		public static IEnumerator ToCoroutine(this Task self, Action<Exception> exceptionHandler = null) =>
-			new ToCoroutineEnumerator(self, exceptionHandler);
+		public static IEnumerator ToCoroutine(this Task self, Action<Exception> exception = null) =>
+			new ToCoroutineEnumerator(self, exception);
 
 		public static void Forget([SuppressMessage("ReSharper", "UnusedParameter.Global")] this Task self) { }
 

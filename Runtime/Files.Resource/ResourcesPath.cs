@@ -4,15 +4,15 @@
 using System;
 using System.IO;
 using System.Runtime.CompilerServices;
-using Depra.Assets.Idents;
 using Depra.Assets.Exceptions;
 using Depra.Assets.Files.Resource.Exceptions;
+using Depra.Assets.ValueObjects;
 using JetBrains.Annotations;
 using static Depra.Assets.Common.UnityProject;
 
 namespace Depra.Assets.Files.Resource
 {
-	public sealed record ResourcesPath : IAssetIdent
+	public sealed record ResourcesPath : IAssetUri
 	{
 		private static readonly string RESOURCES_FOLDER_PATH = RESOURCES_FOLDER_NAME + Path.AltDirectorySeparatorChar;
 
@@ -35,8 +35,8 @@ namespace Depra.Assets.Files.Resource
 
 		public DirectoryInfo Directory { get; private set; }
 
-		string IAssetIdent.Uri => AbsolutePath;
-		string IAssetIdent.RelativeUri => RelativePath;
+		string IAssetUri.Relative => RelativePath;
+		string IAssetUri.Absolute => AbsolutePath;
 
 		private void Initialize(string projectPath)
 		{

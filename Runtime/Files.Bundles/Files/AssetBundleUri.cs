@@ -2,24 +2,24 @@
 // © 2023 Nikolay Melnikov <n.melnikov@depra.org>
 
 using System.IO;
-using Depra.Assets.Idents;
 using Depra.Assets.Extensions;
+using Depra.Assets.ValueObjects;
 using JetBrains.Annotations;
 
-namespace Depra.Assets.Files.Bundles.Idents
+namespace Depra.Assets.Files.Bundles
 {
-	public sealed record AssetBundleIdent : IAssetIdent
+	public sealed record AssetBundleUri : IAssetUri
 	{
 		private const string EXTENSION = ".assetbundle";
 
-		public static AssetBundleIdent Empty => new(string.Empty);
-		public static AssetBundleIdent Invalid => new(nameof(Invalid));
+		public static AssetBundleUri Empty => new(string.Empty);
+		public static AssetBundleUri Invalid => new(nameof(Invalid));
 
-		public static implicit operator AssetBundleIdent(string path) => new(path);
+		public static implicit operator AssetBundleUri(string path) => new(path);
 
 		private readonly FileInfo _fileInfo;
 
-		public AssetBundleIdent(string path)
+		public AssetBundleUri(string path)
 		{
 			_fileInfo = new FileInfo(path);
 			_fileInfo.Directory.CreateIfNotExists();
@@ -31,9 +31,9 @@ namespace Depra.Assets.Files.Bundles.Idents
 			AbsolutePathWithoutExtension = AbsolutePath.Replace(EXTENSION, string.Empty);
 		}
 
-		public AssetBundleIdent(string name, string directory = null) : this(name, directory, EXTENSION) { }
+		public AssetBundleUri(string name, string directory = null) : this(name, directory, EXTENSION) { }
 
-		public AssetBundleIdent(string name, string directory, string extension = null) : this(
+		public AssetBundleUri(string name, string directory, string extension = null) : this(
 			Path.Combine(directory, name + extension)) { }
 
 		[UsedImplicitly]
@@ -53,8 +53,7 @@ namespace Depra.Assets.Files.Bundles.Idents
 
 		public string AbsolutePathWithoutExtension { get; }
 
-		string IAssetIdent.Uri => AbsolutePath;
-
-		string IAssetIdent.RelativeUri => Name;
+		string IAssetUri.Relative => Name;
+		string IAssetUri.Absolute => AbsolutePath;
 	}
 }
