@@ -5,8 +5,6 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Depra.Assets.Delegates;
-using Depra.Assets.Files;
-using Depra.Assets.Idents;
 using Depra.Assets.Exceptions;
 using Depra.Assets.Files.Resource.Exceptions;
 using Depra.Assets.ValueObjects;
@@ -15,23 +13,20 @@ using Object = UnityEngine.Object;
 
 namespace Depra.Assets.Files.Resource
 {
-	public sealed class ResourcesAsset<TAsset> : ILoadableAsset<TAsset>, IDisposable where TAsset : Object
+	public sealed class ResourcesAsset<TAsset> : IAssetFile<TAsset>, IDisposable where TAsset : Object
 	{
 		public static implicit operator TAsset(ResourcesAsset<TAsset> self) => self.Load();
 
-		private readonly ResourcesPath _ident;
 		private TAsset _loadedAsset;
 
-		public ResourcesAsset(ResourcesPath ident)
+		public ResourcesAsset(ResourcesPath path)
 		{
-			Guard.AgainstNull(ident, () => new ArgumentNullException(nameof(ident)));
-
-			_ident = ident;
+			Guard.AgainstNull(path, () => new ArgumentNullException(nameof(path)));
+			Metadata = new AssetMetadata(path, FileSize.Unknown);
 		}
 
-		public IAssetIdent Ident => _ident;
+		public AssetMetadata Metadata { get; }
 		public bool IsLoaded => _loadedAsset != null;
-		public FileSize Size { get; private set; } = FileSize.Unknown;
 
 		public TAsset Load()
 		{
@@ -40,11 +35,11 @@ namespace Depra.Assets.Files.Resource
 				return _loadedAsset;
 			}
 
-			var loadedAsset = Resources.Load<TAsset>(_ident.RelativePath);
-			Guard.AgainstNull(loadedAsset, () => new ResourceNotLoaded(_ident.RelativePath));
+			var loadedAsset = Resources.Load<TAsset>(Metadata.Uri.Relative);
+			Guard.AgainstNull(loadedAsset, () => new ResourceNotLoaded(Metadata.Uri.Relative));
 
 			_loadedAsset = loadedAsset;
-			Size = UnityFileSize.FromProfiler(_loadedAsset);
+			Metadata.Size = UnityFileSize.FromProfiler(_loadedAsset);
 
 			return _loadedAsset;
 		}
@@ -69,15 +64,15 @@ namespace Depra.Assets.Files.Resource
 				return _loadedAsset;
 			}
 
-			var loadedAsset = await Resources.LoadAsync(_ident.RelativePath)
+			var loadedAsset = await Resources.LoadAsync(Metadata.Uri.Relative)
 				.ToTask(progress => onProgress?.Invoke(new DownloadProgress(progress)),
 					cancellationToken: cancellationToken);
 
-			Guard.AgainstNull(loadedAsset, () => new ResourceNotLoaded(_ident.RelativePath));
+			Guard.AgainstNull(loadedAsset, () => new ResourceNotLoaded(Metadata.Uri.Relative));
 
 			_loadedAsset = (TAsset) loadedAsset;
 			onProgress?.Invoke(DownloadProgress.Full);
-			Size = UnityFileSize.FromProfiler(_loadedAsset);
+			Metadata.Size = UnityFileSize.FromProfiler(_loadedAsset);
 
 			return _loadedAsset;
 		}

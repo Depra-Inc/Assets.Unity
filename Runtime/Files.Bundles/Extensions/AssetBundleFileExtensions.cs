@@ -9,7 +9,7 @@ namespace Depra.Assets.Files.Bundles.Extensions
 {
 	public static class AssetBundleFileExtensions
 	{
-		public static IEnumerable<string> AllAssetNames(this ILoadableAsset<AssetBundle> self) =>
+		public static IEnumerable<string> AllAssetNames(this IAssetFile<AssetBundle> self) =>
 			self.Load().GetAllAssetNames();
 	}
 }

@@ -1,31 +1,31 @@
 {
-	"name": "com.depra.assets",
-	"version": "0.2.1",
-	"displayName": "Depra.Assets",
-	"description": "Provides an API for loading Unity asset files in multiple ways through a single interface.",
-	"unity": "2022.3",
-	"license": "Apache-2.0",
-	"keywords": [
-		"Depra",
-		"Assets",
-		"Unity",
-		"Editor",
-		"Runtime",
-		"Resources",
-		"AssetBundle",
-		"Preload",
-		"Load",
-		"Unload",
-		"Sync",
-		"Async"
-	],
-	"author": {
-		"name": "Depra, Inc.",
-		"email": "n.melnikov@depra.org",
-		"url": "https://github.com/Depra-Inc"
-	},
-	"repository": {
-		"type": "git",
-		"url": "https://github.com/Depra-Inc/Assets.Unity.git"
-	}
+  "name": "com.depra.assets",
+  "version": "0.2.1",
+  "displayName": "Depra.Assets",
+  "description": "Provides an API for loading Unity asset files in multiple ways through a single interface.",
+  "unity": "2021.3",
+  "license": "Apache-2.0",
+  "keywords": [
+    "Depra",
+    "Assets",
+    "Unity",
+    "Editor",
+    "Runtime",
+    "Resources",
+    "AssetBundle",
+    "Preload",
+    "Load",
+    "Unload",
+    "Sync",
+    "Async"
+  ],
+  "author": {
+    "name": "Depra, Inc.",
+    "email": "n.melnikov@depra.org",
+    "url": "https://github.com/Depra-Inc"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Depra-Inc/Assets.Unity.git"
+  }
 }

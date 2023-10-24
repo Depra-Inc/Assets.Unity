@@ -5,38 +5,34 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Depra.Assets.Delegates;
-using Depra.Assets.Files;
-using Depra.Assets.Idents;
 using Depra.Assets.Exceptions;
 using Depra.Assets.Files.Bundles.Exceptions;
-using Depra.Assets.Files.Bundles.Idents;
 using Depra.Assets.Files.Bundles.Sources;
 using Depra.Assets.ValueObjects;
 using UnityEngine;
 
-namespace Depra.Assets.Files.Bundles.Files
+namespace Depra.Assets.Files.Bundles
 {
-	public sealed class AssetBundleFile : ILoadableAsset<AssetBundle>, IDisposable
+	public sealed class AssetBundleFile : IAssetFile<AssetBundle>, IDisposable
 	{
 		public static implicit operator AssetBundle(AssetBundleFile self) => self.Load();
 
-		private readonly AssetBundleIdent _ident;
+		private readonly AssetBundleUri _uri;
 		private readonly IAssetBundleSource _source;
 
 		private AssetBundle _loadedAssetBundle;
 
-		public AssetBundleFile(AssetBundleIdent ident, IAssetBundleSource source)
+		public AssetBundleFile(AssetBundleUri uri, IAssetBundleSource source)
 		{
-			Guard.AgainstNull(ident, () => new ArgumentNullException(nameof(ident)));
+			Guard.AgainstNull(uri, () => new ArgumentNullException(nameof(uri)));
 			Guard.AgainstNull(source, () => new ArgumentNullException(nameof(source)));
 
-			_ident = ident;
 			_source = source;
+			Metadata = new AssetMetadata(_uri = uri, FileSize.Unknown);
 		}
 
-		public IAssetIdent Ident => _ident;
+		public AssetMetadata Metadata { get; }
 		public bool IsLoaded => _loadedAssetBundle != null;
-		public FileSize Size { get; private set; } = FileSize.Unknown;
 
 		public AssetBundle Load()
 		{
@@ -45,11 +41,11 @@ namespace Depra.Assets.Files.Bundles.Files
 				return _loadedAssetBundle;
 			}
 
-			var loadedAssetBundle = _source.Load(by: _ident.AbsolutePathWithoutExtension);
-			Guard.AgainstNull(loadedAssetBundle, () => new AssetBundleNotLoaded(Ident.Uri));
+			var loadedAssetBundle = _source.Load(by: _uri.AbsolutePathWithoutExtension);
+			Guard.AgainstNull(loadedAssetBundle, () => new AssetBundleNotLoaded(_uri.AbsolutePath));
 
 			_loadedAssetBundle = loadedAssetBundle;
-			Size = _source.Size(of: _loadedAssetBundle);
+			Metadata.Size = _source.Size(of: _loadedAssetBundle);
 
 			return _loadedAssetBundle;
 		}
@@ -63,15 +59,15 @@ namespace Depra.Assets.Files.Bundles.Files
 				return _loadedAssetBundle;
 			}
 
-			var loadedAssetBundle = await _source.LoadAsync(by: _ident.AbsolutePathWithoutExtension,
+			var loadedAssetBundle = await _source.LoadAsync(by: _uri.AbsolutePathWithoutExtension,
 				withProgress: progress => onProgress?.Invoke(new DownloadProgress(progress)),
 				cancellationToken);
 
-			Guard.AgainstNull(loadedAssetBundle, () => new AssetBundleNotLoaded(Ident.Uri));
+			Guard.AgainstNull(loadedAssetBundle, () => new AssetBundleNotLoaded(_uri.AbsolutePath));
 
 			_loadedAssetBundle = loadedAssetBundle;
 			onProgress?.Invoke(DownloadProgress.Full);
-			Size = _source.Size(of: _loadedAssetBundle);
+			Metadata.Size = _source.Size(of: _loadedAssetBundle);
 
 			return _loadedAssetBundle;
 		}

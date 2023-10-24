@@ -1,14 +1,16 @@
 ﻿// SPDX-License-Identifier: Apache-2.0
 // © 2023 Nikolay Melnikov <n.melnikov@depra.org>
 
+using System.Runtime.CompilerServices;
 using Depra.Assets.ValueObjects;
 using UnityEngine;
 using UnityEngine.Profiling;
 
 namespace Depra.Assets.Files
 {
-	public static class UnityFileSize
+	internal static class UnityFileSize
 	{
+		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FileSize FromProfiler(Object asset) => new(Profiler.GetRuntimeMemorySizeLong(asset));
 	}
 }

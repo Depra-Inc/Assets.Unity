@@ -7,9 +7,6 @@ namespace Depra.Assets.Files.Bundles.Exceptions
 {
 	internal sealed class AssetBundleNotLoaded : Exception
 	{
-		private const string MESSAGE_FORMAT = "Asset bundle at path '{0}' was not loaded!";
-
-		public AssetBundleNotLoaded(string path) :
-			base(string.Format(MESSAGE_FORMAT, path)) { }
+		public AssetBundleNotLoaded(string path) : base($"Asset bundle at path '{path}' was not loaded!") { }
 	}
 }

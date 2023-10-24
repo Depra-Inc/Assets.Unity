@@ -8,23 +8,22 @@ using System.Threading.Tasks;
 using Depra.Assets.Delegates;
 using Depra.Assets.Exceptions;
 using Depra.Assets.Files;
-using Depra.Assets.Idents;
 using Depra.Assets.ValueObjects;
 using UnityEditor;
 using Object = UnityEngine.Object;
 
 namespace Depra.Assets.Editor.Files
 {
-	public sealed class PreloadedAsset<TAsset> : ILoadableAsset<TAsset>, IDisposable where TAsset : Object
+	public sealed class PreloadedAsset<TAsset> : IAssetFile<TAsset>, IDisposable where TAsset : Object
 	{
 		public static implicit operator TAsset(PreloadedAsset<TAsset> self) => self.Load();
 
 		private readonly Type _assetType;
-		private readonly ILoadableAsset<TAsset> _asset;
+		private readonly IAssetFile<TAsset> _asset;
 
 		private TAsset _loadedAsset;
 
-		public PreloadedAsset(ILoadableAsset<TAsset> asset)
+		public PreloadedAsset(IAssetFile<TAsset> asset)
 		{
 			Guard.AgainstNull(asset, () => new ArgumentNullException(nameof(asset)));
 
@@ -32,9 +31,8 @@ namespace Depra.Assets.Editor.Files
 			_assetType = typeof(TAsset);
 		}
 
-		public IAssetIdent Ident => _asset.Ident;
 		public bool IsLoaded => _loadedAsset != null;
-		public FileSize Size { get; private set; } = FileSize.Unknown;
+		public AssetMetadata Metadata => _asset.Metadata;
 
 		public TAsset Load()
 		{
@@ -49,10 +47,7 @@ namespace Depra.Assets.Editor.Files
 				loadedAsset = _asset.Load();
 			}
 
-			_loadedAsset = loadedAsset;
-			Size = UnityFileSize.FromProfiler(_loadedAsset);
-
-			return _loadedAsset;
+			return _loadedAsset = loadedAsset;
 		}
 
 		public void Unload()
@@ -81,10 +76,7 @@ namespace Depra.Assets.Editor.Files
 				loadedAsset = await _asset.LoadAsync(onProgress, cancellationToken);
 			}
 
-			_loadedAsset = loadedAsset;
-			Size = UnityFileSize.FromProfiler(_loadedAsset);
-
-			return _loadedAsset;
+			return _loadedAsset = loadedAsset;
 		}
 
 		private bool TryGetPreloadedAsset(out TAsset preloadedAsset)

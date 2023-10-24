@@ -2,21 +2,21 @@
 // © 2023 Nikolay Melnikov <n.melnikov@depra.org>
 
 using System.IO;
-using Depra.Assets.Idents;
+using Depra.Assets.ValueObjects;
 using JetBrains.Annotations;
 
 namespace Depra.Assets.Files.Database
 {
-	public readonly struct DatabaseAssetIdent : IAssetIdent
+	public readonly struct DatabaseAssetUri : IAssetUri
 	{
-		public static DatabaseAssetIdent Empty => new();
-		public static implicit operator DatabaseAssetIdent(string relativePath) => new(relativePath);
+		public static DatabaseAssetUri Empty => new();
+		public static implicit operator DatabaseAssetUri(string relativePath) => new(relativePath);
 
-		public DatabaseAssetIdent(string relativePath) : this(Path.GetDirectoryName(relativePath),
+		public DatabaseAssetUri(string relativePath) : this(Path.GetDirectoryName(relativePath),
 			Path.GetFileNameWithoutExtension(relativePath),
 			Path.GetExtension(relativePath)) { }
 
-		public DatabaseAssetIdent(string relativeDirectory, string name, string extension)
+		public DatabaseAssetUri(string relativeDirectory, string name, string extension)
 		{
 			Name = name;
 			Extension = extension;
@@ -43,8 +43,8 @@ namespace Depra.Assets.Files.Database
 
 		internal DirectoryInfo Directory { get; }
 
-		string IAssetIdent.Uri => AbsolutePath;
-		string IAssetIdent.RelativeUri => RelativePath;
+		string IAssetUri.Relative => RelativePath;
+		string IAssetUri.Absolute => AbsolutePath;
 
 		public bool Exists() => File.Exists(AbsolutePath);
 	}

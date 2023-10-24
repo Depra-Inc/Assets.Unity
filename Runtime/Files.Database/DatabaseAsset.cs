@@ -5,8 +5,6 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Depra.Assets.Delegates;
-using Depra.Assets.Files;
-using Depra.Assets.Idents;
 using Depra.Assets.Exceptions;
 using Depra.Assets.Extensions;
 using Depra.Assets.ValueObjects;
@@ -16,24 +14,23 @@ using Object = UnityEngine.Object;
 
 namespace Depra.Assets.Files.Database
 {
-	public sealed class DatabaseAsset<TAsset> : ILoadableAsset<TAsset>, IDisposable where TAsset : ScriptableObject
+	public sealed class DatabaseAsset<TAsset> : IAssetFile<TAsset>, IDisposable where TAsset : ScriptableObject
 	{
 		public static implicit operator TAsset(DatabaseAsset<TAsset> self) => self.Load();
 
 		private readonly Type _assetType;
-		private readonly DatabaseAssetIdent _ident;
+		private readonly DatabaseAssetUri _uri;
 
 		private TAsset _loadedAsset;
 
-		public DatabaseAsset(DatabaseAssetIdent ident)
+		public DatabaseAsset(DatabaseAssetUri uri)
 		{
-			_ident = ident;
 			_assetType = typeof(TAsset);
+			Metadata = new AssetMetadata(_uri = uri, FileSize.Unknown);
 		}
 
-		public IAssetIdent Ident => _ident;
+		public AssetMetadata Metadata { get; }
 		public bool IsLoaded => _loadedAsset != null;
-		public FileSize Size { get; private set; } = FileSize.Unknown;
 
 		public TAsset Load()
 		{
@@ -44,9 +41,9 @@ namespace Depra.Assets.Files.Database
 
 			TAsset loadedAsset = null;
 #if UNITY_EDITOR
-			if (_ident.Exists())
+			if (_uri.Exists())
 			{
-				loadedAsset = AssetDatabase.LoadAssetAtPath<TAsset>(_ident.RelativePath);
+				loadedAsset = AssetDatabase.LoadAssetAtPath<TAsset>(_uri.RelativePath);
 			}
 #endif
 			if (loadedAsset == null)
@@ -57,7 +54,7 @@ namespace Depra.Assets.Files.Database
 			Guard.AgainstNull(loadedAsset, () => new AssetCatNotBeCreated(_assetType, _assetType.Name));
 
 			_loadedAsset = loadedAsset;
-			Size = UnityFileSize.FromProfiler(_loadedAsset);
+			Metadata.Size = UnityFileSize.FromProfiler(_loadedAsset);
 
 			return _loadedAsset;
 		}
@@ -70,7 +67,7 @@ namespace Depra.Assets.Files.Database
 			}
 
 #if UNITY_EDITOR
-			AssetDatabase.DeleteAsset(_ident.RelativePath);
+			AssetDatabase.DeleteAsset(_uri.RelativePath);
 #endif
 			_loadedAsset = null;
 		}
@@ -101,10 +98,10 @@ namespace Depra.Assets.Files.Database
 #if UNITY_EDITOR
 		private Object ActivateAsset(Object asset)
 		{
-			_ident.Directory.CreateIfNotExists();
+			_uri.Directory.CreateIfNotExists();
 
-			asset.name = _ident.Name;
-			AssetDatabase.CreateAsset(asset, _ident.RelativePath);
+			asset.name = _uri.Name;
+			AssetDatabase.CreateAsset(asset, _uri.RelativePath);
 			AssetDatabase.SaveAssets();
 			AssetDatabase.Refresh();
 
