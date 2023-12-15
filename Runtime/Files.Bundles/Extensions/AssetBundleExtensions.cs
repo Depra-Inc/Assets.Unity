@@ -57,21 +57,17 @@ namespace Depra.Assets.Files.Bundles.Extensions
 		[SuppressMessage("ReSharper", "InconsistentNaming")]
 		private static FileSize SizeInRAM(this Object assetBundle)
 		{
+			var sizes = new Dictionary<Type, long>();
 			var serializedObject = new SerializedObject(assetBundle);
 			var serializedProperty = serializedObject.FindProperty("m_PreloadTable");
-			var sizes = new Dictionary<Type, long>();
-			for (var i = 0; i < serializedProperty.arraySize; i++)
+			for (var index = 0; index < serializedProperty.arraySize; index++)
 			{
-				var objectReference = serializedProperty.GetArrayElementAtIndex(i).objectReferenceValue;
+				var objectReference = serializedProperty.GetArrayElementAtIndex(index).objectReferenceValue;
 				var type = objectReference.GetType();
 				var size = Profiler.GetRuntimeMemorySizeLong(objectReference);
-				if (sizes.ContainsKey(type))
+				if (sizes.TryAdd(type, size) == false)
 				{
 					sizes[type] += size;
-				}
-				else
-				{
-					sizes.Add(type, size);
 				}
 			}
 

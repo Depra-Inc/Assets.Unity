@@ -25,34 +25,15 @@ namespace Depra.Assets.Files.Resource
 		internal protected ResourcesReference() { }
 
 		public bool IsNull => string.IsNullOrEmpty(_projectPath);
+		public string ProjectPath => GetProjectPath();
+		public string ResourcePath => ResourcesPath.Utility.FindRelativePath(ProjectPath);
 
-		public string ResourcesPath => Resource.ResourcesPath.Utility.FindRelativePath(ProjectPath);
-
-		public string ProjectPath
+		private string GetProjectPath()
 		{
-			get
-			{
 #if UNITY_EDITOR
-				return AssetDatabase.GetAssetPath(_objectAsset);
+			return AssetDatabase.GetAssetPath(_objectAsset);
 #else
-                return _projectPath;
-#endif
-			}
-		}
-
-		void ISerializationCallbackReceiver.OnBeforeSerialize()
-		{
-#if UNITY_EDITOR
-			UpdateProjectPath();
-#endif
-		}
-
-		void ISerializationCallbackReceiver.OnAfterDeserialize()
-		{
-#if UNITY_EDITOR
-			// OnAfterDeserialize is called in the deserialization thread so we can't touch Unity API.
-			// Wait for the next update frame to do it.
-			EditorApplication.update += OnAfterDeserializeHandler;
+            return _projectPath;
 #endif
 		}
 
@@ -83,5 +64,21 @@ namespace Depra.Assets.Files.Resource
 			}
 		}
 #endif
+
+		void ISerializationCallbackReceiver.OnBeforeSerialize()
+		{
+#if UNITY_EDITOR
+			UpdateProjectPath();
+#endif
+		}
+
+		void ISerializationCallbackReceiver.OnAfterDeserialize()
+		{
+#if UNITY_EDITOR
+			// OnAfterDeserialize is called in the deserialization thread so we can't touch Unity API.
+			// Wait for the next update frame to do it.
+			EditorApplication.update += OnAfterDeserializeHandler;
+#endif
+		}
 	}
 }

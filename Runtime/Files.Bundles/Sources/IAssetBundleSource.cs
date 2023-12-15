@@ -15,7 +15,6 @@ namespace Depra.Assets.Files.Bundles.Sources
 
 		AssetBundle Load(string by);
 
-		Task<AssetBundle> LoadAsync(string by, Action<float> withProgress,
-			CancellationToken cancellationToken = default);
+		Task<AssetBundle> LoadAsync(string by, Action<float> onProgress, CancellationToken cancellationToken = default);
 	}
 }

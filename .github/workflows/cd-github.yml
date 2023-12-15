@@ -1,0 +1,14 @@
+name: CD GitHub Packages
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    uses: Depra-Inc/Workflows/.github/workflows/cd-github.yml@main
+    secrets:
+      node_auth_token: ${{secrets.GITHUB_TOKEN}}
+      discord_webhook: ${{secrets.DISCORD_WEBHOOK}}

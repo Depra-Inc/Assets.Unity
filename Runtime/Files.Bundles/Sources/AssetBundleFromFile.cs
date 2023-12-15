@@ -22,14 +22,14 @@ namespace Depra.Assets.Files.Bundles.Sources
 			return AssetBundle.LoadFromFile(by);
 		}
 
-		Task<AssetBundle> IAssetBundleSource.LoadAsync(string by, Action<float> withProgress,
+		Task<AssetBundle> IAssetBundleSource.LoadAsync(string by, Action<float> onProgress,
 			CancellationToken cancellationToken)
 		{
 			Guard.AgainstFileNotFound(by);
 
 			return AssetBundle
 				.LoadFromFileAsync(by)
-				.ToTask(withProgress, cancellationToken);
+				.ToTask(onProgress, cancellationToken);
 		}
 	}
 }

@@ -7,8 +7,5 @@ namespace Depra.Assets.Common
 	{
 		public const string META = ".meta";
 		public const string BASE = ".asset";
-		public const string SPRITE = ".sprite";
-		public const string MATERIAL = ".material";
-		public const string ASSET_BUNDLE = ".unity3d";
 	}
 }

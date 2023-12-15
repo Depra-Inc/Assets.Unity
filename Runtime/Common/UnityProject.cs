@@ -16,7 +16,7 @@ namespace Depra.Assets.Common
 
 		internal const string SLASH = "/";
 
-		internal static string DataPathByPlatform
+		public static string DataPathByPlatform
 		{
 			get
 			{

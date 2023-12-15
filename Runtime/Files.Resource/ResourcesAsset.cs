@@ -21,7 +21,7 @@ namespace Depra.Assets.Files.Resource
 
 		public ResourcesAsset(ResourcesPath path)
 		{
-			Guard.AgainstNull(path, () => new ArgumentNullException(nameof(path)));
+			Guard.AgainstNull(path, nameof(path));
 			Metadata = new AssetMetadata(path, FileSize.Unknown);
 		}
 
@@ -64,9 +64,9 @@ namespace Depra.Assets.Files.Resource
 				return _loadedAsset;
 			}
 
-			var loadedAsset = await Resources.LoadAsync(Metadata.Uri.Relative)
-				.ToTask(progress => onProgress?.Invoke(new DownloadProgress(progress)),
-					cancellationToken: cancellationToken);
+			var loadedAsset = await Resources
+				.LoadAsync(Metadata.Uri.Relative)
+				.ToTask(OnProgress, cancellationToken);
 
 			Guard.AgainstNull(loadedAsset, () => new ResourceNotLoaded(Metadata.Uri.Relative));
 
@@ -75,6 +75,8 @@ namespace Depra.Assets.Files.Resource
 			Metadata.Size = UnityFileSize.FromProfiler(_loadedAsset);
 
 			return _loadedAsset;
+
+			void OnProgress(float progress) => onProgress?.Invoke(new DownloadProgress(progress));
 		}
 
 		void IDisposable.Dispose() => Unload();

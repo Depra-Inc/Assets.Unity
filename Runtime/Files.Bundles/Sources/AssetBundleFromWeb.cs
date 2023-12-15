@@ -37,13 +37,13 @@ namespace Depra.Assets.Files.Bundles.Sources
 			return DownloadHandlerAssetBundle.GetContent(unityWebRequest);
 		}
 
-		async Task<AssetBundle> IAssetBundleSource.LoadAsync(string by, Action<float> withProgress,
+		async Task<AssetBundle> IAssetBundleSource.LoadAsync(string by, Action<float> onProgress,
 			CancellationToken cancellationToken)
 		{
 			var webRequest = UnityWebRequestAssetBundle.GetAssetBundle(by);
 			await webRequest
 				.SendWebRequest()
-				.ToTask(withProgress, cancellationToken);
+				.ToTask(onProgress, cancellationToken);
 
 			var downloadedBundle = DownloadHandlerAssetBundle.GetContent(webRequest);
 			_contentSize = webRequest.ParseSize();

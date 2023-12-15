@@ -23,8 +23,8 @@ namespace Depra.Assets.Files.Bundles
 
 		public AssetBundleAssetFile(AssetName name, AssetBundle assetBundle)
 		{
-			Guard.AgainstNull(name, () => new ArgumentNullException(nameof(name)));
-			Guard.AgainstNull(assetBundle, () => new ArgumentNullException(nameof(assetBundle)));
+			Guard.AgainstNull(name, nameof(name));
+			Guard.AgainstNull(assetBundle, nameof(assetBundle));
 
 			_assetBundle = assetBundle;
 			Metadata = new AssetMetadata(name, FileSize.Unknown);
@@ -32,7 +32,6 @@ namespace Depra.Assets.Files.Bundles
 
 		public AssetMetadata Metadata { get; }
 		public bool IsLoaded => _loadedAsset != null;
-
 		private string Name => Metadata.Uri.Relative;
 
 		public TAsset Load()
@@ -70,7 +69,7 @@ namespace Depra.Assets.Files.Bundles
 
 			var loadedAsset = await _assetBundle
 				.LoadAssetAsync<TAsset>(Name)
-				.ToTask(progress => onProgress?.Invoke(new DownloadProgress(progress)), cancellationToken);
+				.ToTask(OnProgress, cancellationToken);
 
 			Guard.AgainstNull(loadedAsset, () => new AssetBundleFileNotLoaded(Name, _assetBundle.name));
 
@@ -79,6 +78,8 @@ namespace Depra.Assets.Files.Bundles
 			Metadata.Size = UnityFileSize.FromProfiler(_loadedAsset);
 
 			return _loadedAsset;
+
+			void OnProgress(float progress) => onProgress?.Invoke(new DownloadProgress(progress));
 		}
 
 		void IDisposable.Dispose() => Unload();

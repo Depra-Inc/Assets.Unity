@@ -25,7 +25,7 @@ namespace Depra.Assets.Editor.Files
 
 		public PreloadedAsset(IAssetFile<TAsset> asset)
 		{
-			Guard.AgainstNull(asset, () => new ArgumentNullException(nameof(asset)));
+			Guard.AgainstNull(asset, nameof(asset));
 
 			_asset = asset;
 			_assetType = typeof(TAsset);

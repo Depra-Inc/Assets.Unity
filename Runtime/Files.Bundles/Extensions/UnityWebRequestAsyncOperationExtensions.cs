@@ -5,7 +5,6 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Depra.Assets.Files.Bundles.Exceptions;
-using Depra.Assets.Files.Bundles.Sources;
 using UnityEngine.Networking;
 
 namespace Depra.Assets.Files.Bundles.Extensions

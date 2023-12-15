@@ -8,9 +8,7 @@ namespace Depra.Assets.Files.Database
 {
 	internal sealed class AssetCatNotBeCreated : Exception
 	{
-		private const string MESSAGE_FORMAT = "Asset '{0}' with type '{1}' can not be created!";
-
-		public AssetCatNotBeCreated(MemberInfo assetType, string assetName) :
-			base(string.Format(MESSAGE_FORMAT, assetName, assetType.Name)) { }
+		public AssetCatNotBeCreated(MemberInfo assetType, string assetName) : base(
+			$"Asset '{assetName}' with type '{assetType.Name}' can not be created!") { }
 	}
 }

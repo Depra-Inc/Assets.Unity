@@ -1,6 +1,6 @@
 {
     "name": "Depra.Assets.Runtime",
-    "rootNamespace": "",
+    "rootNamespace": "Depra.Assets",
     "references": [],
     "includePlatforms": [],
     "excludePlatforms": [],
