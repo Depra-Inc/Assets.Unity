@@ -11,13 +11,12 @@ namespace Depra.Assets.Files.Bundles.Extensions
 {
 	internal static class AssetBundleRequestExtensions
 	{
-		public static Task<Object> ToTask(this AssetBundleRequest self,
-			Action<float> onProgress = null, CancellationToken cancellationToken = default) =>
-			cancellationToken.IsCancellationRequested
-				? Task.FromCanceled<Object>(cancellationToken)
-				: self.isDone
-					? Task.FromResult(self.asset)
-					: AwaitWithProgress(self, onProgress, cancellationToken);
+		public static Task<Object> ToTask(this AssetBundleRequest self, Action<float> onProgress = null,
+			CancellationToken cancellationToken = default) => cancellationToken.IsCancellationRequested
+			? Task.FromCanceled<Object>(cancellationToken)
+			: self.isDone
+				? Task.FromResult(self.asset)
+				: AwaitWithProgress(self, onProgress, cancellationToken);
 
 		private async static Task<Object> AwaitWithProgress(this AssetBundleRequest self,
 			Action<float> onProgress, CancellationToken cancellationToken = default)

@@ -24,8 +24,8 @@ namespace Depra.Assets.Files.Bundles
 
 		public AssetBundleFile(AssetBundleUri uri, IAssetBundleSource source)
 		{
-			Guard.AgainstNull(uri, () => new ArgumentNullException(nameof(uri)));
-			Guard.AgainstNull(source, () => new ArgumentNullException(nameof(source)));
+			Guard.AgainstNull(uri, nameof(uri));
+			Guard.AgainstNull(source, nameof(source));
 
 			_source = source;
 			Metadata = new AssetMetadata(_uri = uri, FileSize.Unknown);
@@ -59,9 +59,8 @@ namespace Depra.Assets.Files.Bundles
 				return _loadedAssetBundle;
 			}
 
-			var loadedAssetBundle = await _source.LoadAsync(by: _uri.AbsolutePathWithoutExtension,
-				withProgress: progress => onProgress?.Invoke(new DownloadProgress(progress)),
-				cancellationToken);
+			var loadedAssetBundle = await _source
+				.LoadAsync(_uri.AbsolutePathWithoutExtension, OnProgress, cancellationToken);
 
 			Guard.AgainstNull(loadedAssetBundle, () => new AssetBundleNotLoaded(_uri.AbsolutePath));
 
@@ -70,6 +69,8 @@ namespace Depra.Assets.Files.Bundles
 			Metadata.Size = _source.Size(of: _loadedAssetBundle);
 
 			return _loadedAssetBundle;
+
+			void OnProgress(float progress) => onProgress?.Invoke(new DownloadProgress(progress));
 		}
 
 		public void Unload()

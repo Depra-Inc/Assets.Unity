@@ -1,0 +1,14 @@
+name: CD NPM
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    uses: Depra-Inc/Workflows/.github/workflows/cd-npm.yml@main
+    secrets:
+      node_auth_token: ${{secrets.NPM_AUTH_TOKEN}}
+      discord_webhook: ${{secrets.DISCORD_WEBHOOK}}

@@ -3,26 +3,17 @@
 
 using System;
 using System.Collections;
-using System.Diagnostics.CodeAnalysis;
 using System.Runtime.ExceptionServices;
 using System.Threading.Tasks;
 
 namespace Depra.Assets.Extensions
 {
-	internal static class ATask
-	{
-		public static void Void(Func<Task> taskFactory) => taskFactory().Forget();
-
-		public static IEnumerator ToCoroutine(Func<Task> taskFactory, Action<Exception> exception = null) =>
-			taskFactory().ToCoroutine(exception);
-	}
-
 	internal static class TaskExtensions
 	{
 		public static IEnumerator ToCoroutine(this Task self, Action<Exception> exception = null) =>
 			new ToCoroutineEnumerator(self, exception);
 
-		public static void Forget([SuppressMessage("ReSharper", "UnusedParameter.Global")] this Task self) { }
+		public static void Forget(this Task _) { }
 
 		private sealed record ToCoroutineEnumerator : IEnumerator
 		{
@@ -84,5 +75,13 @@ namespace Depra.Assets.Extensions
 
 			void IEnumerator.Reset() { }
 		}
+	}
+
+	internal static class ATask
+	{
+		public static void Void(Func<Task> taskFactory) => taskFactory().Forget();
+
+		public static IEnumerator ToCoroutine(Func<Task> taskFactory, Action<Exception> exception = null) =>
+			taskFactory().ToCoroutine(exception);
 	}
 }

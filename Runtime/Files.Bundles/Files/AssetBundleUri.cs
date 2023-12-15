@@ -14,7 +14,6 @@ namespace Depra.Assets.Files.Bundles
 
 		public static AssetBundleUri Empty => new(string.Empty);
 		public static AssetBundleUri Invalid => new(nameof(Invalid));
-
 		public static implicit operator AssetBundleUri(string path) => new(path);
 
 		private readonly FileInfo _fileInfo;

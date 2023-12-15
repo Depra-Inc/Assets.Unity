@@ -18,7 +18,6 @@ namespace Depra.Assets.Files.Resource
 
 		public static ResourcesPath Empty => new(string.Empty);
 		public static ResourcesPath Invalid => new(nameof(Invalid));
-
 		public static implicit operator ResourcesPath(string relativePath) => new(relativePath);
 
 		public ResourcesPath(string relativePath) =>
@@ -32,7 +31,6 @@ namespace Depra.Assets.Files.Resource
 
 		[UsedImplicitly]
 		public string AbsolutePath { get; private set; }
-
 		public DirectoryInfo Directory { get; private set; }
 
 		string IAssetUri.Relative => RelativePath;

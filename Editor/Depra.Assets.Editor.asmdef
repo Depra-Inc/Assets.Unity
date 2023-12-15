@@ -1,6 +1,6 @@
 {
     "name": "Depra.Assets.Editor",
-    "rootNamespace": "",
+    "rootNamespace": "Depra.Assets",
     "references": [
         "GUID:ce2ab5ef472b35f498b9d47a89be9396"
     ],
@@ -9,8 +9,10 @@
     ],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
-    "overrideReferences": false,
-    "precompiledReferences": [],
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "Depra.Assets.dll"
+    ],
     "autoReferenced": true,
     "defineConstraints": [],
     "versionDefines": [],

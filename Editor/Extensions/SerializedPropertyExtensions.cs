@@ -92,12 +92,11 @@ namespace Depra.Assets.Editor.Extensions
 		private static FieldInfo FieldRecursive(this Type self, string fieldName)
 		{
 			var field = self.Field(fieldName);
-			if (field != null)
-			{
-				return field;
-			}
-
-			return self.BaseType == typeof(object) ? null : self.BaseType.FieldRecursive(fieldName);
+			return field != null
+				? field
+				: self.BaseType == typeof(object)
+					? null
+					: self.BaseType.FieldRecursive(fieldName);
 		}
 
 		private static FieldInfo Field(this Type self, string fieldName)
