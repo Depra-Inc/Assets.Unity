@@ -47,7 +47,7 @@ namespace Depra.Assets.Editor.Drawers
 			if (objectAsset != null)
 			{
 				var projectPath = AssetDatabase.GetAssetPath(objectAsset);
-				if (Resources.Load(ResourcesPath.Utility.FindRelativePath(projectPath)) != null)
+				if (Resources.Load(ResourcesPath.FindRelativePath(projectPath)) != null)
 				{
 					assetProjectPath = projectPath;
 				}

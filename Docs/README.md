@@ -114,7 +114,8 @@ resourceTexture.Unload();
 #### Loading an AssetBundle
 
 ```csharp
-var assetBundleFile = new AssetBundleFile("Path/To/MyBundle");
+var assetBundleSource = new AssetBundleFromFile();
+var assetBundleFile = new AssetBundleFile("Path/To/MyBundle", assetBundleSource);
 AssetBundle loadedBundle = assetBundleFile.Load();
 // Use the loaded asset.
 assetBundleFile.Unload();
@@ -127,7 +128,7 @@ var assetBundle = AssetBundle.LoadFromFile("Path/To/MyBundle");
 var assetBundleAsset = new AssetBundleAssetFile<GameObject>("MyAsset", assetBundle);
 GameObject loadedAsset = assetBundleAsset.Load();
 // Use the loaded asset.
-assetBundleAsset.Dispose();
+assetBundleAsset.Unload();
 ```
 
 #### Loading an Asset from the Editor Database
@@ -136,16 +137,17 @@ assetBundleAsset.Dispose();
 var databaseAsset = new DatabaseAsset<MyScriptableObject>("Path/To/MyAsset");
 MyScriptableObject loadedObject = databaseAsset.Load();
 // Use the loaded asset.
-databaseAsset.Dispose();
+databaseAsset.Unload();
 ```
 
 #### Loading an Asset from Project Settings
 
 ```csharp
-var preloadedAsset = new PreloadedAsset<GameObject>("Path/To/MyAsset");
+var anyAsset = new ResourcesAsset<GameObject>("Path/To/MyAsset");
+var preloadedAsset = new PreloadedAsset<GameObject>(anyAsset);
 GameObject loadedAsset = preloadedAsset.Load();
 // Use the loaded asset.
-preloadedAsset.Dispose();
+preloadedAsset.Unload();
 ```
 
 ## 🖇 Dependencies
