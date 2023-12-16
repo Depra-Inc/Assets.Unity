@@ -3,7 +3,6 @@
 
 using System;
 using System.IO;
-using System.Runtime.CompilerServices;
 using Depra.Assets.Exceptions;
 using Depra.Assets.Extensions;
 using Depra.Assets.Files.Resource.Exceptions;
@@ -24,7 +23,7 @@ namespace Depra.Assets.Files.Resource
 		{
 			Project = projectPath;
 			Absolute = Path.GetFullPath(Project);
-			Relative = Utility.FindRelativePath(Project);
+			Relative = FindRelativePath(Project);
 			Directory = new DirectoryInfo(Path.GetDirectoryName(Absolute)!);
 		}
 
@@ -56,24 +55,20 @@ namespace Depra.Assets.Files.Resource
 		public string Project { get; }
 		public DirectoryInfo Directory { get; }
 
-		internal static class Utility
+		internal static string FindRelativePath(string projectPath)
 		{
-			[MethodImpl(MethodImplOptions.AggressiveInlining)]
-			public static string FindRelativePath(string projectPath)
-			{
-				Guard.AgainstEmptyString(projectPath, () => new NullReferenceException(nameof(projectPath)));
+			Guard.AgainstEmptyString(projectPath, () => new NullReferenceException(nameof(projectPath)));
 
-				projectPath = projectPath.ToUnixPath();
-				var folderIndex = projectPath.IndexOf(RESOURCES_FOLDER_PATH, StringComparison.OrdinalIgnoreCase);
+			projectPath = projectPath.ToUnixPath();
+			var folderIndex = projectPath.IndexOf(RESOURCES_FOLDER_PATH, StringComparison.OrdinalIgnoreCase);
 
-				Guard.AgainstEqual(folderIndex, -1, () => new PathDoesNotContainResourcesFolder(projectPath));
+			Guard.AgainstEqual(folderIndex, -1, () => new PathDoesNotContainResourcesFolder(projectPath));
 
-				folderIndex += RESOURCES_FOLDER_PATH.Length;
-				var length = projectPath.Length - folderIndex;
-				length -= projectPath.Length - projectPath.LastIndexOf('.');
+			folderIndex += RESOURCES_FOLDER_PATH.Length;
+			var length = projectPath.Length - folderIndex;
+			length -= projectPath.Length - projectPath.LastIndexOf('.');
 
-				return projectPath.Substring(folderIndex, length);
-			}
+			return projectPath.Substring(folderIndex, length);
 		}
 	}
 }
