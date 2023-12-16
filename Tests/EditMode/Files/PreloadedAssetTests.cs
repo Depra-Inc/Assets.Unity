@@ -22,9 +22,8 @@ namespace Depra.Assets.Tests.EditMode.Files
 		private IAssetFile<EditModeTestScriptableAsset> _childAsset;
 
 		[OneTimeSetUp]
-		public void OneTimeSetup() =>
-			_childAsset = new FakeAssetFile(
-				new FakeAssetUri(nameof(EditModeTestScriptableAsset)));
+		public void OneTimeSetup() => _childAsset = new FakeAssetFile(
+			new FakeAssetUri(nameof(EditModeTestScriptableAsset)));
 
 		[SetUp]
 		public void Setup()

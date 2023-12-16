@@ -15,20 +15,22 @@ namespace Depra.Assets.Tests.EditMode.References
 {
 	internal sealed class ResourcesReferenceTests
 	{
-		private const string ASSET_EXTENSION = AssetTypes.BASE;
 		private const string ASSET_NAME = nameof(EditModeTestScriptableAsset);
 
-		private string _resourcePath;
+		private string _projectPath;
 		private DirectoryInfo _resourcesDirectory;
 		private EditModeTestScriptableAsset _testAsset;
 
 		[OneTimeSetUp]
 		public void OneTimeSetUp()
 		{
-			_resourcePath = ResourcesPath.Utility.ToUnixPath(
-				ResourcesPath.Utility.CombineProjectPath(null, ASSET_NAME, ASSET_EXTENSION));
-			(_resourcesDirectory = new DirectoryInfo(Path.GetDirectoryName(_resourcePath)!)).CreateIfNotExists();
-			_testAsset = TestEnvironment.CreateAsset<EditModeTestScriptableAsset>(_resourcePath);
+			_projectPath = Path.Combine(
+				UnityProject.ASSETS_FOLDER_NAME,
+				UnityProject.RESOURCES_FOLDER_NAME,
+				ASSET_NAME + AssetTypes.BASE).ToUnixPath();
+
+			(_resourcesDirectory = new DirectoryInfo(Path.GetDirectoryName(_projectPath)!)).CreateIfNotExists();
+			_testAsset = TestEnvironment.CreateAsset<EditModeTestScriptableAsset>(_projectPath);
 		}
 
 		[OneTimeTearDown]
@@ -46,7 +48,7 @@ namespace Depra.Assets.Tests.EditMode.References
 			// Arrange:
 			var reference = new ResourcesReference { _projectPath = string.Empty };
 
-			// Act & Assert.
+			// Act & Assert:
 			Assert.IsTrue(reference.IsNull);
 		}
 
@@ -54,9 +56,9 @@ namespace Depra.Assets.Tests.EditMode.References
 		public void IsNull_FalseWhenProjectPathIsNotEmpty()
 		{
 			// Arrange:
-			var reference = new ResourcesReference { _projectPath = _resourcePath };
+			var reference = new ResourcesReference { _projectPath = _projectPath };
 
-			// Act & Assert.
+			// Act & Assert:
 			Assert.IsFalse(reference.IsNull);
 		}
 
@@ -69,26 +71,32 @@ namespace Depra.Assets.Tests.EditMode.References
 			// ReSharper restore InlineTemporaryVariable
 			var reference = new ResourcesReference
 			{
-				_projectPath = _resourcePath,
-				_objectAsset = AssetDatabase.LoadAssetAtPath<Object>(_resourcePath)
+				_projectPath = _projectPath,
+				_objectAsset = AssetDatabase.LoadAssetAtPath<Object>(_projectPath)
 			};
 
-			// Act & Assert.
-			Assert.AreEqual(EXPECTED_PATH, reference.ResourcesPath);
+			// Act:
+			var actualPath = reference.Path.Relative;
+
+			// Assert:
+			Assert.AreEqual(EXPECTED_PATH, actualPath);
 		}
 
 		[Test]
 		public void ProjectPath_ReturnsAssetPathInEditor()
 		{
 			// Arrange:
-			var expectedPath = _resourcePath;
+			var expectedPath = _projectPath;
 			var reference = new ResourcesReference
 			{
-				_objectAsset = AssetDatabase.LoadAssetAtPath<Object>(_resourcePath)
+				_objectAsset = AssetDatabase.LoadAssetAtPath<Object>(_projectPath)
 			};
 
+			// Act:
+			var actualPath = reference.Path.Project;
+
 			// Act & Assert.
-			Assert.AreEqual(expectedPath, reference.ProjectPath);
+			Assert.AreEqual(expectedPath, actualPath);
 		}
 	}
 }

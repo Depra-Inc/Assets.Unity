@@ -36,7 +36,7 @@ namespace Depra.Assets.Tests.PlayMode.Files
 			_stopwatch = new Stopwatch();
 			_resourcesIdent = new ResourcesPath(name: ASSET_NAME, extension: ASSET_EXTENSION);
 			_resourcesIdent.Directory.CreateIfNotExists();
-			_testAsset = TestEnvironment.CreateAsset<PlayModeTestScriptableAsset>(_resourcesIdent.ProjectPath);
+			_testAsset = TestEnvironment.CreateAsset<PlayModeTestScriptableAsset>(_resourcesIdent.Project);
 		}
 
 		[TearDown]

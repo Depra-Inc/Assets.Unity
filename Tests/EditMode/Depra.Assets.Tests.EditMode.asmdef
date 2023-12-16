@@ -1,6 +1,6 @@
 {
     "name": "Depra.Assets.Tests.EditMode",
-    "rootNamespace": "",
+    "rootNamespace": "Depra.Assets",
     "references": [
         "GUID:f0e5b8804a879dd45a68b38165291daf",
         "GUID:ce2ab5ef472b35f498b9d47a89be9396",
