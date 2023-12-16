@@ -1,5 +1,5 @@
 {
-  "name": "com.depra.assets",
+  "name": "com.depra.assets.unity",
   "version": "0.2.3",
   "displayName": "Depra.Assets",
   "description": "Provides an API for loading Unity asset files in multiple ways through a single interface.",

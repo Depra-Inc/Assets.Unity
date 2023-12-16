@@ -1,5 +1,5 @@
 {
-    "name": "Depra.Assets.Runtime",
+    "name": "Depra.Assets.Unity",
     "rootNamespace": "Depra.Assets",
     "references": [],
     "includePlatforms": [],
