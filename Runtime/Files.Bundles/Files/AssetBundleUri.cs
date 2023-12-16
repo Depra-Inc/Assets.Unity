@@ -4,7 +4,6 @@
 using System.IO;
 using Depra.Assets.Extensions;
 using Depra.Assets.ValueObjects;
-using JetBrains.Annotations;
 
 namespace Depra.Assets.Files.Bundles
 {
@@ -27,7 +26,7 @@ namespace Depra.Assets.Files.Bundles
 				? _fileInfo.Name
 				: _fileInfo.Name.Replace(Extension, string.Empty);
 
-			AbsolutePathWithoutExtension = AbsolutePath.Replace(EXTENSION, string.Empty);
+			AbsolutePathWithoutExtension = Absolute.Replace(EXTENSION, string.Empty);
 		}
 
 		public AssetBundleUri(string name, string directory = null) : this(name, directory, EXTENSION) { }
@@ -35,24 +34,14 @@ namespace Depra.Assets.Files.Bundles
 		public AssetBundleUri(string name, string directory, string extension = null) : this(
 			Path.Combine(directory, name + extension)) { }
 
-		[UsedImplicitly]
 		public string Name { get; }
-
-		[UsedImplicitly]
 		public string Extension => EXTENSION;
-
-		[UsedImplicitly]
 		public string NameWithExtension => Name + Extension;
 
-		[UsedImplicitly]
-		public string AbsolutePath => _fileInfo.FullName;
-
-		[UsedImplicitly]
+		public string Absolute => _fileInfo.FullName;
 		public string AbsoluteDirectoryPath => _fileInfo.DirectoryName;
-
 		public string AbsolutePathWithoutExtension { get; }
 
 		string IAssetUri.Relative => Name;
-		string IAssetUri.Absolute => AbsolutePath;
 	}
 }

@@ -16,8 +16,6 @@ namespace Depra.Assets.Files.Database
 {
 	public sealed class DatabaseAsset<TAsset> : IAssetFile<TAsset>, IDisposable where TAsset : ScriptableObject
 	{
-		public static implicit operator TAsset(DatabaseAsset<TAsset> self) => self.Load();
-
 		private readonly Type _assetType;
 		private readonly DatabaseAssetUri _uri;
 
@@ -43,7 +41,7 @@ namespace Depra.Assets.Files.Database
 #if UNITY_EDITOR
 			if (_uri.Exists())
 			{
-				loadedAsset = AssetDatabase.LoadAssetAtPath<TAsset>(_uri.RelativePath);
+				loadedAsset = AssetDatabase.LoadAssetAtPath<TAsset>(_uri.Relative);
 			}
 #endif
 			if (loadedAsset == null)
@@ -67,7 +65,7 @@ namespace Depra.Assets.Files.Database
 			}
 
 #if UNITY_EDITOR
-			AssetDatabase.DeleteAsset(_uri.RelativePath);
+			AssetDatabase.DeleteAsset(_uri.Relative);
 #endif
 			_loadedAsset = null;
 		}
@@ -101,7 +99,7 @@ namespace Depra.Assets.Files.Database
 			_uri.Directory.CreateIfNotExists();
 
 			asset.name = _uri.Name;
-			AssetDatabase.CreateAsset(asset, _uri.RelativePath);
+			AssetDatabase.CreateAsset(asset, _uri.Relative);
 			AssetDatabase.SaveAssets();
 			AssetDatabase.Refresh();
 
