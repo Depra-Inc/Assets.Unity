@@ -30,14 +30,14 @@ namespace Depra.Assets.Files.Bundles.Sources
 			return AssetBundle.LoadFromStream(fileStream);
 		}
 
-		Task<AssetBundle> IAssetBundleSource.LoadAsync(string by, Action<float> onProgress,
+		async Task<AssetBundle> IAssetBundleSource.LoadAsync(string by, Action<float> onProgress,
 			CancellationToken cancellationToken)
 		{
 			Guard.AgainstFileNotFound(by);
 
-			using var stream = OpenStream(by);
+			await using var stream = OpenStream(by);
 
-			return AssetBundle
+			return await AssetBundle
 				.LoadFromStreamAsync(stream)
 				.ToTask(onProgress, cancellationToken);
 		}

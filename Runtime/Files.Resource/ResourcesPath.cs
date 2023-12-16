@@ -5,9 +5,9 @@ using System;
 using System.IO;
 using System.Runtime.CompilerServices;
 using Depra.Assets.Exceptions;
+using Depra.Assets.Extensions;
 using Depra.Assets.Files.Resource.Exceptions;
 using Depra.Assets.ValueObjects;
-using JetBrains.Annotations;
 using static Depra.Assets.Common.UnityProject;
 
 namespace Depra.Assets.Files.Resource
@@ -16,51 +16,54 @@ namespace Depra.Assets.Files.Resource
 	{
 		private static readonly string RESOURCES_FOLDER_PATH = RESOURCES_FOLDER_NAME + Path.AltDirectorySeparatorChar;
 
-		public static ResourcesPath Empty => new(string.Empty);
-		public static ResourcesPath Invalid => new(nameof(Invalid));
-		public static implicit operator ResourcesPath(string relativePath) => new(relativePath);
+		public static ResourcesPath Empty => new(string.Empty, string.Empty);
+		public static ResourcesPath Invalid => new(nameof(Invalid), string.Empty);
+		public static implicit operator ResourcesPath(string relativePath) => new(relativePath, string.Empty);
 
-		public ResourcesPath(string relativePath) =>
-			Initialize(Utility.CombineProjectPath(relativePath));
-
-		public ResourcesPath(string name, string relativeDirectory = null, string extension = null) =>
-			Initialize(Utility.CombineProjectPath(relativeDirectory, name, extension));
-
-		public string ProjectPath { get; private set; }
-		public string RelativePath { get; private set; }
-
-		[UsedImplicitly]
-		public string AbsolutePath { get; private set; }
-		public DirectoryInfo Directory { get; private set; }
-
-		string IAssetUri.Relative => RelativePath;
-		string IAssetUri.Absolute => AbsolutePath;
-
-		private void Initialize(string projectPath)
+		public ResourcesPath(string projectPath)
 		{
-			ProjectPath = projectPath;
-			RelativePath = Utility.FindRelativePath(ProjectPath);
-			AbsolutePath = Path.GetFullPath(ProjectPath);
-			var absoluteDirectoryPath = Path.GetDirectoryName(AbsolutePath);
-			Directory = new DirectoryInfo(absoluteDirectoryPath!);
+			Project = projectPath;
+			Absolute = Path.GetFullPath(Project);
+			Relative = Utility.FindRelativePath(Project);
+			Directory = new DirectoryInfo(Path.GetDirectoryName(Absolute)!);
 		}
+
+		public ResourcesPath(string relativePath, string resourcesLocation = null)
+		{
+			Relative = relativePath;
+			Project = string.IsNullOrEmpty(resourcesLocation)
+				? Path.Combine(ASSETS_FOLDER_NAME, RESOURCES_FOLDER_NAME, Relative)
+				: Path.Combine(ASSETS_FOLDER_NAME, RESOURCES_FOLDER_NAME, resourcesLocation, Relative);
+
+			Absolute = Path.GetFullPath(Project);
+			Directory = new DirectoryInfo(Path.GetDirectoryName(Absolute)!);
+		}
+
+		public ResourcesPath(string name, string extension = null, string relativeDirectory = null,
+			string resourcesLocation = null)
+		{
+			Relative = string.IsNullOrEmpty(relativeDirectory) ? name : Path.Combine(relativeDirectory, name);
+			Project = string.IsNullOrEmpty(resourcesLocation)
+				? Path.Combine(ASSETS_FOLDER_NAME, RESOURCES_FOLDER_NAME, Relative + extension)
+				: Path.Combine(ASSETS_FOLDER_NAME, RESOURCES_FOLDER_NAME, resourcesLocation, Relative + extension);
+
+			Absolute = Path.GetFullPath(Project);
+			Directory = new DirectoryInfo(Path.GetDirectoryName(Absolute)!);
+		}
+
+		public string Relative { get; }
+		public string Absolute { get; }
+		public string Project { get; }
+		public DirectoryInfo Directory { get; }
 
 		internal static class Utility
 		{
-			[MethodImpl(MethodImplOptions.AggressiveInlining)]
-			public static string CombineProjectPath(string relativePath) =>
-				Path.Combine(ASSETS_FOLDER_NAME, RESOURCES_FOLDER_NAME, relativePath);
-
-			[MethodImpl(MethodImplOptions.AggressiveInlining)]
-			public static string CombineProjectPath(string directory, string name, string extension = null) =>
-				CombineProjectPath(Path.Combine(directory ?? string.Empty, name + extension));
-
 			[MethodImpl(MethodImplOptions.AggressiveInlining)]
 			public static string FindRelativePath(string projectPath)
 			{
 				Guard.AgainstEmptyString(projectPath, () => new NullReferenceException(nameof(projectPath)));
 
-				projectPath = ToUnixPath(projectPath);
+				projectPath = projectPath.ToUnixPath();
 				var folderIndex = projectPath.IndexOf(RESOURCES_FOLDER_PATH, StringComparison.OrdinalIgnoreCase);
 
 				Guard.AgainstEqual(folderIndex, -1, () => new PathDoesNotContainResourcesFolder(projectPath));
@@ -71,9 +74,6 @@ namespace Depra.Assets.Files.Resource
 
 				return projectPath.Substring(folderIndex, length);
 			}
-
-			[MethodImpl(MethodImplOptions.AggressiveInlining)]
-			internal static string ToUnixPath(string path) => path.Replace('\\', '/');
 		}
 	}
 }

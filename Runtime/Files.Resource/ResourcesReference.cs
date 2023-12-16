@@ -24,9 +24,8 @@ namespace Depra.Assets.Files.Resource
 
 		internal protected ResourcesReference() { }
 
+		public ResourcesPath Path => new(GetProjectPath());
 		public bool IsNull => string.IsNullOrEmpty(_projectPath);
-		public string ProjectPath => GetProjectPath();
-		public string ResourcePath => ResourcesPath.Utility.FindRelativePath(ProjectPath);
 
 		private string GetProjectPath()
 		{
