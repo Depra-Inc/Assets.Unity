@@ -3,7 +3,6 @@
 
 using System.IO;
 using Depra.Assets.ValueObjects;
-using JetBrains.Annotations;
 
 namespace Depra.Assets.Files.Database
 {
@@ -21,31 +20,22 @@ namespace Depra.Assets.Files.Database
 			Name = name;
 			Extension = extension;
 			NameWithExtension = Name + Extension;
-			RelativePath = Path.Combine(relativeDirectory, NameWithExtension).Replace(@"\", "/");
-			AbsolutePath = Path.GetFullPath(RelativePath).Replace(@"\", "/");
-			AbsoluteDirectoryPath = Path.GetFullPath(relativeDirectory).Replace(@"\", "/");
-			Directory = new DirectoryInfo(AbsoluteDirectoryPath);
+			Relative = Path.Combine(relativeDirectory, NameWithExtension).Replace(@"\", "/");
+			Absolute = Path.GetFullPath(Relative).Replace(@"\", "/");
+			AbsoluteDirectory = Path.GetFullPath(relativeDirectory).Replace(@"\", "/");
+			Directory = new DirectoryInfo(AbsoluteDirectory);
 		}
 
 		public string Name { get; }
-
-		[UsedImplicitly]
 		public string Extension { get; }
-
-		[UsedImplicitly]
 		public string NameWithExtension { get; }
 
-		public string RelativePath { get; }
-		public string AbsolutePath { get; }
+		public string Relative { get; }
+		public string Absolute { get; }
 
-		[UsedImplicitly]
-		public string AbsoluteDirectoryPath { get; }
-
+		public string AbsoluteDirectory { get; }
 		internal DirectoryInfo Directory { get; }
 
-		string IAssetUri.Relative => RelativePath;
-		string IAssetUri.Absolute => AbsolutePath;
-
-		public bool Exists() => File.Exists(AbsolutePath);
+		public bool Exists() => File.Exists(Absolute);
 	}
 }

@@ -15,8 +15,6 @@ namespace Depra.Assets.Files.Resource
 {
 	public sealed class ResourcesAsset<TAsset> : IAssetFile<TAsset>, IDisposable where TAsset : Object
 	{
-		public static implicit operator TAsset(ResourcesAsset<TAsset> self) => self.Load();
-
 		private TAsset _loadedAsset;
 
 		public ResourcesAsset(ResourcesPath path)
