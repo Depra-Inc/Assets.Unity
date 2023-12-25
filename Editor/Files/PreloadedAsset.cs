@@ -2,6 +2,7 @@
 // © 2023 Nikolay Melnikov <n.melnikov@depra.org>
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -84,6 +85,8 @@ namespace Depra.Assets.Editor.Files
 
 			return _loadedAsset = loadedAsset;
 		}
+
+		public IEnumerable<IAssetUri> Dependencies() => _asset.Dependencies();
 
 		private bool TryGetPreloadedAsset(out TAsset preloadedAsset)
 		{

@@ -2,6 +2,7 @@
 // © 2023 Nikolay Melnikov <n.melnikov@depra.org>
 
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Depra.Assets.Delegates;
@@ -106,6 +107,18 @@ namespace Depra.Assets.Files.Database
 			return asset;
 		}
 #endif
+		IEnumerable<IAssetUri> IAssetFile.Dependencies()
+		{
+#if UNITY_EDITOR
+			var paths = AssetDatabase.GetDependencies(_uri.Relative);
+			foreach (var path in paths)
+			{
+				yield return new DatabaseAssetUri(path);
+			}
+#else
+			return Array.Empty<IAssetUri>();
+#endif
+		}
 
 		void IDisposable.Dispose() => Unload();
 	}

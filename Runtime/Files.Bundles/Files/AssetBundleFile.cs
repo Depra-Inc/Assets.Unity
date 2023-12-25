@@ -2,6 +2,7 @@
 // © 2023 Nikolay Melnikov <n.melnikov@depra.org>
 
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Depra.Assets.Delegates;
@@ -91,6 +92,12 @@ namespace Depra.Assets.Files.Bundles
 
 			_loadedAssetBundle.UnloadAsync(true);
 			_loadedAssetBundle = null;
+		}
+
+		public IEnumerable<IAssetUri> Dependencies()
+		{
+			Guard.Against(IsLoaded == false, () => new AssetBundleNotLoaded(_uri.Absolute));
+			return AssetBundleDependenciesExtractor.Extract(_loadedAssetBundle);
 		}
 
 		void IDisposable.Dispose() => Unload();

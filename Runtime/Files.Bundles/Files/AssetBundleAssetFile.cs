@@ -2,6 +2,7 @@
 // © 2023 Nikolay Melnikov <n.melnikov@depra.org>
 
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Depra.Assets.Delegates;
@@ -79,6 +80,8 @@ namespace Depra.Assets.Files.Bundles
 
 			void OnProgress(float progress) => onProgress?.Invoke(new DownloadProgress(progress));
 		}
+
+		public IEnumerable<IAssetUri> Dependencies() => AssetBundleDependenciesExtractor.Extract(_assetBundle);
 
 		void IDisposable.Dispose() => Unload();
 	}

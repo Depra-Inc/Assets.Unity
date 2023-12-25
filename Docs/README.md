@@ -43,6 +43,7 @@ strategies for different sources.
 - **Cancellation Support**: The ability to cancel loading operations at any point.
 - **Progress Tracking**: Providing information on the current loading progress.
 - **Extensibility**: A flexible architecture for extending functionality according to your needs.
+- **Lightweight**: The package contains only tens of kilobytes of necessary scripts and nothing unnecessary.
 
 These features make the library even more powerful and convenient for your tasks.
 
