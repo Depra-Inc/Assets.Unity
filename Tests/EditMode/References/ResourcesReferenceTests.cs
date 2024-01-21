@@ -29,7 +29,7 @@ namespace Depra.Assets.Tests.EditMode.References
 				UnityProject.RESOURCES_FOLDER_NAME,
 				ASSET_NAME + AssetTypes.BASE).ToUnixPath();
 
-			(_resourcesDirectory = new DirectoryInfo(Path.GetDirectoryName(_projectPath)!)).CreateIfNotExists();
+			_resourcesDirectory = new DirectoryInfo(Path.GetDirectoryName(_projectPath)!).Require();
 			_testAsset = TestEnvironment.CreateAsset<EditModeTestScriptableAsset>(_projectPath);
 		}
 
@@ -38,7 +38,7 @@ namespace Depra.Assets.Tests.EditMode.References
 		{
 			if (TestEnvironment.TryDeleteAsset(_testAsset))
 			{
-				_resourcesDirectory.DeleteIfEmpty();
+				TestEnvironment.CleanupDirectory(_resourcesDirectory);
 			}
 		}
 

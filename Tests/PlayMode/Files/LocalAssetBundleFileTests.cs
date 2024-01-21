@@ -5,12 +5,14 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Depra.Assets.Extensions;
 using Depra.Assets.Files.Bundles;
 using Depra.Assets.Files.Bundles.Sources;
 using Depra.Assets.Tests.PlayMode.Stubs;
+using Depra.Assets.Tests.PlayMode.Utils;
 using Depra.Assets.ValueObjects;
 using NUnit.Framework;
 using UnityEngine;
@@ -222,6 +224,25 @@ namespace Depra.Assets.Tests.PlayMode.Files
 
 			// Debug:
 			TestContext.WriteLine($"The bundle with name {bundleFile.Metadata.Uri.Relative} was unloaded.");
+		}
+
+		[UnityTest]
+		public IEnumerator Dependencies_OfLoadedAsset_ShouldNotBeEmpty(
+			[ValueSource(nameof(BundleSources))] IAssetBundleSource source)
+		{
+			// Arrange:
+			var bundleFile = new AssetBundleFile(_validUri, source);
+			bundleFile.Load();
+			yield return null;
+
+			// Act:
+			var dependencies = bundleFile.Dependencies().ToArray();
+
+			// Assert:
+			Assert.That(dependencies.Length, Is.GreaterThan(0));
+
+			// Debug:
+			TestContext.WriteLine($"Dependencies of {bundleFile.Metadata.Uri.Relative} is {dependencies.Flatten()}.");
 		}
 	}
 }

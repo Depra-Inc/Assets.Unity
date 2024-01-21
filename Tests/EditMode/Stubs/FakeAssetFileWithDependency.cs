@@ -1,7 +1,4 @@
-﻿// SPDX-License-Identifier: Apache-2.0
-// © 2023 Nikolay Melnikov <n.melnikov@depra.org>
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -11,16 +8,18 @@ using Depra.Assets.ValueObjects;
 
 namespace Depra.Assets.Tests.EditMode.Stubs
 {
-	internal sealed class FakeAssetFile : IAssetFile<EditModeTestScriptableAsset>
+	internal sealed class FakeAssetFileWithDependency : IAssetFile<EditModeTestScriptableAsset>
 	{
-		public FakeAssetFile(IAssetUri ident) => Metadata = new AssetMetadata(ident, FileSize.Zero);
+		public static readonly IAssetUri FAKE_DEPENDENCY = new AssetName(nameof(FAKE_DEPENDENCY));
+
+		public FakeAssetFileWithDependency(IAssetUri ident) => Metadata = new AssetMetadata(ident, FileSize.Zero);
 
 		public AssetMetadata Metadata { get; }
 		public bool IsLoaded { get; private set; }
 
 		void IAssetFile.Unload() => IsLoaded = false;
 
-		IEnumerable<IAssetUri> IAssetFile.Dependencies() => Array.Empty<IAssetUri>();
+		IEnumerable<IAssetUri> IAssetFile.Dependencies() => new[] { FAKE_DEPENDENCY };
 
 		EditModeTestScriptableAsset IAssetFile<EditModeTestScriptableAsset>.Load() =>
 			throw new NotImplementedException();

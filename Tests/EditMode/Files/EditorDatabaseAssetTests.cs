@@ -2,7 +2,9 @@
 // © 2023 Nikolay Melnikov <n.melnikov@depra.org>
 
 using System.IO;
+using System.Linq;
 using Depra.Assets.Common;
+using Depra.Assets.Editor.Files;
 using Depra.Assets.Extensions;
 using Depra.Assets.Files.Database;
 using Depra.Assets.Tests.EditMode.Stubs;
@@ -13,12 +15,8 @@ using static Depra.Assets.Common.UnityProject;
 
 namespace Depra.Assets.Tests.EditMode.Files
 {
-	internal sealed class DatabaseAssetTests
+	internal sealed class EditorDatabaseAssetTests
 	{
-		private const string ASSET_TYPE_EXTENSION = AssetTypes.BASE;
-		private const string EXISTENT_ASSET_NAME = nameof(EditModeTestScriptableAsset);
-		private const string NON_EXISTENT_ASSET_NAME = nameof(NonExistentScriptableAsset);
-
 		private DatabaseAssetUri _existentAssetUri;
 		private EditModeTestScriptableAsset _existentAsset;
 
@@ -32,15 +30,15 @@ namespace Depra.Assets.Tests.EditMode.Files
 
 			_nonExistentAssetUri = new DatabaseAssetUri(
 				relativeDirectory: projectResourcesPath,
-				name: NON_EXISTENT_ASSET_NAME,
-				extension: ASSET_TYPE_EXTENSION);
+				name: nameof(NonExistentScriptableAsset),
+				extension: AssetTypes.BASE);
 
 			_existentAssetUri = new DatabaseAssetUri(
 				relativeDirectory: projectResourcesPath,
-				name: EXISTENT_ASSET_NAME,
-				extension: ASSET_TYPE_EXTENSION);
+				name: nameof(EditModeTestScriptableAsset),
+				extension: AssetTypes.BASE);
 
-			_existentAssetUri.Directory.CreateIfNotExists();
+			_existentAssetUri.Directory.Require();
 			_existentAsset = TestEnvironment.CreateAsset<EditModeTestScriptableAsset>(_existentAssetUri.Relative);
 		}
 
@@ -49,7 +47,7 @@ namespace Depra.Assets.Tests.EditMode.Files
 		{
 			if (TestEnvironment.TryDeleteAsset(_nonExistentAsset))
 			{
-				_nonExistentAssetUri.Directory.DeleteIfEmpty();
+				TestEnvironment.CleanupDirectory(_nonExistentAssetUri.Directory);
 			}
 		}
 
@@ -58,7 +56,7 @@ namespace Depra.Assets.Tests.EditMode.Files
 		{
 			if (TestEnvironment.TryDeleteAsset(_existentAsset))
 			{
-				_existentAssetUri.Directory.DeleteIfEmpty();
+				TestEnvironment.CleanupDirectory(_existentAssetUri.Directory);
 			}
 		}
 
@@ -66,7 +64,7 @@ namespace Depra.Assets.Tests.EditMode.Files
 		public void Load_ExistentAsset_ShouldSucceed()
 		{
 			// Arrange:
-			var databaseAsset = new DatabaseAsset<EditModeTestScriptableAsset>(_existentAssetUri);
+			var databaseAsset = new EditorDatabaseAsset<EditModeTestScriptableAsset>(_existentAssetUri);
 
 			// Act:
 			var loadedAsset = databaseAsset.Load();
@@ -83,7 +81,7 @@ namespace Depra.Assets.Tests.EditMode.Files
 		public void Load_NonExistentAsset_ShouldSucceed()
 		{
 			// Arrange:
-			var databaseAsset = new DatabaseAsset<NonExistentScriptableAsset>(_nonExistentAssetUri);
+			var databaseAsset = new EditorDatabaseAsset<NonExistentScriptableAsset>(_nonExistentAssetUri);
 
 			// Act:
 			_nonExistentAsset = databaseAsset.Load();
@@ -100,7 +98,7 @@ namespace Depra.Assets.Tests.EditMode.Files
 		public void Unload_ShouldSucceed()
 		{
 			// Arrange:
-			var databaseAsset = new DatabaseAsset<EditModeTestScriptableAsset>(_existentAssetUri);
+			var databaseAsset = new EditorDatabaseAsset<EditModeTestScriptableAsset>(_existentAssetUri);
 			var createdAsset = databaseAsset.Load();
 
 			// Act:
@@ -111,14 +109,15 @@ namespace Depra.Assets.Tests.EditMode.Files
 			Assert.That(databaseAsset.IsLoaded, Is.False);
 
 			// Debug:
-			TestContext.WriteLine($"Deleted {nameof(EditModeTestScriptableAsset)} at path: {_existentAssetUri.Absolute}.");
+			TestContext.WriteLine(
+				$"Deleted {nameof(EditModeTestScriptableAsset)} at path: {_existentAssetUri.Absolute}.");
 		}
 
 		[Test]
 		public void Size_OfLoadedAsset_ShouldNotBeZeroOrUnknown()
 		{
 			// Arrange:
-			var databaseAsset = new DatabaseAsset<EditModeTestScriptableAsset>(_existentAssetUri);
+			var databaseAsset = new EditorDatabaseAsset<EditModeTestScriptableAsset>(_existentAssetUri);
 			databaseAsset.Load();
 
 			// Act:
@@ -130,6 +129,24 @@ namespace Depra.Assets.Tests.EditMode.Files
 
 			// Debug:
 			TestContext.WriteLine($"Size of {databaseAsset.Metadata.Uri.Relative} is {assetSize.ToString()}.");
+		}
+
+		[Test]
+		public void Dependencies_OfAsset_ShouldContainsScript()
+		{
+			// Arrange:
+			var databaseAsset = new EditorDatabaseAsset<EditModeTestScriptableAsset>(_existentAssetUri);
+
+			// Act:
+			var dependencies = databaseAsset.Dependencies().ToArray();
+
+			// Assert:
+			Assert.That(dependencies.Length, Is.EqualTo(1));
+			Assert.That(dependencies.FirstOrDefault(x => x.Relative.Contains(nameof(EditModeTestScriptableAsset))),
+				Is.Not.Null);
+
+			// Debug:
+			TestContext.WriteLine($"Dependencies of {databaseAsset.Metadata.Uri.Relative} is {dependencies.Flatten()}.");
 		}
 	}
 }

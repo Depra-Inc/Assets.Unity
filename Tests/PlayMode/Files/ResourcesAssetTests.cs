@@ -4,6 +4,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Depra.Assets.Common;
@@ -21,8 +22,6 @@ namespace Depra.Assets.Tests.PlayMode.Files
 	internal sealed class ResourcesAssetTests
 	{
 		private const int CANCEL_DELAY = 1000;
-		private const string ASSET_EXTENSION = AssetTypes.BASE;
-		private const string ASSET_NAME = nameof(PlayModeTestScriptableAsset);
 
 		private readonly Stack<PlayModeTestScriptableAsset> _loadedAssets = new();
 
@@ -34,8 +33,8 @@ namespace Depra.Assets.Tests.PlayMode.Files
 		public void OneTimeSetUp()
 		{
 			_stopwatch = new Stopwatch();
-			_resourcesIdent = new ResourcesPath(name: ASSET_NAME, extension: ASSET_EXTENSION);
-			_resourcesIdent.Directory.CreateIfNotExists();
+			_resourcesIdent = new ResourcesPath(name: nameof(PlayModeTestScriptableAsset), extension: AssetTypes.BASE);
+			_resourcesIdent.Directory.Require();
 			_testAsset = TestEnvironment.CreateAsset<PlayModeTestScriptableAsset>(_resourcesIdent.Project);
 		}
 
@@ -55,7 +54,7 @@ namespace Depra.Assets.Tests.PlayMode.Files
 		{
 			if (TestEnvironment.TryDeleteAsset(_testAsset))
 			{
-				_resourcesIdent.Directory.DeleteIfEmpty();
+				TestEnvironment.CleanupDirectory(_resourcesIdent.Directory);
 			}
 		}
 
@@ -63,14 +62,14 @@ namespace Depra.Assets.Tests.PlayMode.Files
 		public void Load_ShouldSucceed()
 		{
 			// Arrange:
-			var resourceAsset = new ResourcesAsset<PlayModeTestScriptableAsset>(_resourcesIdent);
+			var resourcesAsset = new ResourcesAsset<PlayModeTestScriptableAsset>(_resourcesIdent);
 
 			// Act:
-			var loadedAsset = resourceAsset.Load();
+			var loadedAsset = resourcesAsset.Load();
 
 			// Assert:
 			Assert.That(loadedAsset, Is.Not.Null);
-			Assert.That(resourceAsset.IsLoaded);
+			Assert.That(resourcesAsset.IsLoaded);
 
 			// Debug:
 			TestContext.WriteLine($"{loadedAsset.name} loaded from {nameof(Resources)}.");
@@ -83,11 +82,11 @@ namespace Depra.Assets.Tests.PlayMode.Files
 		public void LoadMultiple_ShouldSucceed()
 		{
 			// Arrange:
-			var resourceAsset = new ResourcesAsset<PlayModeTestScriptableAsset>(_resourcesIdent);
+			var resourcesAsset = new ResourcesAsset<PlayModeTestScriptableAsset>(_resourcesIdent);
 
 			// Act:
-			var firstLoadedAsset = resourceAsset.Load();
-			var secondLoadedAsset = resourceAsset.Load();
+			var firstLoadedAsset = resourcesAsset.Load();
+			var secondLoadedAsset = resourcesAsset.Load();
 
 			// Assert:
 			Assert.That(firstLoadedAsset, Is.Not.Null);
@@ -107,16 +106,16 @@ namespace Depra.Assets.Tests.PlayMode.Files
 		public IEnumerator LoadAsync_ShouldSucceed() => ATask.ToCoroutine(async () =>
 		{
 			// Arrange:
-			var resourceAsset = new ResourcesAsset<PlayModeTestScriptableAsset>(_resourcesIdent);
+			var resourcesAsset = new ResourcesAsset<PlayModeTestScriptableAsset>(_resourcesIdent);
 			var cancellationToken = new CancellationTokenSource(CANCEL_DELAY).Token;
 
 			// Act:
 			_stopwatch.Restart();
-			var loadedAsset = await resourceAsset.LoadAsync(cancellationToken: cancellationToken);
+			var loadedAsset = await resourcesAsset.LoadAsync(cancellationToken: cancellationToken);
 			_stopwatch.Stop();
 
 			// Assert:
-			Assert.That(resourceAsset.IsLoaded);
+			Assert.That(resourcesAsset.IsLoaded);
 			Assert.That(loadedAsset, Is.Not.Null);
 			Assert.IsInstanceOf<PlayModeTestScriptableAsset>(loadedAsset);
 
@@ -136,11 +135,11 @@ namespace Depra.Assets.Tests.PlayMode.Files
 			var callbackCalls = 0;
 			var callbacksCalled = false;
 			DownloadProgress lastProgress = default;
-			var resourceAsset = new ResourcesAsset<PlayModeTestScriptableAsset>(_resourcesIdent);
+			var resourcesAsset = new ResourcesAsset<PlayModeTestScriptableAsset>(_resourcesIdent);
 
 			// Act:
 			_stopwatch.Restart();
-			var loadedAsset = await resourceAsset.LoadAsync(
+			var loadedAsset = await resourcesAsset.LoadAsync(
 				onProgress: progress =>
 				{
 					callbackCalls++;
@@ -170,11 +169,11 @@ namespace Depra.Assets.Tests.PlayMode.Files
 		{
 			// Arrange:
 			var cts = new CancellationTokenSource();
-			var resourceAsset = new ResourcesAsset<PlayModeTestScriptableAsset>(_resourcesIdent);
+			var resourcesAsset = new ResourcesAsset<PlayModeTestScriptableAsset>(_resourcesIdent);
 
 			// Act:
 			cts.Cancel();
-			var loadTask = resourceAsset.LoadAsync(cancellationToken: cts.Token);
+			var loadTask = resourcesAsset.LoadAsync(cancellationToken: cts.Token);
 
 			// Assert:
 			Assert.ThrowsAsync<TaskCanceledException>(async () => await loadTask);
@@ -185,11 +184,11 @@ namespace Depra.Assets.Tests.PlayMode.Files
 		{
 			// Arrange:
 			var cts = new CancellationTokenSource();
-			var resourceAsset = new ResourcesAsset<PlayModeTestScriptableAsset>(_resourcesIdent);
+			var resourcesAsset = new ResourcesAsset<PlayModeTestScriptableAsset>(_resourcesIdent);
 
 			// Act:
 			cts.CancelAfter(1);
-			var loadTask = resourceAsset.LoadAsync(cancellationToken: cts.Token);
+			var loadTask = resourcesAsset.LoadAsync(cancellationToken: cts.Token);
 			yield return new WaitUntil(() => cts.Token.IsCancellationRequested);
 
 			// Assert:
@@ -200,55 +199,74 @@ namespace Depra.Assets.Tests.PlayMode.Files
 		public IEnumerator Unload_ShouldSucceed()
 		{
 			// Arrange:
-			var resourceAsset = new ResourcesAsset<PlayModeTestScriptableAsset>(_resourcesIdent);
-			resourceAsset.Load();
+			var resourcesAsset = new ResourcesAsset<PlayModeTestScriptableAsset>(_resourcesIdent);
+			resourcesAsset.Load();
 			yield return null;
 
 			// Act:
-			resourceAsset.Unload();
+			resourcesAsset.Unload();
 			yield return null;
 
 			// Assert:
-			Assert.That(resourceAsset.IsLoaded, Is.False);
+			Assert.That(resourcesAsset.IsLoaded, Is.False);
 
 			// Debug:
-			TestContext.WriteLine($"{resourceAsset.Metadata.Uri.Relative} unloaded from {nameof(Resources)}.");
+			TestContext.WriteLine($"{resourcesAsset.Metadata.Uri.Relative} unloaded from {nameof(Resources)}.");
 		}
 
 		[Test]
 		public void SizeOfLoadedAsset_ShouldNotBeZeroOrUnknown()
 		{
 			// Arrange:
-			var resourceAsset = new ResourcesAsset<PlayModeTestScriptableAsset>(_resourcesIdent);
-			resourceAsset.Load();
+			var resourcesAsset = new ResourcesAsset<PlayModeTestScriptableAsset>(_resourcesIdent);
+			resourcesAsset.Load();
 
 			// Act:
-			var assetSize = resourceAsset.Metadata.Size;
+			var assetSize = resourcesAsset.Metadata.Size;
 
 			// Assert:
 			Assert.That(assetSize, Is.Not.EqualTo(FileSize.Zero));
 			Assert.That(assetSize, Is.Not.EqualTo(FileSize.Unknown));
 
 			// Debug:
-			TestContext.WriteLine($"Size of {resourceAsset.Metadata.Uri.Relative} is {assetSize.ToString()}.");
+			TestContext.WriteLine($"Size of {resourcesAsset.Metadata.Uri.Relative} is {assetSize.ToString()}.");
 		}
 
 		[UnityTest]
 		public IEnumerator SizeOfAsyncLoadedAsset_ShouldNotBeZeroOrUnknown() => ATask.ToCoroutine(async () =>
 		{
 			// Arrange:
-			var resourceAsset = new ResourcesAsset<PlayModeTestScriptableAsset>(_resourcesIdent);
-			await resourceAsset.LoadAsync();
+			var resourcesAsset = new ResourcesAsset<PlayModeTestScriptableAsset>(_resourcesIdent);
+			await resourcesAsset.LoadAsync();
 
 			// Act:
-			var assetSize = resourceAsset.Metadata.Size;
+			var assetSize = resourcesAsset.Metadata.Size;
 
 			// Assert:
 			Assert.That(assetSize, Is.Not.EqualTo(FileSize.Zero));
 			Assert.That(assetSize, Is.Not.EqualTo(FileSize.Unknown));
 
 			// Debug:
-			TestContext.WriteLine($"Size of {resourceAsset.Metadata.Uri.Relative} is {assetSize.ToString()}.");
+			TestContext.WriteLine($"Size of {resourcesAsset.Metadata.Uri.Relative} is {assetSize.ToString()}.");
 		});
+
+		[Test]
+		public void Dependencies_OfAsset_ShouldContainsScript()
+		{
+			// Arrange:
+			var resourcesAsset = new ResourcesAsset<PlayModeTestScriptableAsset>(_resourcesIdent);
+
+			// Act:
+			var dependencies = resourcesAsset.Dependencies().ToArray();
+
+			// Assert:
+			Assert.That(dependencies.Length, Is.EqualTo(1));
+			Assert.That(dependencies.FirstOrDefault(x => x.Relative.Contains(nameof(PlayModeTestScriptableAsset))),
+				Is.Not.Null);
+
+			// Debug:
+			TestContext.WriteLine(
+				$"Dependencies of {resourcesAsset.Metadata.Uri.Relative} is {dependencies.Flatten()}.");
+		}
 	}
 }

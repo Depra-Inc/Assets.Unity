@@ -1,9 +1,11 @@
 ﻿// SPDX-License-Identifier: Apache-2.0
 // © 2023 Nikolay Melnikov <n.melnikov@depra.org>
 
+using System;
 using System.Collections;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using Depra.Assets.Extensions;
 using Depra.Assets.Files.Bundles;
@@ -19,7 +21,6 @@ namespace Depra.Assets.Tests.PlayMode.Files
 	internal sealed class AssetBundleAssetFileTests
 	{
 		private const string TEST_BUNDLE_NAME = "test";
-		private const string TEST_ASSET_NAME = nameof(PlayModeTestScriptableAsset);
 
 		private Stopwatch _stopwatch;
 		private AssetBundle _assetBundle;
@@ -34,7 +35,7 @@ namespace Depra.Assets.Tests.PlayMode.Files
 			var assetBundlesDirectory = new TestAssetBundlesDirectory();
 			var assetBundlePath = Path.Combine(assetBundlesDirectory.AbsolutePath, TEST_BUNDLE_NAME);
 			_assetBundle = AssetBundle.LoadFromFile(assetBundlePath);
-			var assetIdent = new AssetName(TEST_ASSET_NAME);
+			var assetIdent = new AssetName(nameof(PlayModeTestScriptableAsset));
 			_assetFromBundle = new AssetBundleAssetFile<PlayModeTestScriptableAsset>(assetIdent, _assetBundle);
 		}
 
@@ -74,7 +75,8 @@ namespace Depra.Assets.Tests.PlayMode.Files
 			Assert.That(_assetFromBundle.IsLoaded, Is.False);
 
 			// Debug:
-			TestContext.WriteLine($"{_assetFromBundle.Metadata.Uri.Relative} unloaded from bundle: {_assetBundle.name}.");
+			TestContext.WriteLine(
+				$"{_assetFromBundle.Metadata.Uri.Relative} unloaded from bundle: {_assetBundle.name}.");
 		}
 
 		[UnityTest]
@@ -160,6 +162,24 @@ namespace Depra.Assets.Tests.PlayMode.Files
 
 			// Debug:
 			TestContext.WriteLine($"Size of {_assetFromBundle.Metadata.Uri.Relative} is {assetSize.ToString()}.");
+		}
+
+		[Test]
+		public void Dependencies_OfLoadedAsset_ShouldContainsScript()
+		{
+			// Arrange:
+			_assetFromBundle.Load();
+
+			// Act:
+			var dependencies = _assetFromBundle.Dependencies().ToArray();
+
+			// Assert:
+			Assert.That(dependencies.Length, Is.GreaterThan(0));
+			Assert.That(dependencies, Is.Not.EqualTo(FileSize.Unknown));
+			throw new NotImplementedException();
+
+			// Debug:
+			TestContext.WriteLine($"Size of {_assetFromBundle.Metadata.Uri.Relative} is {dependencies.ToString()}.");
 		}
 	}
 }

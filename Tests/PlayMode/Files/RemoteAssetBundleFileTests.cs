@@ -38,7 +38,7 @@ namespace Depra.Assets.Tests.PlayMode.Files
 				RedirectStandardOutput = true
 			});
 
-			WaitForServerToBeReady();
+			Thread.Sleep(2000);
 		}
 
 		[TearDown]
@@ -77,7 +77,5 @@ namespace Depra.Assets.Tests.PlayMode.Files
 
 			await Task.Yield();
 		});
-
-		private void WaitForServerToBeReady() => Thread.Sleep(2000);
 	}
 }

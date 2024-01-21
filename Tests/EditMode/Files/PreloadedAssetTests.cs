@@ -1,11 +1,13 @@
 ﻿// SPDX-License-Identifier: Apache-2.0
 // © 2023 Nikolay Melnikov <n.melnikov@depra.org>
 
+using System.Linq;
 using System.Threading;
 using Depra.Assets.Editor.Files;
 using Depra.Assets.Files;
 using Depra.Assets.Extensions;
 using Depra.Assets.Tests.EditMode.Stubs;
+using Depra.Assets.Tests.EditMode.Utils;
 using Depra.Assets.ValueObjects;
 using NUnit.Framework;
 using UnityEditor;
@@ -127,6 +129,26 @@ namespace Depra.Assets.Tests.EditMode.Files
 
 			// Debug:
 			TestContext.WriteLine($"Size of {preloadedAsset.Metadata.Uri.Relative} is {assetSize.ToString()}.");
+		}
+
+		[Test]
+		public void Dependencies_OfLoadedAsset_ShouldChildAssetDependencies()
+		{
+			// Arrange:
+			var assetUri = new FakeAssetUri(nameof(EditModeTestScriptableAsset));
+			var childAsset = new FakeAssetFileWithDependency(assetUri);
+			var preloadedAsset = new PreloadedAsset<EditModeTestScriptableAsset>(childAsset);
+			preloadedAsset.Load();
+
+			// Act:
+			var dependencies = preloadedAsset.Dependencies().ToArray();
+
+			// Assert:
+			Assert.That(dependencies.Length, Is.EqualTo(1));
+			Assert.That(dependencies.Contains(FakeAssetFileWithDependency.FAKE_DEPENDENCY));
+
+			// Debug:
+			TestContext.WriteLine($"Dependencies of {preloadedAsset.Metadata.Uri.Relative} is {dependencies.Flatten()}.");
 		}
 	}
 }

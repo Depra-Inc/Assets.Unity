@@ -1,8 +1,16 @@
 ﻿// SPDX-License-Identifier: Apache-2.0
 // © 2023 Nikolay Melnikov <n.melnikov@depra.org>
 
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using Depra.Assets.Common;
+using Depra.Assets.Extensions;
+using Depra.Assets.ValueObjects;
 using UnityEditor;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace Depra.Assets.Tests.EditMode.Utils
 {
@@ -37,5 +45,25 @@ namespace Depra.Assets.Tests.EditMode.Utils
 
 			return true;
 		}
+
+		public static void CleanupDirectory(DirectoryInfo self)
+		{
+			if (self.Exists && self.IsEmpty())
+			{
+				DeleteDirectory(self);
+			}
+		}
+
+		private static void DeleteDirectory(DirectoryInfo self)
+		{
+			self.Delete(true);
+			File.Delete(self.FullName + AssetTypes.META);
+		}
+	}
+
+	internal static class AssetUriExtensions
+	{
+		public static string Flatten(this IEnumerable<IAssetUri> assets) => assets.Aggregate(string.Empty,
+			(current, asset) => current + (Environment.NewLine + asset.Absolute));
 	}
 }
