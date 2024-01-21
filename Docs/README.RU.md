@@ -92,10 +92,10 @@
 
 | Тип класса ассета              | Идентификатор      | Назначение                                                                                                     |
 |--------------------------------|--------------------|----------------------------------------------------------------------------------------------------------------|
-| `ResourceAsset<TAsset>`        | `ResourcesPath`    | Загрузка и выгрузка ассетов из `UnityEngine.Resources`.                                                        |
+| `ResourcesAsset<TAsset>`       | `ResourcesPath`    | Загрузка и выгрузка ассетов из `UnityEngine.Resources`.                                                        |
 | `AssetBundleFile`              | `AssetBundleUri`   | Загрузка и выгрузка `UnityEngine.AssetBundle`.                                                                 |
 | `AssetBundleAssetFile<TAsset>` | `AssetName`        | Загрузка и выгрузка ассетов из `UnityEngine.AssetBundle`.                                                      |
-| `DatabaseAsset<TAsset>`        | `DatabaseAssetUri` | Загрузка и выгрузка ассетов из `UnityEditor.AssetDatabase`. ⚠️**Асинхронная загрузка пока не поддерживается.** |
+| `EditorDatabaseAsset<TAsset>`  | `DatabaseAssetUri` | Загрузка и выгрузка ассетов из `UnityEditor.AssetDatabase`. ⚠️**Асинхронная загрузка пока не поддерживается.** |
 | `PreloadedAsset<TAsset>`       | `IAssetUri`        | Загрузка и выгрузка ассетов из настроек проекта `UnityEditor.ProjectSettings`.                                 |
 
 Все классы, реализующие интерфейс `IAssetFile<TAsset>`, также реализуют интерфейс `System.IDisposable`.
