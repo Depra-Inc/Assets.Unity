@@ -1,8 +1,9 @@
 ﻿// SPDX-License-Identifier: Apache-2.0
-// © 2023 Nikolay Melnikov <n.melnikov@depra.org>
+// © 2023-2024 Nikolay Melnikov <n.melnikov@depra.org>
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Depra.Assets.Delegates;
@@ -11,17 +12,21 @@ using Depra.Assets.Files.Resource.Exceptions;
 using Depra.Assets.ValueObjects;
 using UnityEngine;
 using Object = UnityEngine.Object;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 namespace Depra.Assets.Files.Resource
 {
 	public sealed class ResourcesAsset<TAsset> : IAssetFile<TAsset>, IDisposable where TAsset : Object
 	{
+		private readonly ResourcesPath _path;
 		private TAsset _loadedAsset;
 
 		public ResourcesAsset(ResourcesPath path)
 		{
 			Guard.AgainstNull(path, nameof(path));
-			Metadata = new AssetMetadata(path, FileSize.Unknown);
+			Metadata = new AssetMetadata(_path = path, FileSize.Unknown);
 		}
 
 		public AssetMetadata Metadata { get; }
@@ -64,7 +69,7 @@ namespace Depra.Assets.Files.Resource
 			}
 
 			var loadedAsset = await Resources
-				.LoadAsync(Metadata.Uri.Relative)
+				.LoadAsync<TAsset>(Metadata.Uri.Relative)
 				.ToTask(OnProgress, cancellationToken);
 
 			Guard.AgainstNull(loadedAsset, () => new ResourceNotLoaded(Metadata.Uri.Relative));
@@ -78,7 +83,14 @@ namespace Depra.Assets.Files.Resource
 			void OnProgress(float progress) => onProgress?.Invoke(new DownloadProgress(progress));
 		}
 
-		IEnumerable<IAssetUri> IAssetFile.Dependencies() => Array.Empty<IAssetUri>();
+		public IEnumerable<IAssetUri> Dependencies() =>
+#if UNITY_EDITOR
+			AssetDatabase
+				.GetDependencies(_path.Project, recursive: false)
+				.Select(path => new AssetName(path));
+#else
+			return Array.Empty<IAssetUri>();
+#endif
 
 		void IDisposable.Dispose() => Unload();
 	}
