@@ -20,7 +20,7 @@ namespace Depra.Assets.Files.Bundles
 		public AssetBundleUri(string path)
 		{
 			_fileInfo = new FileInfo(path);
-			_fileInfo.Directory.CreateIfNotExists();
+			_fileInfo.Directory.Require();
 
 			Name = string.IsNullOrEmpty(Extension)
 				? _fileInfo.Name

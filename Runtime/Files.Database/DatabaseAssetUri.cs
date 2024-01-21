@@ -37,5 +37,7 @@ namespace Depra.Assets.Files.Database
 		internal DirectoryInfo Directory { get; }
 
 		public bool Exists() => File.Exists(Absolute);
+
+		public override string ToString() => Absolute;
 	}
 }
