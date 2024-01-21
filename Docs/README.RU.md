@@ -90,13 +90,13 @@
 
 Вы можете создать свои реализации этих интерфейсов или использовать уже готовые, представленные в таблице:
 
-| Тип класса ассета              | Идентификатор        | Назначение                                                                                                     |
-|--------------------------------|----------------------|----------------------------------------------------------------------------------------------------------------|
-| `ResourceAsset<TAsset>`        | `ResourcesPath`      | Загрузка и выгрузка ассетов из `UnityEngine.Resources`.                                                        |
-| `AssetBundleFile`              | `AssetBundleIdent`   | Загрузка и выгрузка `UnityEngine.AssetBundle`.                                                                 |
-| `AssetBundleAssetFile<TAsset>` | `AssetName`          | Загрузка и выгрузка ассетов из `UnityEngine.AssetBundle`.                                                      |
-| `DatabaseAsset<TAsset>`        | `DatabaseAssetIdent` | Загрузка и выгрузка ассетов из `UnityEditor.AssetDatabase`. ⚠️**Асинхронная загрузка пока не поддерживается.** |
-| `PreloadedAsset<TAsset>`       | `IAssetIdent`        | Загрузка и выгрузка ассетов из настроек проекта `UnityEditor.ProjectSettings`.                                 |
+| Тип класса ассета              | Идентификатор      | Назначение                                                                                                     |
+|--------------------------------|--------------------|----------------------------------------------------------------------------------------------------------------|
+| `ResourcesAsset<TAsset>`       | `ResourcesPath`    | Загрузка и выгрузка ассетов из `UnityEngine.Resources`.                                                        |
+| `AssetBundleFile`              | `AssetBundleUri`   | Загрузка и выгрузка `UnityEngine.AssetBundle`.                                                                 |
+| `AssetBundleAssetFile<TAsset>` | `AssetName`        | Загрузка и выгрузка ассетов из `UnityEngine.AssetBundle`.                                                      |
+| `EditorDatabaseAsset<TAsset>`  | `DatabaseAssetUri` | Загрузка и выгрузка ассетов из `UnityEditor.AssetDatabase`. ⚠️**Асинхронная загрузка пока не поддерживается.** |
+| `PreloadedAsset<TAsset>`       | `IAssetUri`        | Загрузка и выгрузка ассетов из настроек проекта `UnityEditor.ProjectSettings`.                                 |
 
 Все классы, реализующие интерфейс `ILoadableAsset`, также реализуют интерфейс `System.IDisposable`.
 Добавлено для удобного использования в `using` блоках.
