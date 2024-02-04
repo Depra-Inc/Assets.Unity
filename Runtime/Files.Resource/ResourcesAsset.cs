@@ -89,7 +89,7 @@ namespace Depra.Assets.Files.Resource
 				.GetDependencies(_path.Project, recursive: false)
 				.Select(path => new AssetName(path));
 #else
-			return Array.Empty<IAssetUri>();
+			Array.Empty<IAssetUri>();
 #endif
 
 		void IDisposable.Dispose() => Unload();
