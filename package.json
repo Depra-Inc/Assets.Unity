@@ -5,9 +5,6 @@
   "description": "Provides an API for loading Unity asset files in multiple ways through a single interface.",
   "unity": "2021.3",
   "license": "Apache-2.0",
-  "dependencies": {
-    "com.unity.modules.unitywebrequestassetbundle": "1.0.0"
-  },
   "keywords": [
     "unity",
     "assets",
