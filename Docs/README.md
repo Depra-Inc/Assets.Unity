@@ -67,13 +67,20 @@ These features make the library even more powerful and convenient for your tasks
 4. Enter the [repository link](https://github.com/Depra-Inc/Assets.Unity.git).
 5. Click **Add**.
 
-### ⚙️ Manual:
+### ⚙️ Using **UPM** via **manifest.json**:
 
 Add the following line to `Packages/manifest.json` in the `dependencies` section:
 
 ```
 "com.depra.assets.unity": "https://github.com/Depra-Inc/Assets.Unity.git"
 ```
+
+### 🛒 Using Unity Asset Store:
+
+1. Go to the [Unity Asset Store](https://assetstore.unity.com/packages/tools/utilities/depra-assets-266429).
+2. Add the package to your assets.
+3. Click **Open in Unity**.
+4. Follow the instructions in the **Unity** editor.
 
 ## 📖 Contents
 

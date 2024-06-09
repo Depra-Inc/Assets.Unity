@@ -67,13 +67,20 @@
 4. Введите [ссылку на репозиторий](https://github.com/Depra-Inc/Assets.Unity.git)
 5. Нажмите **Add**.
 
-### ⚙️ Ручная:
+### ⚙️ Через **UPM** используя `manifest.json`:
 
 Добавьте в `Packages/manifest.json` в раздел `dependencies` следующую строку:
 
 ```
 "com.depra.assets.unity": "https://github.com/Depra-Inc/Assets.Unity.git"
 ```
+
+### 🛒 Через Unity Asset Store:
+
+1. Откройте [Unity Asset Store](https://assetstore.unity.com/packages/tools/utilities/depra-assets-266429).
+2. Добавьте пакет в ваши активы.
+3. Нажмите **Open in Unity**.
+4. Следуйте инструкциям в редакторе **Unity**.
 
 ## 📖 Содержание
 
