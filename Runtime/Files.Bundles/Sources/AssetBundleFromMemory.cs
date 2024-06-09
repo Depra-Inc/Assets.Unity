@@ -18,7 +18,7 @@ namespace Depra.Assets.Files.Bundles.Sources
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		private static byte[] ReadBytes(string path) => File.ReadAllBytes(path);
 
-		FileSize IAssetBundleSource.Size(AssetBundle of) => of.Size();
+		FileSize IAssetBundleSource.Size(AssetBundle of) => AssetBundleSize.Evaluate(of);
 
 		AssetBundle IAssetBundleSource.Load(string by)
 		{

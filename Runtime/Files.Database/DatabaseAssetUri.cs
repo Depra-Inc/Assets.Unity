@@ -6,9 +6,9 @@ using Depra.Assets.ValueObjects;
 
 namespace Depra.Assets.Files.Database
 {
-	public readonly struct DatabaseAssetUri : IAssetUri
+	public sealed record DatabaseAssetUri : IAssetUri
 	{
-		public static DatabaseAssetUri Empty => new();
+		public static DatabaseAssetUri Empty => new(string.Empty);
 		public static implicit operator DatabaseAssetUri(string relativePath) => new(relativePath);
 
 		public DatabaseAssetUri(string relativePath) : this(Path.GetDirectoryName(relativePath),

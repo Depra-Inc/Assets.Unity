@@ -19,7 +19,7 @@ namespace Depra.Assets.Files.Bundles.Sources
 		private static Stream OpenStream(string path) =>
 			new FileStream(path, FileMode.Open, FileAccess.Read);
 
-		FileSize IAssetBundleSource.Size(AssetBundle of) => of.Size();
+		FileSize IAssetBundleSource.Size(AssetBundle of) => AssetBundleSize.Evaluate(of);
 
 		AssetBundle IAssetBundleSource.Load(string by)
 		{

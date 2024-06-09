@@ -95,7 +95,7 @@ You can create your own implementations of these interfaces or use ready-made on
 | `ResourceAsset<TAsset>`        | `ResourcesPath`    | Loading and unloading assets from `UnityEngine.Resources`.                                                                                  |
 | `AssetBundleFile`              | `AssetBundleUri`   | Loading and unloading `UnityEngine.AssetBundle`.                                                                                            |
 | `AssetBundleAssetFile<TAsset>` | `AssetName`        | Loading and unloading assets from `UnityEngine.AssetBundle`.                                                                                |
-| `DatabaseAsset<TAsset>`        | `DatabaseAssetUri` | Loading and unloading assets from the editor's asset database `UnityEditor.AssetDatabase`. ⚠️**Asynchronous loading is not yet supported.** |
+| `EditorDatabaseAsset<TAsset>`  | `DatabaseAssetUri` | Loading and unloading assets from the editor's asset database `UnityEditor.AssetDatabase`. ⚠️**Asynchronous loading is not yet supported.** |
 | `PreloadedAsset<TAsset>`       | `IAssetUri`        | Loading and unloading assets from project settings `UnityEditor.ProjectSettings`.                                                           |
 
 All classes implementing the `IAssetFile<TAsset>` interface also implement the `System.IDisposable` interface for
@@ -135,7 +135,7 @@ assetBundleAsset.Unload();
 #### Loading an Asset from the Editor Database
 
 ```csharp
-var databaseAsset = new DatabaseAsset<MyScriptableObject>("Path/To/MyAsset");
+var databaseAsset = new EditorDatabaseAsset<MyScriptableObject>("Path/To/MyAsset");
 MyScriptableObject loadedObject = databaseAsset.Load();
 // Use the loaded asset.
 databaseAsset.Unload();

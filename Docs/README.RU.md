@@ -135,7 +135,7 @@ assetBundleAsset.Unload();
 #### Загрузка ассета из редакторской базы данных
 
 ```csharp
-var databaseAsset = new DatabaseAsset<MyScriptableObject>("Path/To/MyAsset");
+var databaseAsset = new EditorDatabaseAsset<MyScriptableObject>("Path/To/MyAsset");
 MyScriptableObject loadedObject = databaseAsset.Load();
 // Использование загруженного ассета.
 databaseAsset.Unload();

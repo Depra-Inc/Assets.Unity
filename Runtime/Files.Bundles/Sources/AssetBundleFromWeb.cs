@@ -17,7 +17,7 @@ namespace Depra.Assets.Files.Bundles.Sources
 		private long _contentSize;
 
 		FileSize IAssetBundleSource.Size(AssetBundle of) =>
-			_contentSize == -1 ? of.Size() : new FileSize(_contentSize);
+			_contentSize == -1 ? AssetBundleSize.Evaluate(of) : new FileSize(_contentSize);
 
 		AssetBundle IAssetBundleSource.Load(string by)
 		{

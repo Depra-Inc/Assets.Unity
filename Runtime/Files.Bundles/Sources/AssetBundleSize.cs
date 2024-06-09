@@ -9,11 +9,11 @@ using Depra.Assets.ValueObjects;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace Depra.Assets.Files.Bundles.Extensions
+namespace Depra.Assets.Files.Bundles.Sources
 {
-	public static class AssetBundleExtensions
+	public static class AssetBundleSize
 	{
-		public static FileSize Size(this AssetBundle assetBundle)
+		public static FileSize Evaluate(AssetBundle assetBundle)
 		{
 			FileSize fileSize;
 #if UNITY_EDITOR
@@ -27,7 +27,7 @@ namespace Depra.Assets.Files.Bundles.Extensions
 			return fileSize;
 		}
 
-		private static FileSize SizeOnDisk(this AssetBundle assetBundle)
+		private static FileSize SizeOnDisk(AssetBundle assetBundle)
 		{
 			var allScenePaths = assetBundle.GetAllScenePaths();
 			var sizes = from scenePath in allScenePaths
@@ -48,7 +48,7 @@ namespace Depra.Assets.Files.Bundles.Extensions
 		/// <param name="assetBundle"><see cref="AssetBundle"/> for calculating.</param>
 		/// <returns></returns>
 		/// <remarks>Source - https://stackoverflow.com/questions/56822948/estimate-an-assetbundle-size-in-ram</remarks>
-		private static FileSize SizeInRAM(this Object assetBundle)
+		private static FileSize SizeInRAM(Object assetBundle)
 		{
 			var sizes = new Dictionary<Type, long>();
 			var serializedObject = new UnityEditor.SerializedObject(assetBundle);
