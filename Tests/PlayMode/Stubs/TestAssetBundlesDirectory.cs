@@ -1,5 +1,5 @@
 ﻿// SPDX-License-Identifier: Apache-2.0
-// © 2023 Nikolay Melnikov <n.melnikov@depra.org>
+// © 2023-2024 Nikolay Melnikov <n.melnikov@depra.org>
 
 using System.IO;
 using static Depra.Assets.Common.Module;
@@ -17,7 +17,7 @@ namespace Depra.Assets.Tests.PlayMode.Stubs
 		public TestAssetBundlesDirectory()
 		{
 			ProjectRelativePath = PACKAGES_FOLDER_NAME + SLASH +
-			                      FullModuleName + SLASH +
+			                      FULL_MODULE_NAME + SLASH +
 			                      TESTS_FOLDER + SLASH +
 			                      nameof(PlayMode) + SLASH +
 			                      ASSETS_FOLDER_NAME + SLASH +
