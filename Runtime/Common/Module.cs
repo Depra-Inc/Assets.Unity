@@ -1,5 +1,5 @@
 ﻿// SPDX-License-Identifier: Apache-2.0
-// © 2023 Nikolay Melnikov <n.melnikov@depra.org>
+// © 2023-2024 Nikolay Melnikov <n.melnikov@depra.org>
 
 namespace Depra.Assets.Common
 {
@@ -9,7 +9,6 @@ namespace Depra.Assets.Common
 		public const string FRAMEWORK_NAME = nameof(Depra);
 
 		internal const int DEFAULT_ORDER = 52;
-
-		internal static readonly string FullModuleName = string.Join('.', FRAMEWORK_NAME, MODULE_NAME);
+		internal static readonly string FULL_MODULE_NAME = string.Join('.', FRAMEWORK_NAME, MODULE_NAME);
 	}
 }

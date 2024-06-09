@@ -1,13 +1,9 @@
 ﻿// SPDX-License-Identifier: Apache-2.0
-// © 2023 Nikolay Melnikov <n.melnikov@depra.org>
+// © 2023-2024 Nikolay Melnikov <n.melnikov@depra.org>
 
 using System;
 using UnityEngine;
 using Object = UnityEngine.Object;
-#if UNITY_EDITOR
-using UnityEditor;
-using UnityEditor.SceneManagement;
-#endif
 
 namespace Depra.Assets.Files.Resource
 {
@@ -30,7 +26,7 @@ namespace Depra.Assets.Files.Resource
 		private string GetProjectPath()
 		{
 #if UNITY_EDITOR
-			return AssetDatabase.GetAssetPath(_objectAsset);
+			return UnityEditor.AssetDatabase.GetAssetPath(_objectAsset);
 #else
             return _projectPath;
 #endif
@@ -40,7 +36,7 @@ namespace Depra.Assets.Files.Resource
 		private void OnAfterDeserializeHandler()
 		{
 			UpdateProjectPath();
-			EditorApplication.update -= OnAfterDeserializeHandler;
+			UnityEditor.EditorApplication.update -= OnAfterDeserializeHandler;
 		}
 
 		private void UpdateProjectPath()
@@ -50,7 +46,7 @@ namespace Depra.Assets.Files.Resource
 				return;
 			}
 
-			var projectPath = AssetDatabase.GetAssetPath(_objectAsset);
+			var projectPath = UnityEditor.AssetDatabase.GetAssetPath(_objectAsset);
 			if (projectPath.Equals(_projectPath))
 			{
 				return;
@@ -59,7 +55,7 @@ namespace Depra.Assets.Files.Resource
 			_projectPath = projectPath;
 			if (Application.isPlaying == false)
 			{
-				EditorSceneManager.MarkAllScenesDirty();
+				UnityEditor.SceneManagement.EditorSceneManager.MarkAllScenesDirty();
 			}
 		}
 #endif
@@ -76,7 +72,7 @@ namespace Depra.Assets.Files.Resource
 #if UNITY_EDITOR
 			// OnAfterDeserialize is called in the deserialization thread so we can't touch Unity API.
 			// Wait for the next update frame to do it.
-			EditorApplication.update += OnAfterDeserializeHandler;
+			UnityEditor.EditorApplication.update += OnAfterDeserializeHandler;
 #endif
 		}
 	}

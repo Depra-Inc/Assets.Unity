@@ -12,9 +12,6 @@ using Depra.Assets.Files.Resource.Exceptions;
 using Depra.Assets.ValueObjects;
 using UnityEngine;
 using Object = UnityEngine.Object;
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
 
 namespace Depra.Assets.Files.Resource
 {
@@ -85,7 +82,7 @@ namespace Depra.Assets.Files.Resource
 
 		public IEnumerable<IAssetUri> Dependencies() =>
 #if UNITY_EDITOR
-			AssetDatabase
+			UnityEditor.AssetDatabase
 				.GetDependencies(_path.Project, recursive: false)
 				.Select(path => new AssetName(path));
 #else
