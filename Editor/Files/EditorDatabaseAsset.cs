@@ -44,9 +44,9 @@ namespace Depra.Assets.Editor.Files
 				return _loadedAsset;
 			}
 
-			var loadedAsset = (TAsset) ActivateAsset(_uri.Exists()
+			var loadedAsset = _uri.Exists()
 				? AssetDatabase.LoadAssetAtPath<TAsset>(_uri.Relative)
-				: _runtimeAsset.Load());
+				: (TAsset) ActivateAsset(_runtimeAsset.Load());
 
 			Guard.AgainstNull(loadedAsset, () => new AssetCatNotBeCreated(_assetType, _assetType.Name));
 
@@ -75,7 +75,6 @@ namespace Depra.Assets.Editor.Files
 			asset.name = _uri.Name;
 			AssetDatabase.CreateAsset(asset, _uri.Relative);
 			AssetDatabase.SaveAssets();
-			AssetDatabase.Refresh();
 
 			return asset;
 		}
