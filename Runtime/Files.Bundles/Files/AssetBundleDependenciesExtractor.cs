@@ -1,4 +1,7 @@
-﻿using System.Collections.Generic;
+﻿// SPDX-License-Identifier: Apache-2.0
+// © 2023-2024 Nikolay Melnikov <n.melnikov@depra.org>
+
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using Depra.Assets.Files.Bundles.Exceptions;
 using Depra.Assets.ValueObjects;
