@@ -4,13 +4,13 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Depra.Assets.Files.Bundles.Exceptions;
-using Depra.Assets.Files.Bundles.Extensions;
-using Depra.Assets.ValueObjects;
+using Depra.Asset.Files.Bundles.Exceptions;
+using Depra.Asset.Files.Bundles.Extensions;
+using Depra.Asset.ValueObjects;
 using UnityEngine;
 using UnityEngine.Networking;
 
-namespace Depra.Assets.Files.Bundles.Sources
+namespace Depra.Asset.Files.Bundles.Sources
 {
 	public sealed class AssetBundleFromWeb : IAssetBundleSource
 	{

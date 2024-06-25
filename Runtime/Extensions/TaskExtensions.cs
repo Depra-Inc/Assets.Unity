@@ -6,7 +6,7 @@ using System.Collections;
 using System.Runtime.ExceptionServices;
 using System.Threading.Tasks;
 
-namespace Depra.Assets.Extensions
+namespace Depra.Asset.Extensions
 {
 	internal static class TaskExtensions
 	{

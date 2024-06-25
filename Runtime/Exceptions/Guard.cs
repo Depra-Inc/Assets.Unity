@@ -6,7 +6,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Runtime.CompilerServices;
 
-namespace Depra.Assets.Exceptions
+namespace Depra.Asset.Exceptions
 {
 	internal static class Guard
 	{

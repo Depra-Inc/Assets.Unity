@@ -5,12 +5,12 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Depra.Assets.Delegates;
-using Depra.Assets.Exceptions;
-using Depra.Assets.ValueObjects;
+using Depra.Asset.Delegates;
+using Depra.Asset.Exceptions;
+using Depra.Asset.ValueObjects;
 using UnityEngine;
 
-namespace Depra.Assets.Files.Database
+namespace Depra.Asset.Files.Database
 {
 	public sealed class RuntimeDatabaseAsset<TAsset> : IAssetFile<TAsset>, IDisposable where TAsset : ScriptableObject
 	{

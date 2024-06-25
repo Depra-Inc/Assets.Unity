@@ -4,10 +4,10 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using Depra.Assets.Files.Bundles.Exceptions;
+using Depra.Asset.Files.Bundles.Exceptions;
 using UnityEngine.Networking;
 
-namespace Depra.Assets.Files.Bundles.Extensions
+namespace Depra.Asset.Files.Bundles.Extensions
 {
 	internal static class UnityWebRequestAsyncOperationExtensions
 	{

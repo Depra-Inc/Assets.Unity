@@ -3,7 +3,7 @@
 
 using System;
 
-namespace Depra.Assets.Files.Resource.Exceptions
+namespace Depra.Asset.Files.Resource.Exceptions
 {
 	internal sealed class PathDoesNotContainResourcesFolder : Exception
 	{

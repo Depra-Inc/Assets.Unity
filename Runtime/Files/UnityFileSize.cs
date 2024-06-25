@@ -2,11 +2,11 @@
 // © 2023-2024 Nikolay Melnikov <n.melnikov@depra.org>
 
 using System.Runtime.CompilerServices;
-using Depra.Assets.ValueObjects;
+using Depra.Asset.ValueObjects;
 using UnityEngine;
 using UnityEngine.Profiling;
 
-namespace Depra.Assets.Files
+namespace Depra.Asset.Files
 {
 	internal static class UnityFileSize
 	{

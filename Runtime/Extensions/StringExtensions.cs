@@ -3,7 +3,7 @@
 
 using System.Runtime.CompilerServices;
 
-namespace Depra.Assets.Extensions
+namespace Depra.Asset.Extensions
 {
 	public static class StringExtensions
 	{

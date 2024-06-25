@@ -1,12 +1,12 @@
 ﻿// SPDX-License-Identifier: Apache-2.0
 // © 2023-2024 Nikolay Melnikov <n.melnikov@depra.org>
 
-using Depra.Assets.Editor.Extensions;
-using Depra.Assets.Files.Resource;
+using Depra.Asset.Editor.Extensions;
+using Depra.Asset.Files.Resource;
 using UnityEditor;
 using UnityEngine;
 
-namespace Depra.Assets.Editor.Drawers
+namespace Depra.Asset.Editor.Drawers
 {
 	[CustomPropertyDrawer(typeof(ResourcesReference), true)]
 	internal sealed class ResourcesReferenceDrawer : PropertyDrawer

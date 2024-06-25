@@ -2,10 +2,10 @@
 // © 2023-2024 Nikolay Melnikov <n.melnikov@depra.org>
 
 using System.IO;
-using Depra.Assets.Extensions;
-using Depra.Assets.ValueObjects;
+//using Depra.Assets.Extensions;
+using Depra.Asset.ValueObjects;
 
-namespace Depra.Assets.Files.Bundles
+namespace Depra.Asset.Files.Bundles
 {
 	public sealed record AssetBundleUri : IAssetUri
 	{
@@ -20,7 +20,7 @@ namespace Depra.Assets.Files.Bundles
 		public AssetBundleUri(string path)
 		{
 			_fileInfo = new FileInfo(path);
-			_fileInfo.Directory.Require();
+			//_fileInfo.Directory.Require();
 
 			Name = string.IsNullOrEmpty(Extension)
 				? _fileInfo.Name
