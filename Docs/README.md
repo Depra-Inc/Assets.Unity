@@ -1,8 +1,8 @@
-# Depra.Assets
+# Depra.Asset
 
-![License](https://img.shields.io/github/license/Depra-Inc/Assets.Unity?style=flat-round)
-![Last Commit](https://img.shields.io/github/last-commit/Depra-Inc/Assets.Unity?style=flat-round)
-![Code Size](https://img.shields.io/github/languages/code-size/Depra-Inc/Assets.Unity?style=flat-round)
+![License](https://img.shields.io/github/license/Depra-Inc/Asset.Unity?style=flat-round)
+![Last Commit](https://img.shields.io/github/last-commit/Depra-Inc/Asset.Unity?style=flat-round)
+![Code Size](https://img.shields.io/github/languages/code-size/Depra-Inc/Asset.Unity?style=flat-round)
 
 <div>
     <strong><a href="README.md">English</a> | <a href="README.RU.md">Русский</a></strong>
@@ -64,7 +64,7 @@ These features make the library even more powerful and convenient for your tasks
 1. Open the **Unity Package Manager** window.
 2. Click the **+** button in the upper right corner of the window.
 3. Select **Add package from git URL...**.
-4. Enter the [repository link](https://github.com/Depra-Inc/Assets.Unity.git).
+4. Enter the [repository link](https://github.com/Depra-Inc/Asset.Unity.git).
 5. Click **Add**.
 
 ### ⚙️ Using **UPM** via **manifest.json**:
@@ -72,7 +72,7 @@ These features make the library even more powerful and convenient for your tasks
 Add the following line to `Packages/manifest.json` in the `dependencies` section:
 
 ```
-"com.depra.assets.unity": "https://github.com/Depra-Inc/Assets.Unity.git"
+"com.depra.asset.unity": "https://github.com/Depra-Inc/Asset.Unity.git"
 ```
 
 ### 🛒 Using Unity Asset Store:
@@ -92,7 +92,7 @@ Add the following line to `Packages/manifest.json` in the `dependencies` section
 
 - `IAssetFile<TAsset>`: Defines the fundamental methods and properties required for loading and unloading assets.
   It extends the functionality of the `IAssetFile` interface presented
-  in [Depra.Assets](https://github.com/Depra-Inc/Assets) and offers the ability to perform both synchronous and
+  in [Depra.Asset](https://github.com/Depra-Inc/Asset) and offers the ability to perform both synchronous and
   asynchronous asset loading, as well as checking the loading state.
 
 You can create your own implementations of these interfaces or use ready-made ones presented in the table:
@@ -160,14 +160,14 @@ preloadedAsset.Unload();
 
 ## 🖇 Dependencies
 
-- [Depra.Assets](https://github.com/Depra-Inc/Assets.git) - the base library for working with assets (provided
+- [Depra.Asset](https://github.com/Depra-Inc/Asset.git) - the base library for working with assets (provided
   with this **UPM** package).
 
 ## 🤝 Collaboration
 
 I welcome feature requests and bug reports in
-the [issues section](https://github.com/Depra-Inc/Assets.Unity/issues), and I also
-accept [pull requests](https://github.com/Depra-Inc/Assets.Unity/pulls).
+the [issues section](https://github.com/Depra-Inc/Asset.Unity/issues), and I also
+accept [pull requests](https://github.com/Depra-Inc/Asset.Unity/pulls).
 
 ## 🫂 Support
 
@@ -178,7 +178,7 @@ my [portfolio](https://github.com/Depra-Inc) and [contact me](mailto:g0dzZz1lla@
 ## 🔐 License
 
 This project is distributed under the
-**[Apache-2.0 license](https://github.com/Depra-Inc/Assets.Unity/blob/main/LICENSE.md)**
+**[Apache-2.0 license](https://github.com/Depra-Inc/Asset.Unity/blob/main/LICENSE.md)**
 
 Copyright (c) 2023 Nikolay Melnikov
 [n.melnikov@depra.org](mailto:n.melnikov@depra.org)
