@@ -92,7 +92,7 @@ Add the following line to `Packages/manifest.json` in the `dependencies` section
 
 - `IAssetFile<TAsset>`: Defines the fundamental methods and properties required for loading and unloading assets.
   It extends the functionality of the `IAssetFile` interface presented
-  in [Depra.Asset](https://github.com/Depra-Inc/Asset) and offers the ability to perform both synchronous and
+  in [Depra.Assets](https://github.com/Depra-Inc/Assets) and offers the ability to perform both synchronous and
   asynchronous asset loading, as well as checking the loading state.
 
 You can create your own implementations of these interfaces or use ready-made ones presented in the table:
@@ -160,7 +160,7 @@ preloadedAsset.Unload();
 
 ## 🖇 Dependencies
 
-- [Depra.Asset](https://github.com/Depra-Inc/Assets.git) - the base library for working with assets (provided
+- [Depra.Assets](https://github.com/Depra-Inc/Assets.git) - the base library for working with assets (provided
   with this **UPM** package).
 
 ## 🤝 Collaboration
