@@ -1,8 +1,8 @@
-# Depra.Asset
+# Depra.Assets
 
-![License](https://img.shields.io/github/license/Depra-Inc/Asset.Unity?style=flat-round)
-![Last Commit](https://img.shields.io/github/last-commit/Depra-Inc/Asset.Unity?style=flat-round)
-![Code Size](https://img.shields.io/github/languages/code-size/Depra-Inc/Asset.Unity?style=flat-round)
+![License](https://img.shields.io/github/license/Depra-Inc/Assets.Unity?style=flat-round)
+![Last Commit](https://img.shields.io/github/last-commit/Depra-Inc/Assets.Unity?style=flat-round)
+![Code Size](https://img.shields.io/github/languages/code-size/Depra-Inc/Assets.Unity?style=flat-round)
 
 <div>
     <strong><a href="README.md">English</a> | <a href="README.RU.md">Русский</a></strong>
@@ -64,7 +64,7 @@ These features make the library even more powerful and convenient for your tasks
 1. Open the **Unity Package Manager** window.
 2. Click the **+** button in the upper right corner of the window.
 3. Select **Add package from git URL...**.
-4. Enter the [repository link](https://github.com/Depra-Inc/Asset.Unity.git).
+4. Enter the [repository link](https://github.com/Depra-Inc/Assets.Unity.git).
 5. Click **Add**.
 
 ### ⚙️ Using **UPM** via **manifest.json**:
@@ -72,7 +72,7 @@ These features make the library even more powerful and convenient for your tasks
 Add the following line to `Packages/manifest.json` in the `dependencies` section:
 
 ```
-"com.depra.asset.unity": "https://github.com/Depra-Inc/Asset.Unity.git"
+"com.depra.assets.unity": "https://github.com/Depra-Inc/Assets.Unity.git"
 ```
 
 ### 🛒 Using Unity Asset Store:
@@ -160,14 +160,14 @@ preloadedAsset.Unload();
 
 ## 🖇 Dependencies
 
-- [Depra.Asset](https://github.com/Depra-Inc/Asset.git) - the base library for working with assets (provided
+- [Depra.Asset](https://github.com/Depra-Inc/Assets.git) - the base library for working with assets (provided
   with this **UPM** package).
 
 ## 🤝 Collaboration
 
 I welcome feature requests and bug reports in
-the [issues section](https://github.com/Depra-Inc/Asset.Unity/issues), and I also
-accept [pull requests](https://github.com/Depra-Inc/Asset.Unity/pulls).
+the [issues section](https://github.com/Depra-Inc/Assets.Unity/issues), and I also
+accept [pull requests](https://github.com/Depra-Inc/Assets.Unity/pulls).
 
 ## 🫂 Support
 
@@ -178,7 +178,7 @@ my [portfolio](https://github.com/Depra-Inc) and [contact me](mailto:g0dzZz1lla@
 ## 🔐 License
 
 This project is distributed under the
-**[Apache-2.0 license](https://github.com/Depra-Inc/Asset.Unity/blob/main/LICENSE.md)**
+**[Apache-2.0 license](https://github.com/Depra-Inc/Assets.Unity/blob/main/LICENSE.md)**
 
 Copyright (c) 2023 Nikolay Melnikov
 [n.melnikov@depra.org](mailto:n.melnikov@depra.org)

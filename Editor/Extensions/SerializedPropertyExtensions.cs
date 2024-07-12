@@ -9,7 +9,7 @@ using System.Reflection;
 using System.Text.RegularExpressions;
 using UnityEditor;
 
-namespace Depra.Asset.Editor.Extensions
+namespace Depra.Assets.Editor.Extensions
 {
 	internal static class SerializedPropertyExtensions
 	{

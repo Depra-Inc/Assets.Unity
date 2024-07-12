@@ -3,13 +3,13 @@
 
 using System;
 using System.IO;
-using Depra.Asset.Exceptions;
-using Depra.Asset.Extensions;
-using Depra.Asset.Files.Resource.Exceptions;
-using Depra.Asset.ValueObjects;
-using static Depra.Asset.Internal.UnityProject;
+using Depra.Assets.Exceptions;
+using Depra.Assets.Extensions;
+using Depra.Assets.Files.Resource.Exceptions;
+using Depra.Assets.ValueObjects;
+using static Depra.Assets.Internal.UnityProject;
 
-namespace Depra.Asset.Files.Resource
+namespace Depra.Assets.Files.Resource
 {
 	public sealed record ResourcesPath : IAssetUri
 	{

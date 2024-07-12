@@ -3,7 +3,7 @@
 
 using System;
 
-namespace Depra.Asset.Exceptions
+namespace Depra.Assets.Exceptions
 {
 	internal sealed class AssetCanNotBeLoaded : Exception
 	{

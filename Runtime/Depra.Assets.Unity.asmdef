@@ -1,13 +1,13 @@
 {
-    "name": "Depra.Asset.Unity",
-    "rootNamespace": "Depra.Asset",
+    "name": "Depra.Assets.Unity",
+    "rootNamespace": "Depra.Assets",
     "references": [],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
     "overrideReferences": true,
     "precompiledReferences": [
-        "Depra.Asset.dll"
+        "Depra.Assets.dll"
     ],
     "autoReferenced": true,
     "defineConstraints": [],

@@ -1,10 +1,12 @@
 ﻿using System.Runtime.CompilerServices;
 
-[assembly: InternalsVisibleTo("Depra.Asset.Editor")]
-[assembly: InternalsVisibleTo("Depra.Asset.Bundle")]
+[assembly: InternalsVisibleTo("Depra.Assets.Editor")]
+[assembly: InternalsVisibleTo("Depra.Assets.Bundle")]
 
-[assembly: InternalsVisibleTo("Depra.Asset.Tests.EditMode")]
-[assembly: InternalsVisibleTo("Depra.Asset.Tests.PlayMode")]
+[assembly: InternalsVisibleTo("Depra.Assets.Tests.EditMode")]
+[assembly: InternalsVisibleTo("Depra.Assets.Tests.PlayMode")]
 
-[assembly: InternalsVisibleTo("Depra.Asset.Addressable.Runtime")]
-[assembly: InternalsVisibleTo("Depra.Asset.Addressable.Tests")]
+[assembly: InternalsVisibleTo("Depra.Assets.Addressable.Runtime")]
+[assembly: InternalsVisibleTo("Depra.Assets.Addressable.Tests")]
+
+[assembly: InternalsVisibleTo("Depra.Assets.Bundle")]

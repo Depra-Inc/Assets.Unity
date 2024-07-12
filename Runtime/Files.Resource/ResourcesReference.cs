@@ -5,7 +5,7 @@ using System;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace Depra.Asset.Files.Resource
+namespace Depra.Assets.Files.Resource
 {
 	[Serializable]
 	public sealed class ResourcesReference<TAsset> : ResourcesReference where TAsset : Object { }

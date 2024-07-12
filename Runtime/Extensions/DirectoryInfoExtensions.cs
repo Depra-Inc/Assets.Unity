@@ -4,7 +4,7 @@
 using System.IO;
 using System.Runtime.CompilerServices;
 
-namespace Depra.Asset.Extensions
+namespace Depra.Assets.Extensions
 {
 	public static class DirectoryInfoExtensions
 	{

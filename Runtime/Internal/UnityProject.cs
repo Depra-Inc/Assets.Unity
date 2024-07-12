@@ -3,7 +3,7 @@
 
 using UnityEngine;
 
-namespace Depra.Asset.Internal
+namespace Depra.Assets.Internal
 {
 	public static class UnityProject
 	{

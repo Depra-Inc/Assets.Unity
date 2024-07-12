@@ -3,7 +3,7 @@
 
 using System;
 
-namespace Depra.Asset.Files.Resource.Exceptions
+namespace Depra.Assets.Files.Resource.Exceptions
 {
 	internal sealed class ResourceNotLoaded : Exception
 	{

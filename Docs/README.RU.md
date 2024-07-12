@@ -1,8 +1,8 @@
 # Depra.Assets
 
-![License](https://img.shields.io/github/license/Depra-Inc/Asset.Unity?style=flat-round)
-![Last Commit](https://img.shields.io/github/last-commit/Depra-Inc/Asset.Unity?style=flat-round)
-![Code Size](https://img.shields.io/github/languages/code-size/Depra-Inc/Asset.Unity?style=flat-round)
+![License](https://img.shields.io/github/license/Depra-Inc/Assets.Unity?style=flat-round)
+![Last Commit](https://img.shields.io/github/last-commit/Depra-Inc/Assets.Unity?style=flat-round)
+![Code Size](https://img.shields.io/github/languages/code-size/Depra-Inc/Assets.Unity?style=flat-round)
 
 <div>
     <strong><a href="README.md">English</a> | <a href="README.RU.md">Русский</a></strong>
@@ -64,7 +64,7 @@
 1. Откройте окно **Unity Package Manager**.
 2. Нажмите на кнопку **+** в правом верхнем углу окна.
 3. Выберите **Add package from git URL...**.
-4. Введите [ссылку на репозиторий](https://github.com/Depra-Inc/Asset.Unity.git)
+4. Введите [ссылку на репозиторий](https://github.com/Depra-Inc/Assets.Unity.git)
 5. Нажмите **Add**.
 
 ### ⚙️ Через **UPM** используя `manifest.json`:
@@ -72,7 +72,7 @@
 Добавьте в `Packages/manifest.json` в раздел `dependencies` следующую строку:
 
 ```
-"com.depra.assets.unity": "https://github.com/Depra-Inc/Asset.Unity.git"
+"com.depra.assets.unity": "https://github.com/Depra-Inc/Assets.Unity.git"
 ```
 
 ### 🛒 Через Unity Asset Store:
@@ -166,8 +166,8 @@ preloadedAsset.Unload();
 ## 🤝 Сотрудничество
 
 Я рад приветствовать запросы на добавление новых функций и сообщения об ошибках в
-разделе [issues](https://github.com/Depra-Inc/Asset.Unity/issues) и также
-принимать [pull requests](https://github.com/Depra-Inc/Asset.Unity/pulls).
+разделе [issues](https://github.com/Depra-Inc/Assets.Unity/issues) и также
+принимать [pull requests](https://github.com/Depra-Inc/Assets.Unity/pulls).
 
 ## 🫂 Поддержка
 
@@ -179,7 +179,7 @@ preloadedAsset.Unload();
 ## 🔐 Лицензия
 
 Этот проект распространяется под лицензией
-**[Apache-2.0](https://github.com/Depra-Inc/Asset.Unity/blob/main/LICENSE.md)**
+**[Apache-2.0](https://github.com/Depra-Inc/Assets.Unity/blob/main/LICENSE.md)**
 
 Copyright (c) 2023 Николай Мельников
 [n.melnikov@depra.org](mailto:n.melnikov@depra.org)

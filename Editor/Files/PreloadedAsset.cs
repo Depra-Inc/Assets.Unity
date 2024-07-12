@@ -6,14 +6,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Depra.Asset.Delegates;
-using Depra.Asset.Exceptions;
-using Depra.Asset.Files;
-using Depra.Asset.ValueObjects;
+using Depra.Assets.Delegates;
+using Depra.Assets.ValueObjects;
+using Depra.Assets.Exceptions;
+using Depra.Assets.Files;
 using UnityEditor;
 using Object = UnityEngine.Object;
 
-namespace Depra.Asset.Editor.Files
+namespace Depra.Assets.Editor.Files
 {
 	public sealed class PreloadedAsset<TAsset> : IAssetFile<TAsset>, IDisposable where TAsset : Object
 	{

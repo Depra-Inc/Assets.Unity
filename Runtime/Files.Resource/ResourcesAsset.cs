@@ -6,14 +6,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Depra.Asset.Delegates;
-using Depra.Asset.Exceptions;
-using Depra.Asset.Files.Resource.Exceptions;
-using Depra.Asset.ValueObjects;
+using Depra.Assets.Delegates;
+using Depra.Assets.Exceptions;
+using Depra.Assets.Files.Resource.Exceptions;
+using Depra.Assets.ValueObjects;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace Depra.Asset.Files.Resource
+namespace Depra.Assets.Files.Resource
 {
 	public sealed class ResourcesAsset<TAsset> : IAssetFile<TAsset>, IDisposable where TAsset : Object
 	{

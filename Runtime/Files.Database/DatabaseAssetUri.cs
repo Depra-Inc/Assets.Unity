@@ -2,9 +2,9 @@
 // © 2023-2024 Nikolay Melnikov <n.melnikov@depra.org>
 
 using System.IO;
-using Depra.Asset.ValueObjects;
+using Depra.Assets.ValueObjects;
 
-namespace Depra.Asset.Files.Database
+namespace Depra.Assets.Files.Database
 {
 	public sealed record DatabaseAssetUri : IAssetUri
 	{

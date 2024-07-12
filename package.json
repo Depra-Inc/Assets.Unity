@@ -1,13 +1,13 @@
 {
-  "name": "com.depra.asset.unity",
-  "version": "0.2.8-pre.4",
-  "displayName": "Depra.Asset",
+  "name": "com.depra.assets.unity",
+  "version": "0.2.8-pre.5",
+  "displayName": "Depra.Assets",
   "description": "Provides an API for loading Unity asset files in multiple ways through a single interface.",
   "unity": "2021.3",
   "license": "Apache-2.0",
   "keywords": [
     "unity",
-    "asset",
+    "assets",
     "editor",
     "runtime",
     "resources"
@@ -19,6 +19,6 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/Depra-Inc/Asset.Unity.git"
+    "url": "https://github.com/Depra-Inc/Assets.Unity.git"
   }
 }
