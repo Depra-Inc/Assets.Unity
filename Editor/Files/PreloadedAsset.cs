@@ -7,9 +7,9 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Depra.Assets.Delegates;
+using Depra.Assets.ValueObjects;
 using Depra.Assets.Exceptions;
 using Depra.Assets.Files;
-using Depra.Assets.ValueObjects;
 using UnityEditor;
 using Object = UnityEngine.Object;
 

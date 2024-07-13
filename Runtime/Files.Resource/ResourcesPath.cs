@@ -7,7 +7,7 @@ using Depra.Assets.Exceptions;
 using Depra.Assets.Extensions;
 using Depra.Assets.Files.Resource.Exceptions;
 using Depra.Assets.ValueObjects;
-using static Depra.Assets.Common.UnityProject;
+using static Depra.Assets.Internal.UnityProject;
 
 namespace Depra.Assets.Files.Resource
 {

@@ -1,6 +1,6 @@
 {
   "name": "com.depra.assets.unity",
-  "version": "0.2.7",
+  "version": "0.2.8-pre.5",
   "displayName": "Depra.Assets",
   "description": "Provides an API for loading Unity asset files in multiple ways through a single interface.",
   "unity": "2021.3",
@@ -10,8 +10,7 @@
     "assets",
     "editor",
     "runtime",
-    "resources",
-    "assetBundle"
+    "resources"
   ],
   "author": {
     "name": "Depra, Inc.",

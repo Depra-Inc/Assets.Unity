@@ -8,7 +8,7 @@ using UnityEngine.Profiling;
 
 namespace Depra.Assets.Files
 {
-	internal static class UnityFileSize
+	public static class UnityFileSize
 	{
 		[MethodImpl(MethodImplOptions.AggressiveInlining)]
 		public static FileSize FromProfiler(Object asset) => new(Profiler.GetRuntimeMemorySizeLong(asset));
