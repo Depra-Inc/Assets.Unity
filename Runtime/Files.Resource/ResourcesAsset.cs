@@ -47,7 +47,7 @@ namespace Depra.Assets.Files.Resource
 
 		public void Unload()
 		{
-			if (IsLoaded == false)
+			if (IsLoaded == false || typeof(TAsset).IsSubclassOf(typeof(MonoBehaviour)))
 			{
 				return;
 			}
