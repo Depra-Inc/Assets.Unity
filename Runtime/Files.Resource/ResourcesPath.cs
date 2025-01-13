@@ -1,22 +1,23 @@
 ﻿// SPDX-License-Identifier: Apache-2.0
-// © 2023-2024 Nikolay Melnikov <n.melnikov@depra.org>
+// © 2023-2025 Nikolay Melnikov <n.melnikov@depra.org>
 
 using System;
 using System.IO;
 using Depra.Assets.Exceptions;
 using Depra.Assets.Extensions;
 using Depra.Assets.Files.Resource.Exceptions;
-using Depra.Assets.ValueObjects;
 using static Depra.Assets.Internal.UnityProject;
 
 namespace Depra.Assets.Files.Resource
 {
-	public sealed record ResourcesPath : IAssetUri
+	public sealed record ResourcesPath : IAssetUri, IEquatable<IAssetUri>
 	{
 		private static readonly string RESOURCES_FOLDER_PATH = RESOURCES_FOLDER_NAME + Path.AltDirectorySeparatorChar;
 
-		public static ResourcesPath Empty => new(string.Empty, string.Empty);
-		public static ResourcesPath Invalid => new(nameof(Invalid), string.Empty);
+		public static readonly ResourcesPath Empty = new(string.Empty, string.Empty);
+		public static readonly ResourcesPath Invalid = new(nameof(Invalid), string.Empty);
+
+		public static implicit operator AssetName(ResourcesPath path) => new(path.Relative);
 		public static implicit operator ResourcesPath(string relativePath) => new(relativePath, string.Empty);
 
 		public ResourcesPath(string projectPath)
@@ -70,5 +71,11 @@ namespace Depra.Assets.Files.Resource
 
 			return projectPath.Substring(folderIndex, length);
 		}
+
+		public override int GetHashCode() => HashCode.Combine(Absolute);
+
+		bool IEquatable<IAssetUri>.Equals(IAssetUri other) =>
+			Path.GetFileNameWithoutExtension(Relative) ==
+			Path.GetFileNameWithoutExtension(other?.Relative);
 	}
 }

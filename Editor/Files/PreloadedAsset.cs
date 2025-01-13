@@ -1,15 +1,13 @@
 ﻿// SPDX-License-Identifier: Apache-2.0
-// © 2023-2024 Nikolay Melnikov <n.melnikov@depra.org>
+// © 2023-2025 Nikolay Melnikov <n.melnikov@depra.org>
 
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
-using Depra.Assets.Delegates;
-using Depra.Assets.ValueObjects;
 using Depra.Assets.Exceptions;
 using Depra.Assets.Files;
+using Depra.Threading;
 using UnityEditor;
 using Object = UnityEngine.Object;
 
@@ -64,7 +62,7 @@ namespace Depra.Assets.Editor.Files
 			_loadedAsset = null;
 		}
 
-		public async Task<TAsset> LoadAsync(DownloadProgressDelegate onProgress = null,
+		public async ITask<TAsset> LoadAsync(DownloadProgressDelegate onProgress = null,
 			CancellationToken cancellationToken = default)
 		{
 			if (IsLoaded)

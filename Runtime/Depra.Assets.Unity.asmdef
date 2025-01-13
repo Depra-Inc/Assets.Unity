@@ -7,7 +7,8 @@
     "allowUnsafeCode": false,
     "overrideReferences": true,
     "precompiledReferences": [
-        "Depra.Assets.dll"
+        "Depra.Assets.dll",
+        "Depra.Threading.dll"
     ],
     "autoReferenced": true,
     "defineConstraints": [],

@@ -6,12 +6,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Depra.Assets.Delegates;
-using Depra.Assets.Extensions;
-using Depra.Assets.ValueObjects;
 using Depra.Assets.Exceptions;
+using Depra.Assets.Extensions;
 using Depra.Assets.Files;
 using Depra.Assets.Files.Database;
+using Depra.Threading;
 using UnityEditor;
 using UnityEngine;
 using Object = UnityEngine.Object;
@@ -86,11 +85,11 @@ namespace Depra.Assets.Editor.Files
 		void IDisposable.Dispose() => Unload();
 
 		[Obsolete("Not yet supported in Unity. Use DatabaseAsset<TAsset>.Load() instead")]
-		Task<TAsset> IAssetFile<TAsset>.LoadAsync(DownloadProgressDelegate onProgress,
+		ITask<TAsset> IAssetFile<TAsset>.LoadAsync(DownloadProgressDelegate onProgress,
 			CancellationToken cancellationToken)
 		{
 			onProgress?.Invoke(DownloadProgress.Full);
-			return Task.FromResult(IsLoaded ? _loadedAsset : Load());
+			return Task.FromResult(IsLoaded ? _loadedAsset : Load()).AsITask();
 		}
 	}
 }

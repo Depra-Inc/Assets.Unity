@@ -5,9 +5,8 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Depra.Assets.Delegates;
 using Depra.Assets.Exceptions;
-using Depra.Assets.ValueObjects;
+using Depra.Threading;
 using UnityEngine;
 
 namespace Depra.Assets.Files.Database
@@ -44,11 +43,11 @@ namespace Depra.Assets.Files.Database
 		IEnumerable<IAssetUri> IAssetFile.Dependencies() => Array.Empty<IAssetUri>();
 
 		[Obsolete("Not yet supported in Unity. Use RuntimeDatabaseAsset<TAsset>.Load() instead")]
-		Task<TAsset> IAssetFile<TAsset>.LoadAsync(DownloadProgressDelegate onProgress,
+		ITask<TAsset> IAssetFile<TAsset>.LoadAsync(DownloadProgressDelegate onProgress,
 			CancellationToken cancellationToken)
 		{
 			onProgress?.Invoke(DownloadProgress.Full);
-			return Task.FromResult(IsLoaded ? _loadedAsset : Load());
+			return Task.FromResult(IsLoaded ? _loadedAsset : Load()).AsITask();
 		}
 	}
 }
