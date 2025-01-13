@@ -1,5 +1,5 @@
 ﻿// SPDX-License-Identifier: Apache-2.0
-// © 2023-2024 Nikolay Melnikov <n.melnikov@depra.org>
+// © 2023-2025 Nikolay Melnikov <n.melnikov@depra.org>
 
 using System;
 using System.Collections;
@@ -9,7 +9,7 @@ using System.Reflection;
 using System.Text.RegularExpressions;
 using UnityEditor;
 
-namespace Depra.Assets.Editor.Extensions
+namespace Depra.Assets.Editor
 {
 	internal static class SerializedPropertyExtensions
 	{

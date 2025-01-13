@@ -3,9 +3,6 @@
 
 using System;
 using System.IO;
-using Depra.Assets.Exceptions;
-using Depra.Assets.Extensions;
-using Depra.Assets.Files.Resource.Exceptions;
 using static Depra.Assets.Internal.UnityProject;
 
 namespace Depra.Assets.Files.Resource

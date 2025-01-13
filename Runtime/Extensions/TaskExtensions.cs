@@ -1,12 +1,12 @@
 ﻿// SPDX-License-Identifier: Apache-2.0
-// © 2023-2024 Nikolay Melnikov <n.melnikov@depra.org>
+// © 2023-2025 Nikolay Melnikov <n.melnikov@depra.org>
 
 using System;
 using System.Collections;
 using System.Runtime.ExceptionServices;
 using System.Threading.Tasks;
 
-namespace Depra.Assets.Extensions
+namespace Depra.Assets
 {
 	internal static class TaskExtensions
 	{

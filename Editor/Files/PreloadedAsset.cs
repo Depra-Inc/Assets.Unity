@@ -5,13 +5,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using Depra.Assets.Exceptions;
 using Depra.Assets.Files;
 using Depra.Threading;
 using UnityEditor;
 using Object = UnityEngine.Object;
 
-namespace Depra.Assets.Editor.Files
+namespace Depra.Assets.Editor
 {
 	public sealed class PreloadedAsset<TAsset> : IAssetFile<TAsset>, IDisposable where TAsset : Object
 	{

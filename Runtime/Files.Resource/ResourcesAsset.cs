@@ -5,8 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using Depra.Assets.Exceptions;
-using Depra.Assets.Files.Resource.Exceptions;
 using Depra.Threading;
 using UnityEngine;
 using Object = UnityEngine.Object;

@@ -1,13 +1,11 @@
 ﻿// SPDX-License-Identifier: Apache-2.0
-// © 2023-2024 Nikolay Melnikov <n.melnikov@depra.org>
+// © 2023-2025 Nikolay Melnikov <n.melnikov@depra.org>
 
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Depra.Assets.Exceptions;
-using Depra.Assets.Extensions;
 using Depra.Assets.Files;
 using Depra.Assets.Files.Database;
 using Depra.Threading;
@@ -15,7 +13,7 @@ using UnityEditor;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
-namespace Depra.Assets.Editor.Files
+namespace Depra.Assets.Editor
 {
 	public sealed class EditorDatabaseAsset<TAsset> : IAssetFile<TAsset>, IDisposable where TAsset : ScriptableObject
 	{
